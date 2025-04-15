@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GAOS Service Locator - API Documentation</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .api-container {
+            display: flex;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .sidebar {
+            width: 340px;
+            flex-shrink: 0;
+            position: sticky;
+            top: 2rem;
+            max-height: calc(100vh - 4rem);
+            overflow-y: auto;
+            padding-right: 0;
+            border-right: 1px solid var(--border-color);
+        }
+
+        .sidebar-nav {
+            padding: 0;
+        }
+
+        .sidebar-nav h3 {
+            color: #1976D2;
+            margin: 1.5rem 0 1rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            padding: 0 1.5rem;
+        }
+
+        .sidebar-nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar-nav li {
+            margin: 0;
+        }
+
+        .nav-item {
+            position: relative;
+            display: block;
+            margin: 0;
+            padding: 0;
+            border-radius: 6px;
+        }
+
+        .nav-item:hover {
+            background: rgba(33, 150, 243, 0.1);
+            border-radius: 6px;
+        }
+
+        .nav-item a {
+            display: block;
+            padding: 0.75rem 1.5rem;
+            color: #495057;
+            text-decoration: none;
+            text-align: right;
+            white-space: normal;
+            word-wrap: break-word;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            font-family: 'Consolas', 'Monaco', monospace;
+            transition: all 0.2s;
+        }
+
+        .nav-item.active {
+            background: #1976D2;
+            border-radius: 6px;
+        }
+
+        .nav-item.active a {
+            color: white;
+        }
+
+        .method-name {
+            display: inline-block;
+        }
+
+        .generic {
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9em;
+            color: #666;
+            display: inline-block;
+        }
+
+        .content {
+            flex: 1;
+            max-width: 900px;
+            line-height: 1.6;
+        }
+
+        .method {
+            margin-bottom: 4rem;
+            padding: 2.5rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .method h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .method-signature {
+            font-family: 'Consolas', 'Monaco', monospace;
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 6px;
+            margin: 1.5rem 0;
+            overflow-x: auto;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .enum-declaration {
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .enum-value {
+            font-family: 'Consolas', 'Monaco', monospace;
+            color: #1976D2;
+        }
+
+        .enum-comment {
+            color: #666;
+            font-style: italic;
+        }
+
+        .parameter-list {
+            margin: 1.5rem 0;
+        }
+
+        .parameter {
+            margin-bottom: 1.5rem;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+
+        .parameter-name {
+            font-weight: 600;
+            color: #1976D2;
+            font-size: 1.1rem;
+        }
+
+        .parameter-type {
+            font-family: 'Consolas', 'Monaco', monospace;
+            color: #666;
+            margin-left: 0.5rem;
+        }
+
+        .example {
+            margin-top: 1.5rem;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-radius: 4px;
+            border-left: 4px solid #1976D2;
+        }
+
+        .example pre {
+            margin: 0;
+        }
+
+        .warning {
+            background: rgba(255, 152, 0, 0.1);
+            border-left: 4px solid #FF9800;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .note {
+            background: rgba(33, 150, 243, 0.1);
+            border-left: 4px solid #2196F3;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        @media (max-width: 1200px) {
+            .content {
+                max-width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .api-container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                position: static;
+                margin-bottom: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-link">← Back to Documentation</a>
+
+    <header>
+        <h1>API Documentation</h1>
+        <p>Complete API reference for the GAOS Service Locator package</p>
+    </header>
+
+    <div class="api-container">
+        <nav class="sidebar">
+            <div class="sidebar-nav">
+                <h3>Service Declaration</h3>
+                <ul>
+                    <li><div class="nav-item"><a href="#service-attribute">Service Attribute</a></div></li>
+                    <li><div class="nav-item"><a href="#servicetype">ServiceType</a></div></li>
+                    <li><div class="nav-item"><a href="#servicelifetime">ServiceLifetime</a></div></li>
+                    <li><div class="nav-item"><a href="#servicecontext">ServiceContext</a></div></li>
+                    <li><div class="nav-item"><a href="#iservicedisposable">IServiceDisposable</a></div></li>
+                    <li><div class="nav-item"><a href="#iserviceinitializable">IServiceInitializable</a></div></li>
+                    <li><div class="nav-item"><a href="#iservicepoolable">IServicePoolable</a></div></li>
+                    <li><div class="nav-item"><a href="#disposalhandle">DisposalHandle</a></div></li>
+                </ul>
+
+                <h3>Service Resolution</h3>
+                <ul>
+                    <li><div class="nav-item"><a href="#autoregister">AutoRegisterServices</a></div></li>
+                    <li><div class="nav-item"><a href="#get">GetService&lt;TService&gt;</a></div></li>
+                    <li><div class="nav-item"><a href="#get-type">GetService (Type-based)</a></div></li>
+                    <li><div class="nav-item"><a href="#getnames">GetServiceNames&lt;TService&gt;</a></div></li>
+                    <li><div class="nav-item"><a href="#getnames-type">GetServiceNames (Type-based)</a></div></li>
+                    <li><div class="nav-item"><a href="#getasync">GetAsyncService&lt;TService&gt;</a></div></li>
+                    <li><div class="nav-item"><a href="#release">ReleaseServiceInstance</a></div></li>
+                    <li><div class="nav-item"><a href="#release-async">ReleaseServiceInstanceAsync</a></div></li>
+                    <li><div class="nav-item"><a href="#check-scene">CheckServiceBelongsToScene</a></div></li>
+                </ul>
+            </div>
+        </nav>
+
+        <div class="content">
+            <!-- Service Declaration -->
+            <section id="service-attribute" class="method">
+                <h3>Service Attribute</h3>
+                <p>Attribute used to mark a class as a service implementation.</p>
+
+                <div class="method-signature">public class ServiceAttribute : Attribute
+{
+    public ServiceAttribute(Type serviceType, string name, 
+        ServiceLifetime lifetime = ServiceLifetime.Singleton,
+        ServiceContext context = ServiceContext.Runtime)
+}</div>
+
+                <div class="parameter-list">
+                    <h4>Parameters</h4>
+                    <div class="parameter">
+                        <span class="parameter-name">serviceType</span>
+                        <span class="parameter-type">Type</span>
+                        <p>The interface type that this service implements</p>
+                    </div>
+                    <div class="parameter">
+                        <span class="parameter-name">name</span>
+                        <span class="parameter-type">string</span>
+                        <p>Unique identifier for this service implementation</p>
+                    </div>
+                    <div class="parameter">
+                        <span class="parameter-name">lifetime</span>
+                        <span class="parameter-type">ServiceLifetime</span>
+                        <p>Determines if the service is singleton or transient</p>
+                    </div>
+                    <div class="parameter">
+                        <span class="parameter-name">context</span>
+                        <span class="parameter-type">ServiceContext</span>
+                        <p>Specifies when the service is available (Runtime/EditorOnly/RuntimeAndEditor)</p>
+                    </div>
+                </div>
+
+                <div class="example">
+                    <strong>Example:</strong>
+                    <pre><code>// Regular C# service
+[Service(typeof(IGameSettings), "GameSettings")]
+public class GameSettings : IGameSettings { }
+
+// MonoBehaviour service with custom lifetime and context
+[Service(typeof(IInputManager), "InputManager", 
+    ServiceLifetime.Singleton, ServiceContext.Runtime)]
+public class InputManager : MonoBehaviour, IInputManager { }
+
+// ScriptableObject service with editor context
+[CreateAssetMenu(fileName = "EditorConfig", menuName = "Services/EditorConfig")]
+[Service(typeof(IEditorConfig), "EditorConfig", 
+    context: ServiceContext.EditorOnly)]
+public class EditorConfig : ScriptableObject, IEditorConfig 
+{
+    private void OnEnable()
+    {
+        // Initialize dependencies
+        var dataService = ServiceLocator.GetService<IDataService>("DataService");
+        
+        // Perform initialization
+        LoadConfiguration();
+    }
+
+    private void OnDisable()
+    {
+        // Cleanup resources
+    }
+}</code></pre>
+                </div>
+
+                <div class="note">
+                    The Service attribute is the recommended way to register services. It provides compile-time validation and automatic registration.
+                </div>
+            </section>
+
+            <section id="servicetype" class="method">
+                <h3>ServiceType</h3>
+                <p>Enumeration defining the types of services supported.</p>
+
+                <div class="method-signature">
+public enum ServiceType
+{
+    <div class="enum-declaration">
+        <span class="enum-value">Regular,</span>
+        <span class="enum-comment">// Regular C# class services</span>
+    </div>
+    <div class="enum-declaration">
+        <span class="enum-value">MonoBehaviour,</span>
+        <span class="enum-comment">// Unity MonoBehaviour services</span>
+    </div>
+    <div class="enum-declaration">
+        <span class="enum-value">ScriptableObject</span>
+        <span class="enum-comment">// Unity ScriptableObject services</span>
+    </div>
+}</div>
+            </section>
+
+            <section id="servicelifetime" class="method">
+                <h3>ServiceLifetime</h3>
+                <p>Enumeration defining the lifetime of services.</p>
+
+                <div class="method-signature">public enum ServiceLifetime
+{
+    <div class="enum-declaration">
+        <span class="enum-value">Singleton,</span>
+        <span class="enum-comment">// Single shared instance</span>
+    </div>
+    <div class="enum-declaration">
+        <span class="enum-value">SceneSingleton,</span>
+        <span class="enum-comment">// Single instance per scene, disposed when scene unloads</span>
+    </div>
+    <div class="enum-declaration">
+        <span class="enum-value">Transient,</span>
+        <span class="enum-comment">// New instance per request</span>
+    </div>
+    <div class="enum-declaration">
+        <span class="enum-value">SceneTransient</span>
+        <span class="enum-comment">// New instance per request within a scene, disposed when scene unloads</span>
+    </div>
+}</div>
+
+                <div class="note">
+                    <h4>Important Note</h4>
+                    <p>The ServiceLocator supports exactly four lifetime values as shown above:</p>
+                    <ul>
+                        <li><strong>Singleton:</strong> A single instance is created and shared across the entire application.</li>
+                        <li><strong>SceneSingleton:</strong> A single instance per scene that is automatically disposed when the scene unloads.</li>
+                        <li><strong>Transient:</strong> A new instance is created each time the service is requested.</li>
+                        <li><strong>SceneTransient:</strong> A new instance is created each time the service is requested within a scene and all instances are automatically disposed when the scene unloads.</li>
+                    </ul>
+                    <p>There is no "Scoped" lifetime option in this implementation.</p>
+                </div>
+            </section>
+
+            <section id="servicecontext" class="method">
+                <h3>ServiceContext</h3>
+                <p>Enumeration defining when services are available.</p>
+
+                <div class="method-signature">public enum ServiceContext
+{
+    <div class="enum-declaration">
+        <span class="enum-value">Runtime,</span>
+        <span class="enum-comment">// Available in play mode and builds</span>
+    </div>
+    <div class="enum-declaration">
+        <span class="enum-value">EditorOnly,</span>
+        <span class="enum-comment">// Available only in Unity Editor</span>
+    </div>
+    <div class="enum-declaration">
+        <span class="enum-value">RuntimeAndEditor</span>
+        <span class="enum-comment">// Available in both editor and runtime</span>
+    </div>
+}</div>
+            </section>
+
+            <!-- IServiceDisposable Interface -->
+            <section id="iservicedisposable" class="method">
+                <h3>IServiceDisposable Interface</h3>
+                <p>Interface for services that need to perform cleanup when they are no longer needed. <strong>Important:</strong> Do not call OnSystemDisposeAsync directly. Always use ServiceLocator.ReleaseServiceInstance instead.</p>
+
+                <div class="method-signature">public interface IServiceDisposable
+{
+    bool IsDisposing { get; }
+    bool IsDisposed { get; }
+    Task DisposalTask { get; }
+    ValueTask OnSystemDisposeAsync();
+}</div>
+
+                <div class="parameter-list">
+                    <div class="parameter">
+                        <span class="parameter-name">IsDisposing</span>
+                        <span class="parameter-type">bool</span>
+                        <p>Gets whether this service is currently being disposed.</p>
+                    </div>
+                    <div class="parameter">
+                        <span class="parameter-name">IsDisposed</span>
+                        <span class="parameter-type">bool</span>
+                        <p>Gets whether this service has been disposed.</p>
+                    </div>
+                    <div class="parameter">
+                        <span class="parameter-name">DisposalTask</span>
+                        <span class="parameter-type">Task</span>
+                        <p>Gets a task that completes when the disposal process is finished.</p>
+                    </div>
+                    <div class="parameter">
+                        <span class="parameter-name">OnSystemDisposeAsync</span>
+                        <span class="parameter-type">ValueTask</span>
+                        <p><strong>SYSTEM USE ONLY.</strong> Do not call this method directly. Service cleanup should only be triggered via ServiceLocator.ReleaseServiceInstance. This method is called internally by the ServiceLocator system to clean up resources. Services must implement this method to properly clean up their resources.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- IServiceInitializable Interface -->
+            <section id="iserviceinitializable" class="method">
+                <h3>IServiceInitializable Interface</h3>
+                <p>Interface for services that require asynchronous initialization before they're ready for use.</p>
+
+                <div class="method-signature">public interface IServiceInitializable
+{
+    Task InitializeAsync();
+    bool IsInitialized { get; }
+}</div>
+
+                <div class="parameter-list">
+                    <div class="parameter">
+                        <span class="parameter-name">InitializeAsync</span>
+                        <span class="parameter-type">Task</span>
+                        <p>Performs asynchronous initialization tasks like loading data, establishing connections, or any operation that needs to be awaited.</p>
+                    </div>
+                    <div class="parameter">
+                        <span class="parameter-name">IsInitialized</span>
+                        <span class="parameter-type">bool</span>
+                        <p>Indicates whether the service has been successfully initialized.</p>
+                    </div>
+                </div>
+
+                <div class="example">
+                    <h4>Example</h4>
+                    <pre><code>public class DataService : IDataService, IServiceInitializable
+{
+    private bool _isInitialized;
+    private Dictionary<string, object> _cachedData;
+    
+    public bool IsInitialized => _isInitialized;
+    
+    public async Task InitializeAsync()
+    {
+        if (_isInitialized) return;
+        
+        // Perform async initialization
+        _cachedData = await LoadDataFromDiskAsync();
+        _isInitialized = true;
+    }
+    
+    private async Task<Dictionary<string, object>> LoadDataFromDiskAsync()
+    {
+        // Simulate loading data asynchronously
+        await Task.Delay(100);
+        return new Dictionary<string, object>();
+    }
+}</code></pre>
+                </div>
+
+                <div class="info-box">
+                    <h4>Best Practices</h4>
+                    <ul>
+                        <li>Always use <code>GetAsyncService</code> to retrieve services implementing <code>IServiceInitializable</code></li>
+                        <li>Check the <code>IsInitialized</code> property before using the service</li>
+                        <li>Make all services in an async dependency chain implement <code>IServiceInitializable</code></li>
+                        <li>Handle initialization failures gracefully</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- IServicePoolable Interface -->
+            <section id="iservicepoolable" class="method">
+                <h3>IServicePoolable Interface</h3>
+                <p>Interface for services that can be pooled and reused to improve performance and reduce memory allocations.</p>
+
+                <div class="method-signature">public interface IServicePoolable
+{
+    void OnTakeFromPool();
+    void OnReturnToPool();
+}</div>
+
+                <div class="parameter-list">
+                    <div class="parameter">
+                        <span class="parameter-name">OnTakeFromPool</span>
+                        <span class="parameter-type">void</span>
+                        <p>Called when the service is taken from the pool for reuse. Use this method to reset the service to a clean state.</p>
+                    </div>
+                    <div class="parameter">
+                        <span class="parameter-name">OnReturnToPool</span>
+                        <span class="parameter-type">void</span>
+                        <p>Called before the service is returned to the pool. Use this method to clean up resources and prepare the service for pooling.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Service Resolution -->
+            <!-- AutoRegisterServices -->
+            <section id="autoregister" class="method">
+                <h3>AutoRegisterServices</h3>
+                <p>Automatically registers all services that have been marked with the ServiceAttribute in the codebase. This is called automatically at startup, but can be called again to register newly loaded services.</p>
+
+                <div class="method-signature">public static void AutoRegisterServices()</div>
+
+                <div class="description">
+                    <p>This method scans the codebase for any classes decorated with the ServiceAttribute and registers them with the ServiceLocator. It's typically called automatically during initialization, but can be manually invoked to register services after assemblies have been dynamically loaded.</p>
+                </div>
+
+                <div class="example">
+                    <h4>Example</h4>
+                    <pre><code>// After dynamically loading an assembly
+Assembly.Load("MyNewAssembly.dll");
+ServiceLocator.AutoRegisterServices();
+                    </code></pre>
+                </div>
+
+                <div class="notes">
+                    <h4>Notes</h4>
+                    <ul>
+                        <li>Services with ServiceContext.EditorOnly will not be overwritten by runtime services.</li>
+                        <li>Any exceptions during registration are caught and logged, but won't halt the registration process.</li>
+                        <li>Registration details are logged to the Unity Console.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="get" class="method">
+                <h3>GetService&lt;TService&gt;</h3>
+                <p>Gets a service of the specified type and name.</p>
+
+                <div class="method-signature">public static TService GetService&lt;TService&gt;(string name, Component requestingComponent = null) where TService : class</div>
+
+                <div class="parameter-list">
+                    <h4>Parameters</h4>
+                    <div class="parameter">
+                        <span class="parameter-name">name</span>
+                        <span class="parameter-type">string</span>
+                        <p>Name of the service implementation to retrieve</p>
+                    </div>
+                    <div class="parameter">
+                        <span class="parameter-name">requestingComponent</span>
+                        <span class="parameter-type">Component</span>
+                        <p>Optional: The component requesting the service (used for scene context)</p>
+                    </div>
+                </div>
+
+                <div class="example">
+                    <strong>Example:</strong>
+                    <pre><code>var settings = ServiceLocator.GetService&lt;IGameSettings&gt;("GameSettings");
+settings.SaveSettings();</code></pre>
+                </div>
+
+                <div class="warning">
+                    Throws InvalidOperationException if the service is not found or cannot be instantiated.
+                </div>
+            </section>
+
+            <section id="get-type" class="method">
+                <h3>GetService (Type-based)</h3>
+                <p>Gets a service instance using Type parameter instead of generic type argument.</p>
+
+                <div class="method-signature">public static object GetService(Type serviceType, string name, Component requestingComponent = null)</div>
+
+                <div class="parameter-list">
+                    <h4>Parameters</h4>
+                    <div class="parameter">
+                        <span class="parameter-name">serviceType</span>
+                        <span class="parameter-type">Type</span>
+                        <p>The type of service to retrieve</p>
+                    </div>
+                    <div class="parameter">
+                        <span class="parameter-name">name</span>
+                        <span class="parameter-type">string</span>
+                        <p>Name of the service implementation to retrieve</p>
+                    </div>
+                    <div class="parameter">
+                        <span class="parameter-name">requestingComponent</span>
+                        <span class="parameter-type">Component</span>
+                        <p>Optional: The component requesting the service (used for scene context)</p>
+                    </div>
+                </div>
+
+                <div class="warning">
+                    Returns object - requires casting to the appropriate type.
+                </div>
+            </section>
+
+            <section id="getnames" class="method">
+                <h3>GetServiceNames&lt;TService&gt;</h3>
+                <p>Gets all registered service names for a specific type.</p>
+
+                <div class="method-signature">public static IEnumerable&lt;string&gt; GetServiceNames&lt;TService&gt;() where TService : class</div>
+
+                <div class="example">
+                    <strong>Example:</strong>
+                    <pre><code>var loggerNames = ServiceLocator.GetServiceNames&lt;ILogger&gt;();
+foreach (var name in loggerNames)
+{
+    Debug.Log($"Found logger service: {name}");
+}</code></pre>
+                </div>
+            </section>
+
+            <section id="getnames-type" class="method">
+                <h3>GetServiceNames (Type-based)</h3>
+                <p>Gets all registered service names for a specific type using Type parameter.</p>
+
+                <div class="method-signature">public static IEnumerable&lt;string&gt; GetServiceNames(Type serviceType)</div>
+
+                <div class="parameter-list">
+                    <h4>Parameters</h4>
+                    <div class="parameter">
+                        <span class="parameter-name">serviceType</span>
+                        <span class="parameter-type">Type</span>
+                        <p>The service type to get names for</p>
+                    </div>
+                </div>
+
+                <div class="example">
+                    <strong>Example:</strong>
+                    <pre><code>var names = ServiceLocator.GetServiceNames(typeof(ILogger));
+foreach (var name in names)
+{
+    Debug.Log($"Found logger service: {name}");
+}</code></pre>
+                </div>
+            </section>
+
+            <section id="getasync" class="method">
+                <h3>GetAsyncService&lt;TService&gt;</h3>
+                <p>Gets a service of the specified type and name asynchronously. Particularly useful for services implementing IServiceInitializable.</p>
+
+                <div class="method-signature">public static Task&lt;TService&gt; GetAsyncService&lt;TService&gt;(string name, Component requestingComponent = null) where TService : class</div>
+
+                <div class="parameter-list">
+                    <h4>Parameters</h4>
+                    <div class="parameter">
+                        <span class="parameter-name">name</span>
+                        <span class="parameter-type">string</span>
+                        <p>Name of the service implementation to retrieve</p>
+                    </div>
+                    <div class="parameter">
+                        <span class="parameter-name">requestingComponent</span>
+                        <span class="parameter-type">Component</span>
+                        <p>Optional: The component requesting the service (used for scene context)</p>
+                    </div>
+                </div>
+
+                <div class="example">
+                    <strong>Example:</strong>
+                    <pre><code>// Usage in a MonoBehaviour
+private async Task InitializeAsync()
+{
+    var dataService = await ServiceLocator.GetAsyncService&lt;IDataService&gt;("DataService", this);
+    await dataService.LoadDataAsync();
+}</code></pre>
+                </div>
+
+                <div class="info-box">
+                    <h4>When to use</h4>
+                    <ul>
+                        <li>For services that implement IServiceInitializable</li>
+                        <li>When the service has async initialization logic</li>
+                        <li>When you need to await service initialization before using it</li>
+                    </ul>
+                </div>
+
+                <div class="warning">
+                    Throws InvalidOperationException if the service is not found, cannot be instantiated, or if GetAsyncService is called on a non-async service.
+                </div>
+            </section>
+
+            <!-- Add after GetServiceNames (Type-based) section -->
+            <section id="release" class="method">
+                <h3>ReleaseServiceInstance</h3>
+                <p>Releases a service instance and properly disposes it. <strong>Note: This is a non-blocking operation</strong> that returns immediately after queueing the disposal on the main thread.</p>
+
+                <div class="method-signature">public static bool ReleaseServiceInstance&lt;T&gt;(string name, object service)</div>
+
+                <div class="parameter-list">
+                    <div class="parameter">
+                        <span class="parameter-name">name</span>
+                        <span class="parameter-type">string</span>
+                        <p>The service name</p>
+                    </div>
+                    <div class="parameter">
+                        <span class="parameter-name">service</span>
+                        <span class="parameter-type">object</span>
+                        <p>The service instance to release</p>
+                    </div>
+                    <div class="parameter">
+                        <span class="parameter-name">Returns</span>
+                        <span class="parameter-type">bool</span>
+                        <p>True if the release operation was queued successfully, not if disposal completed</p>
+                    </div>
+                </div>
+
+                <div class="code-block">
+                    <pre><code>// Get a service
+var myService = ServiceLocator.GetService<IMyService>("ServiceName");
+
+// Use the service...
+
+// When done, release it (returns immediately)
+bool queued = ServiceLocator.ReleaseServiceInstance<IMyService>("ServiceName", myService);</code></pre>
+                </div>
+                
+                <div class="warning">
+                    This method does not wait for the disposal to complete. If you need to wait for completion, use ReleaseServiceInstanceAsync instead.
+                </div>
+            </section>
+
+            <section id="release-async" class="method">
+                <h3>ReleaseServiceInstanceAsync</h3>
+                <p>Releases a service instance and properly disposes it asynchronously. This is the recommended approach when you need to wait for or track the completion of a service disposal operation.</p>
+
+                <div class="method-signature">public static Task&lt;bool&gt; ReleaseServiceInstanceAsync&lt;T&gt;(string name, object service)</div>
+
+                <div class="parameter-list">
+                    <div class="parameter">
+                        <span class="parameter-name">name</span>
+                        <span class="parameter-type">string</span>
+                        <p>The service name</p>
+                    </div>
+                    <div class="parameter">
+                        <span class="parameter-name">service</span>
+                        <span class="parameter-type">object</span>
+                        <p>The service instance to release</p>
+                    </div>
+                    <div class="parameter">
+                        <span class="parameter-name">Returns</span>
+                        <span class="parameter-type">Task&lt;bool&gt;</span>
+                        <p>A task that completes when the service is fully disposed. The task result is true if the service was found and released successfully, false otherwise</p>
+                    </div>
+                </div>
+
+                <div class="code-block">
+                    <pre><code>// Get a service
+var myService = ServiceLocator.GetService<IMyService>("ServiceName");
+
+// Use the service...
+
+// When done, release it and wait for disposal to complete
+bool released = await ServiceLocator.ReleaseServiceInstanceAsync<IMyService>("ServiceName", myService);</code></pre>
+                </div>
+                
+                <div class="info-box">
+                    This is the preferred method when you need to ensure a service is fully disposed before continuing or when releasing services that might have async cleanup operations.
+                </div>
+            </section>
+
+            <section id="check-scene" class="method">
+                <h3>CheckServiceBelongsToScene</h3>
+                <p>Checks if a service instance belongs to a specific scene.</p>
+
+                <div class="method-signature">public static bool CheckServiceBelongsToScene&lt;T&gt;(object service, string name, Scene scene)</div>
+
+                <div class="parameter-list">
+                    <div class="parameter">
+                        <span class="parameter-name">service</span>
+                        <span class="parameter-type">object</span>
+                        <p>The service instance to check</p>
+                    </div>
+                    <div class="parameter">
+                        <span class="parameter-name">name</span>
+                        <span class="parameter-type">string</span>
+                        <p>The name of the service</p>
+                    </div>
+                    <div class="parameter">
+                        <span class="parameter-name">scene</span>
+                        <span class="parameter-type">Scene</span>
+                        <p>The scene to check against</p>
+                    </div>
+                    <div class="parameter">
+                        <span class="parameter-name">Returns</span>
+                        <span class="parameter-type">bool</span>
+                        <p>True if the service instance belongs to the specified scene, false otherwise</p>
+                    </div>
+                </div>
+
+                <div class="code-block">
+                    <pre><code>// Check if a service instance belongs to a specific scene
+Scene targetScene = SceneManager.GetSceneByName("GameScene");
+bool belongsToScene = ServiceLocator.CheckServiceBelongsToScene&lt;IUIService&gt;(
+    uiService, 
+    "UIService", 
+    targetScene
+);
+
+if (belongsToScene) {
+    Debug.Log("Service belongs to GameScene");
+}</code></pre>
+                </div>
+            </section>
+            
+            <!-- Add spacer at the bottom -->
+            <div style="height: 300px;"></div>
+        </div>
+    </div>
+
+    <footer>
+        <p><a href="index.html">Back to Documentation</a> | <a href="changelog.html">View Changelog</a></p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sections = document.querySelectorAll('.method');
+            const navItems = document.querySelectorAll('.nav-item');
+
+            function setActiveLink() {
+                let currentSection = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    if (window.scrollY >= sectionTop - 100) {
+                        currentSection = '#' + section.getAttribute('id');
+                    }
+                });
+
+                navItems.forEach(item => {
+                    item.classList.remove('active');
+                    if (item.querySelector('a').getAttribute('href') === currentSection) {
+                        item.classList.add('active');
+                    }
+                });
+            }
+
+            window.addEventListener('scroll', setActiveLink);
+            setActiveLink();
+
+            // Smooth scroll to section when clicking nav items
+            navItems.forEach(item => {
+                item.addEventListener('click', (e) => {
+                    const link = item.querySelector('a');
+                    e.preventDefault();
+                    const targetId = link.getAttribute('href');
+                    const targetSection = document.querySelector(targetId);
+                    targetSection.scrollIntoView({ behavior: 'smooth' });
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

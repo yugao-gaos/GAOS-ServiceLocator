@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GAOS Service Locator - Changelog</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <a href="index.html" class="back-link">← Back to Documentation</a>
+
+    <header>
+        <h1>Changelog</h1>
+        <p>All notable changes to the GAOS Service Locator package</p>
+    </header>
+
+    <section class="version">
+        <div class="version-header">
+            <h2>Version 1.11.1</h2>
+            <span class="version-date">2024-05-15</span>
+        </div>
+        <h3>Fixed</h3>
+        <ul>
+            <li>Critical deadlock issues in Unity operations
+                <ul>
+                    <li>Resolved potential deadlocks when releasing service instances on the main thread</li>
+                    <li>Fixed thread safety issues in MonoBehaviour service creation and destruction</li>
+                    <li>Improved ServiceCoroutineRunner to safely schedule main thread operations</li>
+                    <li>Enhanced GameObject operation handling to prevent blocking the main thread</li>
+                    <li>Implemented safe thread coordination between async operations and Unity main thread</li>
+                </ul>
+            </li>
+        </ul>
+        <h3>Changed</h3>
+        <ul>
+            <li>Enhanced thread safety throughout codebase
+                <ul>
+                    <li>Replaced SynchronizationContext with ServiceCoroutineRunner for all Unity operations</li>
+                    <li>Added main thread validation for GameObject operations</li>
+                    <li>Improved async/await pattern usage to avoid deadlocks</li>
+                    <li>Added comprehensive thread-safety documentation in Best Practices</li>
+                    <li>Updated service instance cleanup to avoid blocking the main thread</li>
+                </ul>
+            </li>
+        </ul>
+    </section>
+
+    <section class="version">
+        <div class="version-header">
+            <h2>Version 1.11.0</h2>
+            <span class="version-date">2024-05-01</span>
+        </div>
+        <h3>Added</h3>
+        <ul>
+            <li>Service instance pooling system
+                <ul>
+                    <li>Added <code>IServicePoolable</code> interface for creating poolable services</li>
+                    <li>Implemented service pool management with automatic instance recycling</li>
+                    <li>Added instance pooling for MonoBehaviour services with GameObject deactivation</li>
+                    <li>Added pool expansion capability when all instances are in use</li>
+                    <li>Added lifecycle hooks for pool initialization and instance reuse</li>
+                    <li>Added comprehensive documentation for implementing poolable services</li>
+                </ul>
+            </li>
+        </ul>
+        <h3>Changed</h3>
+        <ul>
+            <li>Enhanced service instance management
+                <ul>
+                    <li>Improved service registration to support pooled services</li>
+                    <li>Added automatic pool initialization during service registration</li>
+                    <li>Optimized instance tracking for pooled and non-pooled services</li>
+                    <li>Updated disposal system to return poolable instances to the pool</li>
+                    <li>Added ServicePool component for managing pooled service GameObjects</li>
+                </ul>
+            </li>
+        </ul>
+    </section>
+
+    <section class="version">
+        <div class="version-header">
+            <h2>Version 1.10.0</h2>
+            <span class="version-date">2024-04-20</span>
+        </div>
+        <h3>Added</h3>
+        <ul>
+            <li>Added public service disposal API
+                <ul>
+                    <li>Added <code>ServiceLocator.ReleaseServiceInstance(object service)</code> method for synchronous service disposal</li>
+                    <li>Added <code>ServiceLocator.ReleaseServiceInstanceAsync(object service)</code> method for asynchronous service disposal</li>
+                    <li>Implemented proper instance tracking and lookup for manual disposal</li>
+                    <li>Added comprehensive documentation for manual service disposal</li>
+                </ul>
+            </li>
+        </ul>
+        <h3>Changed</h3>
+        <ul>
+            <li>Improved encapsulation of internal APIs
+                <ul>
+                    <li>Made <code>DisposalHandle</code> class internal to prevent direct access</li>
+                    <li>Made <code>IServiceDisposable.DisposalHandle</code> property internal</li>
+                    <li>Updated documentation to reflect the new internal access modifiers</li>
+                    <li>Improved service disposal guidance in API documentation</li>
+                    <li>Unified public API for service disposal through ServiceLocator methods</li>
+                </ul>
+            </li>
+        </ul>
+    </section>
+
+    <section class="version">
+        <div class="version-header">
+            <h2>Version 1.9.0</h2>
+            <span class="version-date">2024-03-07</span>
+        </div>
+        <h3>Added</h3>
+        <ul>
+            <li>Added SceneTransient lifetime option
+                <ul>
+                    <li>Provides new instances per request within a scene</li>
+                    <li>Automatically disposes all instances when scene unloads</li>
+                    <li>Combines benefits of Transient (unique instances) with scene lifecycle management</li>
+                    <li>Implemented full thread-safety for scene-transient services</li>
+                    <li>Added comprehensive test coverage for SceneTransient services</li>
+                </ul>
+            </li>
+        </ul>
+        <h3>Changed</h3>
+        <ul>
+            <li>Updated documentation to include SceneTransient lifetime option
+                <ul>
+                    <li>Added SceneTransient to API documentation</li>
+                    <li>Updated service wizard to support SceneTransient option</li>
+                    <li>Added code examples for SceneTransient services</li>
+                    <li>Enhanced explanation of service lifetime options</li>
+                    <li>Updated quick-start guide with new lifetime option</li>
+                </ul>
+            </li>
+        </ul>
+    </section>
+
+    <section class="version">
+        <div class="version-header">
+            <h2>Version 1.8.0</h2>
+            <span class="version-date">2024-03-05</span>
+        </div>
+        <h3>Added</h3>
+        <ul>
+            <li>Scene-aware service management
+                <ul>
+                    <li>Added scene-specific service resolution with three methods:
+                        <ul>
+                            <li>`GetService<T>(string name)` - Uses active scene</li>
+                            <li>`GetService<T>(string name, Component)` - Uses component's scene</li>
+                            <li>`GetService<T>(string name, Scene)` - Uses specific scene</li>
+                        </ul>
+                    </li>
+                    <li>Implemented `SceneSingleton` lifetime for scene-specific services</li>
+                    <li>Added scene lifecycle management with proper cleanup</li>
+                    <li>Enhanced instance tracking per scene</li>
+                </ul>
+            </li>
+        </ul>
+        <h3>Changed</h3>
+        <ul>
+            <li>Improved service factories
+                <ul>
+                    <li>Enhanced `MonoServiceFactory` with scene-aware instance creation</li>
+                    <li>Added `SOServiceFactory` with scene-specific ScriptableObject handling</li>
+                    <li>Improved instance validation and cleanup mechanisms</li>
+                </ul>
+            </li>
+            <li>Enhanced service tracking
+                <ul>
+                    <li>Added comprehensive instance tracking system</li>
+                    <li>Improved monitoring of service lifecycle</li>
+                    <li>Added scene association tracking</li>
+                </ul>
+            </li>
+        </ul>
+        <h3>Fixed</h3>
+        <ul>
+            <li>Proper cleanup of services during scene unload</li>
+            <li>Better handling of duplicate instances across scenes</li>
+            <li>Improved scene context validation</li>
+            <li>Enhanced error reporting for scene-related issues</li>
+        </ul>
+    </section>
+
+    <section class="version">
+        <div class="version-header">
+            <h2>Version 1.7.0</h2>
+            <span class="version-date">2024-02-29</span>
+        </div>
+        <h3>Added</h3>
+        <ul>
+            <li>Scene-aware service management
+                <ul>
+                    <li>Added scene-specific service resolution with three methods:
+                        <ul>
+                            <li>`GetService<T>(string name)` - Uses active scene</li>
+                            <li>`GetService<T>(string name, Component)` - Uses component's scene</li>
+                            <li>`GetService<T>(string name, Scene)` - Uses specific scene</li>
+                        </ul>
+                    </li>
+                    <li>Implemented `SceneSingleton` lifetime for scene-specific services</li>
+                    <li>Added scene lifecycle management with proper cleanup</li>
+                    <li>Enhanced instance tracking per scene</li>
+                </ul>
+            </li>
+        </ul>
+        <h3>Changed</h3>
+        <ul>
+            <li>Improved service factories
+                <ul>
+                    <li>Enhanced `MonoServiceFactory` with scene-aware instance creation</li>
+                    <li>Added `SOServiceFactory` with scene-specific ScriptableObject handling</li>
+                    <li>Improved instance validation and cleanup mechanisms</li>
+                </ul>
+            </li>
+            <li>Enhanced service tracking
+                <ul>
+                    <li>Added comprehensive instance tracking system</li>
+                    <li>Improved monitoring of service lifecycle</li>
+                    <li>Added scene association tracking</li>
+                </ul>
+            </li>
+        </ul>
+        <h3>Fixed</h3>
+        <ul>
+            <li>Proper cleanup of services during scene unload</li>
+            <li>Better handling of duplicate instances across scenes</li>
+            <li>Improved scene context validation</li>
+            <li>Enhanced error reporting for scene-related issues</li>
+        </ul>
+    </section>
+
+    <section class="version">
+        <div class="version-header">
+            <h2>Version 1.6.0</h2>
+            <span class="version-date">2024-02-28</span>
+        </div>
+        <h3>Changed</h3>
+        <ul>
+            <li>Improved API consistency and clarity
+                <ul>
+                    <li>Renamed `Get<TService>` to `GetService<TService>`</li>
+                    <li>Renamed `GetAll<TService>` to `GetAllServices<TService>`</li>
+                    <li>Renamed `TryGet<TService>` to `TryGetService<TService>`</li>
+                    <li>Made registration methods internal for testing only</li>
+                    <li>Updated documentation to reflect new method names</li>
+                </ul>
+            </li>
+        </ul>
+        <h3>Added</h3>
+        <ul>
+            <li>Enhanced documentation organization
+                <ul>
+                    <li>Added new advanced topics sections</li>
+                    <li>Added "Disposable Service" documentation</li>
+                    <li>Added "Async Service" documentation</li>
+                    <li>Improved navigation between documentation pages</li>
+                    <li>Added more code examples and best practices</li>
+                </ul>
+            </li>
+        </ul>
+        <h3>Fixed</h3>
+        <ul>
+            <li>Documentation consistency and accuracy
+                <ul>
+                    <li>Fixed method names in examples</li>
+                    <li>Updated navigation links in advanced topics</li>
+                    <li>Corrected service registration examples</li>
+                    <li>Improved clarity of service lifecycle documentation</li>
+                </ul>
+            </li>
+        </ul>
+    </section>
+
+    <section class="version">
+        <div class="version-header">
+            <h2>Version 1.5.0</h2>
+            <span class="version-date">2024-02-26</span>
+        </div>
+        <h3>Added</h3>
+        <ul>
+            <li>Enhanced async service support and validation
+                <ul>
+                    <li>Added async dependency chain detection and validation</li>
+                    <li>Added [Async] tag visualization in Service Inspector</li>
+                    <li>Added warning system for non-async services with async dependencies</li>
+                    <li>Added async dependency chain visualization in dependency tree</li>
+                    <li>Added validation messages for proper async initialization</li>
+                </ul>
+            </li>
+        </ul>
+        <h3>Changed</h3>
+        <ul>
+            <li>Improved Service Inspector UI organization
+                <ul>
+                    <li>Moved service name to Basic Information section</li>
+                    <li>Enhanced dependency tree visualization with async tags</li>
+                    <li>Improved validation message display in Dependencies section</li>
+                    <li>Added clear distinction between async and sync services</li>
+                    <li>Better organization of service information sections</li>
+                </ul>
+            </li>
+        </ul>
+        <h3>Fixed</h3>
+        <ul>
+            <li>Fixed async dependency validation in service chains</li>
+            <li>Fixed validation message display for async services</li>
+            <li>Improved async dependency detection accuracy</li>
+            <li>Enhanced async initialization validation</li>
+        </ul>
+    </section>
+
+    <section class="version">
+        <div class="version-header">
+            <h2>Version 1.4.0</h2>
+            <span class="version-date">2024-02-24</span>
+        </div>
+        <h3>Changed</h3>
+        <ul>
+            <li>Removed `SOServiceBase` in favor of direct ScriptableObject inheritance
+                <ul>
+                    <li>Simplified ScriptableObject service implementation</li>
+                    <li>Moved dependency validation to registration time</li>
+                    <li>Improved service lifecycle management</li>
+                    <li>Updated documentation and templates to reflect changes</li>
+                    <li>Added Service attribute support for ScriptableObject services</li>
+                    <li>Enhanced validation system with cleaner architecture</li>
+                </ul>
+            </li>
+        </ul>
+        <h3>Added</h3>
+        <ul>
+            <li>Enhanced ScriptableObject service support
+                <ul>
+                    <li>Automatic registration through Service attribute</li>
+                    <li>Simplified service creation with updated templates</li>
+                    <li>Improved validation at registration time</li>
+                    <li>Better integration with Unity's lifecycle events</li>
+                </ul>
+            </li>
+        </ul>
+        <h3>Migration Guide</h3>
+        <p>To migrate from SOServiceBase:</p>
+        <ol>
+            <li>Replace `SOServiceBase` inheritance with `ScriptableObject`</li>
+            <li>Add `[Service]` attribute to declare service properties</li>
+            <li>Move initialization logic to `OnEnable`</li>
+            <li>Dependencies are now validated at registration time</li>
+        </ol>
+    </section>
+
+    <section class="version">
+        <div class="version-header">
+            <h2>Version 1.3.0</h2>
+            <span class="version-date">2024-02-23</span>
+        </div>
+        <h3>Added</h3>
+        <ul>
+            <li>Enhanced circular dependency detection and validation
+                <ul>
+                    <li>Added validation cache to store dependency analysis results</li>
+                    <li>Introduced dependency tree visualization in Service Inspector</li>
+                    <li>Added initialization order display for services</li>
+                    <li>Improved performance by caching validation results</li>
+                </ul>
+            </li>
+            <li>New dependency analysis features
+                <ul>
+                    <li>Split dependency analysis into direct dependencies and full tree</li>
+                    <li>Added clear distinction between interface and implementation dependencies</li>
+                    <li>Improved cycle detection with better path tracking</li>
+                    <li>Added validation message display in Service Inspector</li>
+                </ul>
+            </li>
+        </ul>
+        <h3>Changed</h3>
+        <ul>
+            <li>Improved Service Inspector performance and UI
+                <ul>
+                    <li>Reduced redundant dependency checks</li>
+                    <li>Enhanced dependency tree visualization with proper indentation</li>
+                    <li>Added initialization order display in Dependencies section</li>
+                    <li>Improved validation message display and organization</li>
+                    <li>Better handling of circular dependency warnings and errors</li>
+                </ul>
+            </li>
+            <li>Refactored dependency analysis system
+                <ul>
+                    <li>Separated concerns between dependency collection and validation</li>
+                    <li>Improved code organization and maintainability</li>
+                    <li>Enhanced safety with better null checks and error handling</li>
+                    <li>Optimized dependency tree traversal</li>
+                </ul>
+            </li>
+        </ul>
+        <h3>Fixed</h3>
+        <ul>
+            <li>Resolved performance issues with redundant dependency checks</li>
+            <li>Fixed indentation issues in dependency tree display</li>
+            <li>Improved handling of validation cache during domain reloads</li>
+            <li>Enhanced stability of dependency analysis system</li>
+        </ul>
+    </section>
+
+    <section class="version">
+        <div class="version-header">
+            <h2>Version 1.2.3</h2>
+            <span class="version-date">2024-02-22</span>
+        </div>
+        <h3>Changed</h3>
+        <ul>
+            <li>Enhanced documentation UI/UX
+                <ul>
+                    <li>Added rotating carousel for advanced topics preview</li>
+                    <li>Improved modal styling consistency across documentation</li>
+                    <li>Updated service wizard color scheme and layout</li>
+                    <li>Enhanced navigation between documentation pages</li>
+                    <li>Improved service examples display and interaction</li>
+                    <li>Fixed modal popup layout issues in service wizard</li>
+                    <li>Updated heading styles for better visual hierarchy</li>
+                </ul>
+            </li>
+        </ul>
+    </section>
+
+    <section class="version">
+        <div class="version-header">
+            <h2>Version 1.2.2</h2>
+            <span class="version-date">2024-02-21</span>
+        </div>
+        <h3>Changed</h3>
+        <ul>
+            <li>Improved code organization and maintainability
+                <ul>
+                    <li>Consolidated validation logic into `ServiceValidationHelper` class</li>
+                    <li>Consolidated MonoBehaviour validation into `ServiceValidator` class</li>
+                    <li>Removed redundant `MonoServiceValidator` class</li>
+                    <li>Consolidated all logging and diagnostics into `ServiceDiagnostics` class</li>
+                    <li>Removed redundant `ServiceLogger` class</li>
+                    <li>Made logging more consistent with configurable debug mode</li>
+                    <li>Fixed accessibility issues in service registration logging</li>
+                    <li>Improved encapsulation of internal service types</li>
+                </ul>
+            </li>
+            <li>Enhanced test support in validation system
+                <ul>
+                    <li>Added test context validation skipping</li>
+                    <li>Allows testing services regardless of their runtime context</li>
+                    <li>Improved test reliability for Runtime services in editor</li>
+                </ul>
+            </li>
+        </ul>
+    </section>
+
+    <section class="version">
+        <div class="version-header">
+            <h2>Version 1.2.1</h2>
+            <span class="version-date">2024-02-21</span>
+        </div>
+        <h3>Changed</h3>
+        <ul>
+            <li>Improved Service Inspector Window UI/UX
+                <ul>
+                    <li>Enhanced pagination system with dynamic page size adjustment</li>
+                    <li>Added clickable page numbers and navigation controls</li>
+                    <li>Fixed pagination issues when docking/resizing inspector window</li>
+                    <li>Optimized height calculations for better space utilization</li>
+                    <li>Adjusted window height calculation to provide more content space</li>
+                    <li>Added visual feedback for current page selection</li>
+                    <li>Improved layout stability during window resizing</li>
+                </ul>
+            </li>
+        </ul>
+        <h3>Fixed</h3>
+        <ul>
+            <li>Service Inspector Window now properly adjusts content when docked to different locations</li>
+            <li>Resolved layout issues with GetLastRect errors</li>
+            <li>Improved window size detection using Screen.height</li>
+            <li>Fixed pagination recalculation timing to prevent continuous updates while resizing</li>
+        </ul>
+    </section>
+
+    <section class="version">
+        <div class="version-header">
+            <h2>Version 1.2.0</h2>
+            <span class="version-date">2024-02-20</span>
+        </div>
+        <h3>Added</h3>
+        <ul>
+            <li>Service Inspector Window
+                <ul>
+                    <li>Real-time monitoring of registered services</li>
+                    <li>Visual display of service status and dependencies</li>
+                    <li>Filter and search functionality for services</li>
+                </ul>
+            </li>
+            <li>Quick Service Creation Tools
+                <ul>
+                    <li>Menu items for creating service interfaces and implementations</li>
+                    <li>Templates for common service patterns</li>
+                    <li>Automatic test file generation</li>
+                </ul>
+            </li>
+        </ul>
+        <h3>Changed</h3>
+        <ul>
+            <li>Enhanced editor workflow with service inspection capabilities</li>
+            <li>Streamlined service creation process with templates</li>
+            <li>Updated documentation with new tooling guides</li>
+        </ul>
+    </section>
+
+    <section class="version">
+        <div class="version-header">
+            <h2>Version 1.1.0</h2>
+            <span class="version-date">2024-02-17</span>
+        </div>
+        <h3>Added</h3>
+        <ul>
+            <li>ScriptableObject-based services support through `SOServiceBase`</li>
+            <li>Automatic initialization and lifecycle management for SO services</li>
+            <li>Thread-safe service initialization with error tracking</li>
+            <li>Template-based service instantiation for SO services</li>
+            <li>Example `GameSettingsService` implementation</li>
+            <li>Comprehensive documentation for SO services</li>
+        </ul>
+        <h3>Changed</h3>
+        <ul>
+            <li>Updated documentation to include SO services examples and best practices</li>
+            <li>Improved error handling with `InitializationError` tracking</li>
+            <li>Enhanced thread safety in service lifecycle management</li>
+        </ul>
+    </section>
+
+    <section class="version">
+        <div class="version-header">
+            <h2>Version 1.0.0</h2>
+            <span class="version-date">2024-02-16</span>
+        </div>
+        <h3>Added</h3>
+        <ul>
+            <li>Initial release of the Service Locator package</li>
+            <li>Thread-safe service registration and retrieval</li>
+            <li>Support for both regular C# classes and MonoBehaviours</li>
+            <li>Automatic scene-aware MonoBehaviour service discovery</li>
+            <li>Support for multiple implementations of the same interface</li>
+            <li>Singleton and Transient lifetime management</li>
+            <li>DontDestroyOnLoad object support</li>
+            <li>Automatic cache validation during scene changes</li>
+            <li>Comprehensive documentation and examples</li>
+        </ul>
+    </section>
+
+    <footer style="margin-top: 4rem; text-align: center; padding: 2rem; border-top: 1px solid var(--border-color);">
+        <p><a href="index.html">Back to Documentation</a> | <a href="api.html">API Documentation</a></p>
+    </footer>
+</body>
+</html> 

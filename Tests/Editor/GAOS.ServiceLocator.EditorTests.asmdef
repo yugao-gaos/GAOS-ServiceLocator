@@ -1,0 +1,27 @@
+{
+    "name": "GAOS.ServiceLocator.EditorTests",
+    "rootNamespace": "GAOS.ServiceLocator.Tests",
+    "references": [
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner",
+        "GAOS.ServiceLocator",
+        "UnityEditor.CoreModule",
+        "GAOS.ServiceLocator.Editor"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false,
+    "testMode": "EditMode"
+} 

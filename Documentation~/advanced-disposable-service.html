@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disposable Service - Advanced Topics</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles-advanced.css">
+    <style>
+        .service-type {
+            margin: 3rem 0;
+            padding: 2rem;
+            background: white;
+            border-radius: 12px;
+            border-left: 4px solid var(--advanced-orange-light);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .service-type h3 {
+            color: var(--advanced-orange-dark);
+            margin-top: 0;
+        }
+
+        .info-box {
+            background: rgba(255, 152, 0, 0.05);
+            border-left: 4px solid var(--advanced-orange-light);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .code-block {
+            margin: 1.5rem 0;
+            background: #f8f9fa;
+            padding: 1.5rem;
+            font-family: monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            overflow-x: auto;
+        }
+
+        .lifecycle-diagram {
+            background: #f8f9fa;
+            padding: 2rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        .lifecycle-diagram pre {
+            font-family: monospace;
+            font-size: 1.1rem;
+            color: var(--advanced-orange-dark);
+            background: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .page-navigation {
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 152, 0, 0.2);
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .nav-button {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            background: white;
+            border: 1px solid rgba(255, 152, 0, 0.2);
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--advanced-orange-dark);
+            transition: all 0.2s ease;
+            min-width: 200px;
+        }
+
+        .nav-button:hover {
+            background: rgba(255, 152, 0, 0.05);
+            border-color: var(--advanced-orange-light);
+            transform: translateY(-2px);
+            text-decoration: none;
+        }
+
+        .nav-button.prev {
+            padding-right: 2rem;
+        }
+
+        .nav-button.next {
+            margin-left: auto;
+            padding-left: 2rem;
+        }
+
+        .nav-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .nav-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #666;
+        }
+
+        .nav-title {
+            font-weight: 500;
+            color: var(--advanced-orange-dark);
+        }
+
+        .nav-arrow {
+            font-size: 1.2rem;
+            margin: 0 1rem;
+            color: var(--advanced-orange-dark);
+        }
+
+        .nav-bottom {
+            text-align: center;
+            margin-top: 2rem;
+            color: #666;
+        }
+
+        .nav-bottom a {
+            color: var(--advanced-orange-dark);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .nav-bottom a:hover {
+            color: var(--advanced-orange-deep);
+            text-decoration: underline;
+        }
+
+        .nav-separator {
+            margin: 0 1rem;
+            color: #ccc;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                flex-direction: column;
+            }
+
+            .nav-button {
+                width: 100%;
+            }
+
+            .nav-button.next {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body class="advanced-content">
+    <a href="advanced.html" class="advanced-back-link">← Back to Advanced Topics</a>
+
+    <header>
+        <h1>Disposable Service</h1>
+        <p>Managing service cleanup and resource disposal</p>
+    </header>
+
+    <section>
+        <h2>Overview</h2>
+        <div class="service-type">
+            <h3>What are Disposable Services?</h3>
+            <p>Disposable services ensure proper cleanup of resources when services are unregistered or when the application exits. This is crucial for services that:</p>
+            <ul>
+                <li>Hold unmanaged resources</li>
+                <li>Maintain network connections</li>
+                <li>Use file handles</li>
+                <li>Cache large amounts of data</li>
+                <li>Subscribe to events or maintain callbacks</li>
+            </ul>
+
+            <div class="lifecycle-diagram">
+                <pre>
+Service Creation
+       ↓
+[Service Active] → [Unregister/Clear] → [OnSystemDisposeAsync Called]
+                                            ↓
+                                    [Async Disposal] → [Main Thread Cleanup]
+                                            ↓
+                                    [Resources Released] → [Disposal Complete]</pre>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>Implementation</h2>
+        <div class="service-type">
+            <h3>Creating Disposable Services</h3>
+            <p>To create a disposable service, implement both your service interface and <code>IServiceDisposable</code>. Implement the <code>OnSystemDisposeAsync</code> method to manage resource cleanup:</p>
+
+            <div class="code-block">
+                <pre><code>public interface INetworkService 
+{
+    Task ConnectAsync();
+    Task SendDataAsync(Data data);
+}
+
+[Service(typeof(INetworkService), "NetworkService")]
+public class NetworkService : INetworkService, IServiceDisposable
+{
+    private NetworkClient _client;
+    private bool _isDisposed;
+    private bool _isDisposing;
+    private TaskCompletionSource<bool> _disposalCompletion = new();
+
+    public bool IsDisposed => _isDisposed;
+    public bool IsDisposing => _isDisposing;
+    public Task DisposalTask => _disposalCompletion.Task;
+
+    public async ValueTask OnSystemDisposeAsync()
+    {
+        if (_isDisposed || _isDisposing) return;
+
+        try
+        {
+            _isDisposing = true;
+            // Cleanup resources
+            if (_client != null)
+            {
+                await _client.DisconnectAsync();
+                _client.Dispose();
+                _client = null;
+            }
+            _isDisposed = true;
+            _disposalCompletion.TrySetResult(true);
+        }
+        catch (Exception ex)
+        {
+            _disposalCompletion.TrySetException(ex);
+            throw;
+        }
+        finally
+        {
+            _isDisposing = false;
+        }
+    }
+
+    public async Task ConnectAsync()
+    {
+        if (_isDisposed) throw new ObjectDisposedException(nameof(NetworkService));
+        _client = new NetworkClient();
+        await _client.ConnectAsync();
+    }
+
+    public async Task SendDataAsync(Data data)
+    {
+        if (_isDisposed) throw new ObjectDisposedException(nameof(NetworkService));
+        await _client.SendAsync(data);
+    }
+}
+
+<div class="info-box">
+    <h4>Key Features</h4>
+    <ul>
+        <li>Thread-safe disposal handling</li>
+        <li>Automatic main thread execution for Unity operations</li>
+        <li>Safe cleanup order based on dependencies</li>
+        <li>Support for both sync and async cleanup</li>
+        <li>Built-in disposal state tracking and validation</li>
+    </ul>
+</div>
+
+<div class="warning">
+    <h4>Important Notes</h4>
+    <ul>
+        <li><strong>Always use ServiceLocator.ReleaseServiceInstance() to dispose services</strong></li>
+        <li>Never call OnSystemDisposeAsync directly - this is for system use only</li>
+        <li>Unity-specific operations (like Destroy) are automatically handled by the system</li>
+        <li>Check disposal state before any service operation using <code>if (IsDisposed)</code></li>
+        <li>Use async disposal for operations that require cleanup on the main thread</li>
+    </ul>
+</div>
+</div>
+
+<div class="service-type">
+    <h3>MonoBehaviour Services</h3>
+    <p>For MonoBehaviour services, implement <code>IServiceDisposable</code> and provide your cleanup in <code>OnSystemDisposeAsync</code>:</p>
+
+    <div class="code-block">
+        <pre><code>public class NetworkService : MonoBehaviour, INetworkService, IServiceDisposable
+{
+    private NetworkClient _client;
+    private bool _isDisposed;
+    private bool _isDisposing;
+    private TaskCompletionSource<bool> _disposalCompletion = new();
+    
+    public bool IsDisposed => _isDisposed;
+    public bool IsDisposing => _isDisposing;
+    public Task DisposalTask => _disposalCompletion.Task;
+    
+    public async ValueTask OnSystemDisposeAsync()
+    {
+        if (_isDisposed || _isDisposing) return;
+        
+        try
+        {
+            _isDisposing = true;
+            // Cleanup resources
+            if (_client != null)
+            {
+                await _client.DisconnectAsync();
+                _client.Dispose();
+                _client = null;
+            }
+            _isDisposed = true;
+            _disposalCompletion.TrySetResult(true);
+        }
+        catch (Exception ex)
+        {
+            _disposalCompletion.TrySetException(ex);
+            throw;
+        }
+        finally
+        {
+            _isDisposing = false;
+        }
+    }
+}
+
+<div class="info-box">
+    <h4>Important Notes</h4>
+    <ul>
+        <li>Implement all IServiceDisposable properties and methods</li>
+        <li>Unity's GameObject destruction is handled automatically by the system</li>
+        <li>Service Locator manages the disposal lifecycle</li>
+        <li>Always use ServiceLocator.ReleaseServiceInstance() to dispose services</li>
+    </ul>
+</div>
+</div>
+</section>
+
+<section>
+    <h2>When Services are Disposed</h2>
+    <div class="service-type">
+        <h3>Automatic Cleanup</h3>
+        <p>The Service Locator automatically handles disposal in these scenarios:</p>
+        <ul>
+            <li>When unregistering a service</li>
+            <li>When clearing all services</li>
+            <li>When exiting play mode</li>
+            <li>When a scene is unloaded (for scene-specific services)</li>
+        </ul>
+
+        <div class="service-type">
+            <h3>SceneSingleton Disposal</h3>
+            <p>Services with <code>ServiceLifetime.SceneSingleton</code> are automatically disposed when their associated scene is unloaded:</p>
+            
+            <div class="code-block">
+                <pre><code>[Service(typeof(IUIService), "UIService", ServiceLifetime.SceneSingleton)]
+public class UIService : IUIService, IServiceDisposable
+{
+    private bool _isDisposed;
+    private bool _isDisposing;
+    private TaskCompletionSource<bool> _disposalCompletion = new();
+    
+    public bool IsDisposed => _isDisposed;
+    public bool IsDisposing => _isDisposing;
+    public Task DisposalTask => _disposalCompletion.Task;
+    
+    public async ValueTask OnSystemDisposeAsync()
+    {
+        if (_isDisposed || _isDisposing) return;
+        
+        try
+        {
+            _isDisposing = true;
+            // Clean up UI resources when scene unloads
+            Debug.Log("UI Service disposed as scene was unloaded");
+            _isDisposed = true;
+            _disposalCompletion.TrySetResult(true);
+        }
+        catch (Exception ex)
+        {
+            _disposalCompletion.TrySetException(ex);
+            throw;
+        }
+        finally
+        {
+            _isDisposing = false;
+        }
+    }
+}</code></pre>
+            </div>
+            
+            <div class="info-box">
+                <h4>Scene Unloading Process</h4>
+                <ul>
+                    <li><strong>Detection:</strong> ServiceLocator monitors scene unloading events</li>
+                    <li><strong>Service Identification:</strong> All SceneSingleton services tied to the unloading scene are identified</li>
+                    <li><strong>Ordered Disposal:</strong> Services are disposed in dependency order</li>
+                    <li><strong>Reference Clearing:</strong> All references to the disposed services are removed</li>
+                    <li><strong>Memory Release:</strong> Memory is released, preventing memory leaks</li>
+                </ul>
+            </div>
+            
+            <div class="warning">
+                <h4>Important Considerations</h4>
+                <ul>
+                    <li>References to SceneSingleton services should not be stored outside their scene</li>
+                    <li>Always check if a service is disposed before using it after scene loading/unloading</li>
+                    <li>If your service uses Unity objects from its scene, they'll be destroyed during unload</li>
+                    <li>Consider using events rather than direct references for cross-scene service communication</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="code-block">
+            <pre><code>public class GameManager : MonoBehaviour
+{
+    private void OnDisable()
+    {
+        // Service Locator automatically disposes services
+        // when scene is unloaded or play mode exits
+    }
+}
+
+// For testing only - using TestServiceRegistration helper
+// Note: This API is internal and only exposed for testing
+var testRegistration = new TestServiceRegistration();
+await testRegistration.UnregisterService<INetworkService>("NetworkService");
+
+// In production code, services are automatically disposed when:
+// 1. The application exits
+// 2. The scene unloads (for SceneSingleton services)
+// 3. The service scope is disposed (for Transient services)</code></pre>
+        </div>
+
+        <div class="info-box">
+            <h4>Best Practices</h4>
+            <ul>
+                <li>Always check disposed state before operations</li>
+                <li>Implement IServiceDisposable for any service with resources to clean up</li>
+                <li>Make Dispose method idempotent (safe to call multiple times)</li>
+                <li>Release all resources in Dispose</li>
+                <li>Consider implementing async cleanup if needed</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="service-type">
+        <h3>Manual Cleanup</h3>
+        <p>For transient services or when you need explicit control over disposal timing, you can manually dispose services:</p>
+
+        <div class="code-block">
+            <pre><code>// Get the service instance
+var service = ServiceLocator.GetService<INetworkService>("NetworkService");
+
+// Use the service...
+
+// Option 1: Non-blocking release (returns immediately)
+bool queued = ServiceLocator.ReleaseServiceInstance<INetworkService>("NetworkService", service);
+// Note: Service might not be fully disposed yet when this returns
+
+// Option 2: Async release (waits for completion)
+bool released = await ServiceLocator.ReleaseServiceInstanceAsync<INetworkService>("NetworkService", service);
+// Service is now fully disposed
+
+// Service is now disposed and cannot be used
+// Attempting to use it will throw ObjectDisposedException</code></pre>
+        </div>
+
+        <div class="warning">
+            <h4>Important Notes</h4>
+            <ul>
+                <li>Manual disposal is typically only needed for transient services</li>
+                <li>Always use the ServiceLocator methods for proper cleanup:
+                    <ul>
+                        <li>Use ReleaseServiceInstance<T>() for fire-and-forget disposal (non-blocking)</li>
+                        <li>Use ReleaseServiceInstanceAsync<T>() when you need to wait for disposal to complete</li>
+                    </ul>
+                </li>
+                <li>Disposed services cannot be reused</li>
+                <li>Check IsDisposed property before using a service that might have been disposed</li>
+                <li>Be aware that ReleaseServiceInstance returns before disposal is complete</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<div class="page-navigation">
+    <div class="nav-links">
+        <a href="advanced-async-service.html" class="nav-button">
+            <span class="nav-arrow">←</span>
+            <span class="nav-text">
+                <span class="nav-label">Previous</span>
+                <span class="nav-title">Async Service</span>
+            </span>
+        </a>
+        <a href="advanced-dependency.html" class="nav-button">
+            <span class="nav-text">
+                <span class="nav-label">Next</span>
+                <span class="nav-title">Service Dependency</span>
+            </span>
+            <span class="nav-arrow">→</span>
+        </a>
+    </div>
+    <div class="nav-bottom">
+        <a href="advanced.html">Back to Advanced Topics</a>
+        <span class="nav-separator">|</span>
+        <a href="index.html">Documentation Home</a>
+    </div>
+</div>
+</body>
+</html> 

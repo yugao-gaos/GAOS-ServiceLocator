@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Development Story - GAOS Service Locator</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .story-section {
+            margin: 3rem 0;
+            padding: 2rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .story-section h2 {
+            color: #2196F3;
+            margin-bottom: 1.5rem;
+        }
+
+        .story-section p {
+            color: #495057;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .author-info {
+            display: flex;
+            align-items: center;
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: rgba(33, 150, 243, 0.05);
+            border-radius: 12px;
+        }
+
+        .author-info img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin-right: 1.5rem;
+        }
+
+        .author-info .details {
+            flex-grow: 1;
+        }
+
+        .author-info h3 {
+            color: #2196F3;
+            margin: 0 0 0.5rem 0;
+        }
+
+        .author-info .social-link {
+            display: inline-flex;
+            align-items: center;
+            color: #2196F3;
+            text-decoration: none;
+            margin-top: 0.5rem;
+            transition: color 0.3s ease;
+        }
+
+        .author-info .social-link:hover {
+            color: #1976D2;
+        }
+
+        .social-link svg {
+            width: 20px;
+            height: 20px;
+            margin-right: 0.5rem;
+        }
+
+        .quote-box {
+            margin: 2rem 0;
+            padding: 2rem;
+            background: rgba(33, 150, 243, 0.05);
+            border-left: 4px solid #2196F3;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .quote-box p {
+            font-style: italic;
+            color: #1976D2;
+            margin: 0;
+        }
+
+        .timeline {
+            margin: 3rem 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .timeline li {
+            position: relative;
+            padding-left: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .timeline li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0.5rem;
+            width: 12px;
+            height: 12px;
+            background: #2196F3;
+            border-radius: 50%;
+        }
+
+        .timeline li::after {
+            content: "";
+            position: absolute;
+            left: 5px;
+            top: 1rem;
+            bottom: -2rem;
+            width: 2px;
+            background: rgba(33, 150, 243, 0.2);
+        }
+
+        .timeline li:last-child::after {
+            display: none;
+        }
+
+        .timeline h4 {
+            color: #2196F3;
+            margin: 0 0 0.5rem 0;
+        }
+
+        .timeline p {
+            margin: 0;
+            color: #495057;
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-link">← Back to Documentation</a>
+
+    <header>
+        <h1>Development Story</h1>
+        <p>The journey and philosophy behind GAOS Service Locator</p>
+    </header>
+
+    <div class="author-info">
+        <img src="https://media.licdn.com/dms/image/v2/D5603AQF_aMIMyqKpEw/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1679746789475?e=1746057600&v=beta&t=jT0W3KeeLZZyXprr5JTY3_rH4fkoR9GcygW8ZG9A1Ig" alt="Yu Gao" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22><rect width=%22100%22 height=%22100%22 fill=%22%23e0e0e0%22/></svg>'">
+        <div class="details">
+            <h3>Yu Gao</h3>
+            <p>Creator of GAOS Service Locator</p>
+            <a href="https://www.linkedin.com/in/yugao-luckyvr" class="social-link" target="_blank">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                </svg>
+                Connect on LinkedIn
+            </a>
+        </div>
+    </div>
+
+    <div class="story-section">
+        <h2>The Journey</h2>
+        
+        <h3>The AI Experiment</h3>
+        <p>I decided to explore whether Claude (the AI I'm using) could build a production-grade Unity tool. Not just a proof of concept, but a real, practical solution that developers would actually use in their projects. The goal was ambitious: create a Unity-first Service Locator that properly handles MonoBehaviours, ScriptableObjects, and Unity's unique architecture.</p>
+
+        <h3>The Problem</h3>
+        <p>The Service Locator pattern has proven its worth in enterprise software, offering a robust solution for dependency management. However, Unity presents unique challenges. Traditional implementations assume a predictable application lifecycle, but Unity's component-based architecture, scene management, and prefab system require a fundamentally different approach.</p>
+        
+        <div class="info-box" style="background: rgba(33, 150, 243, 0.02); padding: 1.5rem; border-radius: 8px; margin: 1rem 0;">
+            <h4 style="color: #2196F3; margin-bottom: 1rem;">Technical Challenges</h4>
+            <ul style="list-style: none; padding-left: 1rem;">
+                <li style="margin: 0.5rem 0;">🎮 MonoBehaviour instantiation constraints - Services can't be constructed normally</li>
+                <li style="margin: 0.5rem 0;">🔄 Cross-scene service persistence - Services need to survive scene changes</li>
+                <li style="margin: 0.5rem 0;">📦 ScriptableObject integration - Supporting Unity's scriptable architecture</li>
+                <li style="margin: 0.5rem 0;">⚡ Performance optimization - Critical in Unity's Update loops</li>
+            </ul>
+            <p style="margin-top: 1rem;">For detailed technical discussions and solutions, check out the <a href="advanced-why-service-locator.html" style="color: #2196F3;">Why Service Locator</a> page.</p>
+        </div>
+
+        <h3>The Solution</h3>
+        <p>We developed a Unity-first Service Locator with comprehensive features:</p>
+        <ul style="list-style: none; padding-left: 1rem;">
+            <li>✨ Automatic service discovery in scenes</li>
+            <li>🎮 Proper lifecycle management for MonoBehaviours</li>
+            <li>📦 ScriptableObject service support</li>
+            <li>🔄 Scene loading/unloading management</li>
+        </ul>
+
+        <div class="info-box" style="margin-top: 2rem;">
+            <h4>Development Timeline</h4>
+            <p>The project took approximately 36 hours across two weeks in February 2024. We implemented 150 test cases, went through 3 major architecture revisions, and encountered some... interesting interpretations of what a Service Locator should do (more on that in the Plot Twists section 😅).</p>
+        </div>
+    </div>
+
+    <div class="story-section">
+        <h2>Development Philosophy</h2>
+        
+        <div class="philosophy-section" style="margin-bottom: 3rem;">
+            <h3>Test-Driven Development with AI</h3>
+            <div class="info-box" style="background: rgba(33, 150, 243, 0.02); padding: 1.5rem; border-radius: 8px; margin: 1rem 0;">
+                <p style="margin-bottom: 1rem;">Early in development, we learned that AI has a peculiar talent for "creative interpretation" - what started as fixing a simple typo could turn into a surprise complete system overhaul! 😅 This led us to embrace test-driven development as our safety net. With comprehensive test coverage in place, we could let AI's creativity flow while ensuring it didn't accidentally turn our Service Locator into a coffee machine (though that might have been interesting).</p>
+            </div>
+        </div>
+
+        <div class="philosophy-section" style="margin-bottom: 3rem;">
+            <h3>Architectural Design and Modularity</h3>
+            <div class="info-box" style="background: rgba(33, 150, 243, 0.02); padding: 1.5rem; border-radius: 8px;">
+                <p style="margin-bottom: 1rem;">If code architecture is a garden, then AI is like an enthusiastic but occasionally chaotic gardener - you need good fences! 🌳 Unity's Custom Package structure provided the perfect boundaries, naturally separating our codebase into distinct areas. By starting with clear architectural diagrams and module boundaries, we gave our AI gardener a proper blueprint to follow. The result? A well-organized codebase where changes in one area didn't cause unexpected flowers (or bugs) to bloom in another.</p>
+            </div>
+        </div>
+
+        <div class="philosophy-section" style="margin-bottom: 3rem;">
+            <h3>Development Workflow</h3>
+            <div class="info-box" style="background: rgba(33, 150, 243, 0.02); padding: 1.5rem; border-radius: 8px; margin: 1rem 0;">
+                <div style="display: flex; align-items: flex-start; margin-bottom: 1rem;">
+                    <div style="flex: 1;">
+                        <h4 style="color: #2196F3; margin-bottom: 1rem;">Iterative Process</h4>
+                        <ol style="padding-left: 1.5rem;">
+                            <li style="margin: 0.5rem 0;">Design discussion with AI to establish goals and architecture</li>
+                            <li style="margin: 0.5rem 0;">AI implements requested features</li>
+                            <li style="margin: 0.5rem 0;">AI creates corresponding test suites</li>
+                            <li style="margin: 0.5rem 0;">Human-AI collaboration on test failures</li>
+                            <li style="margin: 0.5rem 0;">AI implements fixes</li>
+                            <li style="margin: 0.5rem 0;">Repeat until feature is stable</li>
+                        </ol>
+                    </div>
+                    <div style="flex: 1; margin-left: 2rem;">
+                        <h4 style="color: #2196F3; margin-bottom: 1rem;">Key Metrics</h4>
+                        <ul style="list-style: none; padding-left: 0;">
+                            <li style="margin: 0.5rem 0;">📊 Extensive Test Suite</li>
+                            <li style="margin: 0.5rem 0;">🔄 Multiple Design Iterations</li>
+                            <li style="margin: 0.5rem 0;">⚡ Performance Optimized</li>
+                            <li style="margin: 0.5rem 0;">✅ High Test Coverage</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h3>The Plot Twist</h3>
+        <div class="info-box" style="margin-top: 1rem;">
+            <h4>The Great AI Rate Limit Adventure</h4>
+            <p>Just when development was going smoothly, we hit an unexpected challenge - AI rate limits! The solution? I came up with what seemed like a crazy idea at the time: create a distributed development environment using multiple computers.</p>
+            
+            <div style="background: rgba(33, 150, 243, 0.01); padding: 1.5rem; border-radius: 8px; margin: 1rem 0;">
+                <h5 style="color: #2196F3; margin-bottom: 1rem;">The AI Dev Team Setup</h5>
+                <ul style="list-style: none; padding-left: 1rem;">
+                    <li style="margin: 0.8rem 0;">
+                        <span style="font-weight: bold;">💻 Computer 1: Main Programming Station</span><br>
+                        <span style="color: #666; font-size: 0.9em;">Primary AI programmer handling core implementation and features</span>
+                    </li>
+                    <li style="margin: 0.8rem 0;">
+                        <span style="font-weight: bold;">🧪 Computer 2: Test Suite Specialist</span><br>
+                        <span style="color: #666; font-size: 0.9em;">Dedicated to developing and maintaining comprehensive test coverage</span>
+                    </li>
+                    <li style="margin: 0.8rem 0;">
+                        <span style="font-weight: bold;">📚 Computer 3: Documentation Assistant</span><br>
+                        <span style="color: #666; font-size: 0.9em;">Lower-spec PC focused on documentation tasks</span>
+                    </li>
+                    <li style="margin: 0.8rem 0;">
+                        <span style="font-weight: bold;">🎮 Laptop: Command Center</span><br>
+                        <span style="color: #666; font-size: 0.9em;">Using Parsec to remotely manage all other machines - my virtual office chair! 🪑</span>
+                    </li>
+                </ul>
+            </div>
+            
+            <p>This unorthodox setup turned out to be surprisingly effective. With three AI instances working on different aspects and Parsec letting me coordinate from one spot, it was like conducting a virtual orchestra. The natural waiting times between AI responses actually worked in my favor - just enough time to check on each "team member" and keep the development flowing! 🎵</p>
+            
+            <div class="quote-box" style="margin: 1rem 0;">
+                <p>"Managing three AI programmers is actually quite doable - they never complain about my coffee breaks, and thanks to Parsec, my office chair doesn't need wheels!" 😄</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="story-section">
+        <h2>Future Vision</h2>
+        
+        <div class="info-box" style="background: rgba(33, 150, 243, 0.02); padding: 1.5rem; border-radius: 8px;">
+            <p style="margin-bottom: 1rem;">This project showcases a new AI-human collaboration model where I act more as a technical director than a programmer. AI handles the implementation details while I focus on architecture decisions, test design, and Unity-specific guidance. It's like having a brilliant junior developer who codes at lightning speed but occasionally needs reminders about Unity's quirks! 🚀</p>
+            
+            <h4 style="color: #2196F3; margin: 1rem 0;">Looking Ahead</h4>
+            <p>As AI tools mature, we're focusing on enhancing Unity integration, expanding test frameworks, and optimizing performance. The future of game development might just be a perfect blend of human creativity and AI efficiency. 🎮✨</p>
+        </div>
+    </div>
+
+    <footer>
+        <p><a href="index.html">Back to Documentation</a> | <a href="api.html">API Documentation</a></p>
+    </footer>
+</body>
+</html> 

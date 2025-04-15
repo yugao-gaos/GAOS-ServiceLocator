@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sample Usecases - Advanced Topics</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles-advanced.css">
+    <link rel="stylesheet" href="styles/service-modal.css">
+    <script src="data/service-examples-data.js"></script>
+    <script src="components/service-modal.js"></script>
+    <style>
+        .example-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .example-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid var(--advanced-orange-light);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .example-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .example-card h3 {
+            color: var(--advanced-orange-dark);
+            margin: 0 0 0.5rem 0;
+        }
+
+        .example-card p {
+            color: #495057;
+            margin: 0 0 1rem 0;
+            font-size: 0.95rem;
+        }
+
+        .tag-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .tag {
+            background: rgba(255, 152, 0, 0.1);
+            color: var(--advanced-orange-dark);
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+        }
+
+        .complexity {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            margin-right: 0.5rem;
+        }
+
+        .complexity.low {
+            background: rgba(76, 175, 80, 0.1);
+            color: #2E7D32;
+        }
+
+        .complexity.medium {
+            background: rgba(255, 152, 0, 0.1);
+            color: #E65100;
+        }
+
+        .complexity.high {
+            background: rgba(244, 67, 54, 0.1);
+            color: #C62828;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            overflow-y: auto;
+            padding: 2rem;
+        }
+
+        .modal-content {
+            background: white;
+            max-width: 1000px;
+            margin: 2rem auto;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .modal-header {
+            padding: 2rem;
+            border-bottom: 1px solid rgba(255, 152, 0, 0.2);
+        }
+
+        .modal-header h2 {
+            color: var(--advanced-orange-dark);
+            margin: 0 0 1rem 0;
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #666;
+            cursor: pointer;
+            padding: 0.5rem;
+            line-height: 1;
+        }
+
+        .modal-close:hover {
+            color: var(--advanced-orange-dark);
+        }
+
+        .code-section {
+            margin: 2rem 0;
+        }
+
+        .code-section h4 {
+            color: var(--advanced-orange-dark);
+            margin: 0 0 1rem 0;
+        }
+
+        .code-block {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .info-item {
+            background: rgba(255, 152, 0, 0.05);
+            padding: 1rem;
+            border-radius: 8px;
+        }
+
+        .info-item h5 {
+            color: var(--advanced-orange-dark);
+            margin: 0 0 0.5rem 0;
+        }
+
+        .info-item p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: #495057;
+        }
+
+        .page-navigation {
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 152, 0, 0.2);
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .nav-button {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            background: white;
+            border: 1px solid rgba(255, 152, 0, 0.2);
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--advanced-orange-dark);
+            transition: all 0.2s ease;
+            min-width: 200px;
+        }
+
+        .nav-button:hover {
+            background: rgba(255, 152, 0, 0.05);
+            border-color: var(--advanced-orange-light);
+            transform: translateY(-2px);
+            text-decoration: none;
+        }
+
+        .nav-button.prev {
+            padding-right: 2rem;
+        }
+
+        .nav-button.next {
+            margin-left: auto;
+            padding-left: 2rem;
+        }
+
+        .nav-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .nav-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #666;
+        }
+
+        .nav-title {
+            font-weight: 500;
+            color: var(--advanced-orange-dark);
+        }
+
+        .nav-arrow {
+            font-size: 1.2rem;
+            margin: 0 1rem;
+            color: var(--advanced-orange-dark);
+        }
+
+        .nav-bottom {
+            text-align: center;
+            margin-top: 2rem;
+            color: #666;
+        }
+
+        .nav-bottom a {
+            color: var(--advanced-orange-dark);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .nav-bottom a:hover {
+            color: var(--advanced-orange-deep);
+            text-decoration: underline;
+        }
+
+        .nav-separator {
+            margin: 0 1rem;
+            color: #ccc;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                flex-direction: column;
+            }
+
+            .nav-button {
+                width: 100%;
+            }
+
+            .nav-button.next {
+                margin-left: 0;
+            }
+
+            .modal {
+                padding: 1rem;
+            }
+
+            .modal-content {
+                margin: 1rem;
+            }
+        }
+    </style>
+</head>
+<body class="advanced-content">
+    <a href="advanced.html" class="advanced-back-link">← Back to Advanced Topics</a>
+
+    <header>
+        <h1>Sample Usecases</h1>
+        <p>Browse real-world examples of services implemented using the Service Locator pattern</p>
+    </header>
+
+    <div id="example-grid" class="example-grid">
+        <!-- Examples will be populated by JavaScript -->
+    </div>
+
+    <div class="page-navigation">
+        <div class="nav-links">
+            <a href="advanced-mock-testing.html" class="nav-button">
+                <span class="nav-arrow">←</span>
+                <span class="nav-text">
+                    <span class="nav-label">Previous</span>
+                    <span class="nav-title">Mock Testing</span>
+                </span>
+            </a>
+            <a href="advanced.html" class="nav-button">
+                <span class="nav-text">
+                    <span class="nav-label">Next</span>
+                    <span class="nav-title">Advanced Topics</span>
+                </span>
+                <span class="nav-arrow">→</span>
+            </a>
+        </div>
+        <div class="nav-bottom">
+            <a href="advanced.html">Back to Advanced Topics</a>
+            <span class="nav-separator">|</span>
+            <a href="index.html">Documentation Home</a>
+        </div>
+    </div>
+
+    <script>
+        let modal;
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize the modal
+            modal = new ServiceModal();
+
+            // Populate the grid
+            const grid = document.getElementById('example-grid');
+            const examples = SERVICE_EXAMPLES.examples;
+
+            examples.forEach(example => {
+                const card = document.createElement('div');
+                card.className = 'example-card';
+                card.onclick = () => modal.show(example);
+
+                const complexity = example.complexity.toLowerCase();
+                card.innerHTML = `
+                    <h3>${example.name}</h3>
+                    <p>${example.description}</p>
+                    <div>
+                        <span class="complexity ${complexity}">${example.complexity}</span>
+                        <span class="tag">${example.category}</span>
+                    </div>
+                    <div class="tag-list">
+                        ${example.tags.slice(0, 3).map(tag => `<span class="tag">${tag}</span>`).join('')}
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Service Tool - Advanced Topics</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles-advanced.css">
+    <style>
+        .tool-section {
+            margin: 3rem 0;
+            padding: 2rem;
+            background: white;
+            border-radius: 12px;
+            border-left: 4px solid var(--advanced-orange-light);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .tool-section h3 {
+            color: var(--advanced-orange-dark);
+            margin-top: 0;
+        }
+
+        .screenshot {
+            margin: 1.5rem 0;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            max-width: 100%;
+        }
+
+        .screenshot-container {
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        .screenshot-caption {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 0.5rem;
+        }
+
+        .info-box {
+            background: rgba(255, 152, 0, 0.05);
+            border-left: 4px solid var(--advanced-orange-light);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .warning-box {
+            background: rgba(255, 152, 0, 0.05);
+            border-left: 4px solid #FF9800;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .tip-box {
+            background: rgba(255, 152, 0, 0.05);
+            border-left: 4px solid #4CAF50;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .workflow-steps {
+            list-style: none;
+            padding: 0;
+            margin: 2rem 0;
+            counter-reset: step;
+        }
+
+        .workflow-steps li {
+            position: relative;
+            padding: 1.5rem 2rem 1.5rem 4rem;
+            margin: 0;
+            background: white;
+            border: 1px solid rgba(255, 152, 0, 0.2);
+            border-left: 4px solid var(--advanced-orange-light);
+        }
+
+        .workflow-steps li:not(:last-child) {
+            margin-bottom: 2rem;
+        }
+
+        .workflow-steps li:not(:last-child)::after {
+            content: "";
+            position: absolute;
+            bottom: -2rem;
+            left: 2rem;
+            width: 2px;
+            height: 2rem;
+            background: var(--advanced-orange-light);
+            opacity: 0.5;
+        }
+
+        .workflow-steps li::before {
+            content: counter(step);
+            counter-increment: step;
+            position: absolute;
+            left: -1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 2rem;
+            height: 2rem;
+            background: var(--advanced-orange-light);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .workflow-steps li strong {
+            display: block;
+            color: var(--advanced-orange-dark);
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .workflow-steps li p {
+            margin: 0;
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .feature-list li {
+            padding: 0.5rem 0;
+            margin: 0.25rem 0;
+            color: #495057;
+        }
+
+        .feature-list li strong {
+            color: var(--advanced-orange-dark);
+        }
+
+        .page-navigation {
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 152, 0, 0.2);
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .nav-button {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            background: white;
+            border: 1px solid rgba(255, 152, 0, 0.2);
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--advanced-orange-dark);
+            transition: all 0.2s ease;
+            min-width: 200px;
+        }
+
+        .nav-button:hover {
+            background: rgba(255, 152, 0, 0.05);
+            border-color: var(--advanced-orange-light);
+            transform: translateY(-2px);
+            text-decoration: none;
+        }
+
+        .nav-button.prev {
+            padding-right: 2rem;
+        }
+
+        .nav-button.next {
+            margin-left: auto;
+            padding-left: 2rem;
+        }
+
+        .nav-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .nav-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #666;
+        }
+
+        .nav-title {
+            font-weight: 500;
+            color: var(--advanced-orange-dark);
+        }
+
+        .nav-arrow {
+            font-size: 1.2rem;
+            margin: 0 1rem;
+            color: var(--advanced-orange-dark);
+        }
+
+        .nav-bottom {
+            text-align: center;
+            margin-top: 2rem;
+            color: #666;
+        }
+
+        .nav-bottom a {
+            color: var(--advanced-orange-dark);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .nav-bottom a:hover {
+            color: var(--advanced-orange-deep);
+            text-decoration: underline;
+        }
+
+        .nav-separator {
+            margin: 0 1rem;
+            color: #ccc;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                flex-direction: column;
+            }
+
+            .nav-button {
+                width: 100%;
+            }
+
+            .nav-button.next {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body class="advanced-content">
+    <a href="advanced.html" class="advanced-back-link">← Back to Advanced Topics</a>
+
+    <header>
+        <h1>Create Service Tool</h1>
+        <p>Visual interface for creating services without writing code</p>
+    </header>
+
+    <div class="tool-section">
+        <h3>Tool Overview</h3>
+        <p>The Create Service Tool provides a streamlined workflow for creating services in Unity. Access it through <code>GAOS > Service Locator > Create New Service</code> in Unity's menu bar.</p>
+
+        <div class="info-box">
+            <h4>Two-State Workflow</h4>
+            <ul class="feature-list">
+                <li><strong>Creation State:</strong> Configure service settings and add to review queue</li>
+                <li><strong>Review State:</strong> Review, edit, or remove pending services before writing to disk</li>
+            </ul>
+        </div>
+
+        <div class="screenshot-container">
+            <img src="images/create-service.png" alt="Service Creation Interface" class="screenshot">
+            <p class="screenshot-caption">Service Creation Interface with all configuration options</p>
+        </div>
+    </div>
+
+    <div class="tool-section">
+        <h3>Service Configuration</h3>
+        
+        <div class="info-box">
+            <h4>Service Settings</h4>
+            <ul class="feature-list">
+                <li><strong>Service Name:</strong> The name of your service class</li>
+                <li><strong>Namespace:</strong> Optional namespace for your service (can use existing or create new)</li>
+                <li><strong>Description:</strong> Optional description for documentation</li>
+            </ul>
+        </div>
+
+        <div class="info-box">
+            <h4>Interface Settings</h4>
+            <ul class="feature-list">
+                <li><strong>Interface Only:</strong> Create just the interface without implementation</li>
+                <li><strong>Use Existing Interface:</strong> Select an existing interface instead of creating a new one</li>
+            </ul>
+        </div>
+
+        <div class="info-box">
+            <h4>Implementation Settings</h4>
+            <ul class="feature-list">
+                <li><strong>Service Type:</strong>
+                    <ul>
+                        <li>Regular: Standard C# class service</li>
+                        <li>MonoBehaviour: Component-based service for scene functionality</li>
+                        <li>ScriptableObject: Asset-based service for configuration and shared data</li>
+                    </ul>
+                </li>
+                <li><strong>Auto Register:</strong> 
+                    <ul>
+                        <li>Adds [Service] attribute for automatic registration</li>
+                        <li>Configures service name, lifetime, and context</li>
+                        <li>For ScriptableObject, adds [CreateAssetMenu] attribute</li>
+                    </ul>
+                </li>
+                <li><strong>Registration Context:</strong>
+                    <ul>
+                        <li>Runtime: Service available only during play mode</li>
+                        <li>Editor: Service available only in editor</li>
+                        <li>Both: Service available in both contexts</li>
+                    </ul>
+                </li>
+                <li><strong>Service Lifetime:</strong>
+                    <ul>
+                        <li>Singleton: One instance shared across the application</li>
+                        <li>Transient: New instance created per request (not available for MonoBehaviour/ScriptableObject)</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <div class="info-box">
+            <h4>Directory Settings</h4>
+            <ul class="feature-list">
+                <li><strong>Scripts Directory:</strong> Choose where to save the generated service files</li>
+                <li><strong>Browse:</strong> Use the Browse button to select a directory in your project</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="tool-section">
+        <h3>Bulk Creation Workflow</h3>
+        <p>Create multiple services efficiently in a single session:</p>
+
+        <div class="screenshot-container">
+            <img src="images/review-services.png" alt="Service Review Interface" class="screenshot">
+            <p class="screenshot-caption">Review Interface showing pending services</p>
+        </div>
+
+        <ol class="workflow-steps">
+            <li>
+                <strong>Configure Service</strong>
+                <p>Use the creation interface to set up your service details, including name, type, and settings</p>
+            </li>
+            <li>
+                <strong>Add to Queue</strong>
+                <p>Click "Add Service" to add the configured service to the review queue for bulk processing</p>
+            </li>
+            <li>
+                <strong>Add More Services</strong>
+                <p>Continue adding more services to create multiple services in one session</p>
+            </li>
+            <li>
+                <strong>Enter Review Mode</strong>
+                <p>Click "Review Pending Services" to see all services queued for creation</p>
+            </li>
+            <li>
+                <strong>Review and Adjust</strong>
+                <p>Review each service, make any necessary edits, or remove services from the queue</p>
+            </li>
+            <li>
+                <strong>Generate Services</strong>
+                <p>Click "Confirm Writing" to generate all service files in your project</p>
+            </li>
+        </ol>
+
+        <div class="warning-box">
+            <h4>Important Notes</h4>
+            <ul class="feature-list">
+                <li>Service names must be valid C# identifiers</li>
+                <li>The tool validates service configurations before allowing creation</li>
+                <li>Existing files will prompt for confirmation before overwriting</li>
+                <li>Service state is preserved if you accidentally close the window</li>
+            </ul>
+        </div>
+
+        <div class="tip-box">
+            <h4>Best Practices</h4>
+            <ul class="feature-list">
+                <li>Use descriptive service names that reflect their purpose</li>
+                <li>Organize services in appropriate namespaces for better code organization</li>
+                <li>Consider using the bulk creation workflow for related services</li>
+                <li>Review generated services in the Type Cache Inspector after creation</li>
+            </ul>
+        </div>
+
+        <div class="tip-box">
+            <h4>ScriptableObject Service Tips</h4>
+            <ul>
+                <li>Initialize services in OnEnable</li>
+                <li>Implement IServiceDisposable for cleanup if needed</li>
+                <li>Consider thread safety for shared data</li>
+                <li>Use SerializeField for Unity Inspector configuration</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="page-navigation">
+        <div class="nav-links">
+            <a href="advanced-why-service-locator.html" class="nav-button">
+                <span class="nav-arrow">←</span>
+                <span class="nav-text">
+                    <span class="nav-label">Previous</span>
+                    <span class="nav-title">Why Service Locator</span>
+                </span>
+            </a>
+            <a href="advanced-registration.html" class="nav-button">
+                <span class="nav-text">
+                    <span class="nav-label">Next</span>
+                    <span class="nav-title">Service Registration</span>
+                </span>
+                <span class="nav-arrow">→</span>
+            </a>
+        </div>
+        <div class="nav-bottom">
+            <a href="advanced.html">Back to Advanced Topics</a>
+            <span class="nav-separator">|</span>
+            <a href="index.html">Documentation Home</a>
+        </div>
+    </div>
+</body>
+</html> 

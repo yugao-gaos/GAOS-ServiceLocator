@@ -1,0 +1,1601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Creation Wizard - GAOS Service Locator</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles-advanced.css">
+    <link rel="stylesheet" href="styles/service-modal.css">
+    <script src="data/service-examples-data.js"></script>
+    <script src="components/service-modal.js"></script>
+    <style>
+        /* Service Wizard specific heading colors */
+        body > header h1,
+        .question-card h2,
+        #result h2 {
+            color: #4CAF50;
+        }
+
+        .back-link {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            margin-bottom: 2rem;
+            transition: background 0.3s;
+        }
+
+        .back-link:hover {
+            background: #388E3C;
+        }
+
+        .wizard-progress {
+            display: flex;
+            justify-content: space-between;
+            margin: 2rem 0;
+            position: relative;
+            padding: 0 1rem;
+        }
+
+        .wizard-step {
+            background: #4CAF50;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            opacity: 0.3;
+        }
+
+        .wizard-step.active {
+            opacity: 1;
+        }
+
+        .wizard-step.completed {
+            opacity: 0.7;
+        }
+
+        .question-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            text-align: left;
+            background: white;
+            border: 1px solid #4CAF50;
+            border-radius: 6px;
+            color: #4CAF50;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            z-index: 1;
+        }
+
+        .option-button:hover {
+            background: rgba(76, 175, 80, 0.1);
+            z-index: 2;
+        }
+
+        .option-button.selected {
+            background: #4CAF50;
+            color: white;
+            z-index: 2;
+        }
+
+        .option-button * {
+            pointer-events: none;
+        }
+
+        .example-item {
+            background: white;
+            border-radius: 3px;
+            padding: 0.75rem;
+            margin-top: 1rem;
+            border-left: 3px solid var(--advanced-orange-light);
+        }
+
+        .example-item h4 {
+            margin: 0 0 0.5rem 0;
+            color: var(--advanced-orange-dark);
+        }
+
+        .example-meta {
+            display: flex;
+            gap: 1rem;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .advanced-tag {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: rgba(255, 152, 0, 0.1);
+            color: var(--advanced-orange-dark);
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+        }
+
+        .nav-button {
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .nav-button.secondary {
+            background: white;
+            color: #4CAF50;
+            border: 1px solid #4CAF50;
+        }
+
+        .nav-button.primary {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            margin-bottom: 2rem;
+            transition: background 0.3s;
+        }
+
+        .nav-button.primary:hover {
+            background: #388E3C;
+            text-decoration: none;
+        }
+
+        .nav-button:hover {
+            transform: translateY(-2px);
+        }
+
+        .nav-button.secondary:hover {
+            background: rgba(76, 175, 80, 0.1);
+        }
+
+        .wizard-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .question-card {
+            display: none;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            padding: 2rem;
+            margin: 2rem 0;
+            transition: opacity 0.3s;
+        }
+
+        .question-card.active {
+            display: block;
+        }
+
+        .result-card {
+            display: none;
+            background: var(--code-bg);
+            border-radius: 5px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .progress-container {
+            margin: 2rem 0;
+            position: relative;
+        }
+
+        .progress-labels {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            z-index: 3;
+            padding: 0;
+            height: 60px;
+        }
+
+        .progress-step {
+            flex: 1;
+            text-align: center;
+            font-size: 0.9rem;
+            color: #4CAF50;
+            transition: all 0.3s;
+            padding: 0.5rem;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            z-index: 3;
+        }
+
+        .progress-step.active {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        .progress-step.answered {
+            color: white;
+            cursor: pointer;
+        }
+
+        /* Add new rule for when step is both active and answered */
+        .progress-step.active.answered {
+            color: white;
+        }
+
+        .progress-step span {
+            display: block;
+            font-size: 0.8rem;
+            margin-top: 0.2rem;
+            opacity: 0;
+            transition: opacity 0.3s;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            position: relative;
+            z-index: 3;
+        }
+
+        .progress-step.answered span {
+            opacity: 1;
+            color: white;
+        }
+
+        /* Add new rule for active step span when answered */
+        .progress-step.active.answered span {
+            opacity: 1;
+            color: white;
+        }
+
+        .progress-bar {
+            height: 60px;
+            background: rgba(76, 175, 80, 0.1);
+            border-radius: 30px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #4CAF50;
+            border-radius: 30px;
+            opacity: 1;
+            transition: width 0.3s;
+            z-index: 2;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .info-tip {
+            background: #e3f2fd;
+            border-left: 4px solid var(--primary-color);
+            padding: 1rem;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+        }
+
+        .restart-button {
+            display: block;
+            width: 100%;
+            padding: 1rem;
+            margin: 2rem 0;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .restart-button:hover {
+            background: #388E3C;
+        }
+
+        /* Result card specific styles */
+        #result {
+            width: 100%;
+            max-width: 100%;
+        }
+
+        #result pre {
+            width: 100%;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .code-container {
+            position: relative;
+            margin: 1rem 0;
+        }
+
+        .implementation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .implementation-header h3 {
+            margin: 0;
+        }
+
+        .copy-button {
+            padding: 0.5rem 1rem;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+
+        .copy-button:hover {
+            opacity: 1;
+            background: #388E3C;
+        }
+
+        .learn-more {
+            display: block;
+            margin: 2rem 0;
+            padding: 1rem;
+            background: #e3f2fd;
+            border-left: 4px solid var(--primary-color);
+            border-radius: 0 5px 5px 0;
+            text-decoration: none;
+            color: var(--text-color);
+            transition: background 0.2s;
+        }
+
+        .learn-more:hover {
+            background: #bbdefb;
+            text-decoration: none;
+        }
+
+        /* Example list styles */
+        .examples-list {
+            display: none;
+            margin: 1.5rem 0;
+            padding: 1rem;
+            background: #f5f7fa;
+            border-radius: 5px;
+            border: 1px solid #e0e6ed;
+        }
+
+        .examples-list.active {
+            display: block;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .another-example-button {
+            flex: 1;
+            padding: 1rem;
+            background: var(--code-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .another-example-button:hover {
+            background: var(--border-color);
+        }
+
+        .next-button {
+            flex: 1;
+            padding: 1rem;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .next-button:hover {
+            background: #388E3C;
+        }
+
+        .no-examples {
+            padding: 1rem;
+            background: #fff3cd;
+            border-left: 3px solid #ffc107;
+            margin: 1rem 0;
+            border-radius: 0 5px 5px 0;
+        }
+
+        .example-metadata {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        .example-metadata span {
+            margin-right: 1rem;
+        }
+        .category {
+            color: var(--advanced-orange-dark);
+        }
+        .complexity {
+            font-style: italic;
+        }
+
+        /* Add loading spinner styles */
+        .loading-spinner {
+            display: none;
+            width: 40px;
+            height: 40px;
+            margin: 20px auto;
+            border: 3px solid var(--border-color);
+            border-radius: 50%;
+            border-top-color: #4CAF50;
+            animation: spin 0.8s linear infinite;
+        }
+
+        .loading-spinner.active {
+            display: block;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Fade transition for examples */
+        .examples-list {
+            transition: opacity 0.3s ease-out;
+            opacity: 1;
+        }
+
+        .examples-list.fade-out {
+            opacity: 0;
+        }
+
+        .examples-list.hidden {
+            display: none;
+        }
+
+        /* Add styles for simple example box */
+        .simple-example {
+            background: rgba(255, 152, 0, 0.05);
+            border-left: 4px solid var(--advanced-orange-light);
+            padding: 1rem;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+            transition: all 0.3s ease-out;
+            max-height: 200px;
+        }
+
+        .simple-example.fade-out {
+            opacity: 0;
+            max-height: 0;
+            padding: 0;
+            margin: 0;
+            border-width: 0;
+        }
+
+        /* Add styles for similar examples section */
+        .similar-examples {
+            margin: 2rem 0;
+            padding: 1rem;
+            background: rgba(255, 152, 0, 0.05);
+            border-left: 4px solid var(--advanced-orange-dark);
+            border-radius: 0 5px 5px 0;
+        }
+
+        .similar-examples h3 {
+            margin-top: 0;
+            color: var(--advanced-orange-dark);
+        }
+
+        .similar-examples ul {
+            list-style: disc;
+            padding-left: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .example-button {
+            display: block;
+            width: 100%;
+            padding: 0.75rem 1rem;
+            margin: 0.5rem 0;
+            background: white;
+            border: 1px solid var(--advanced-orange-light);
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s;
+            color: var(--advanced-orange-dark);
+            font-size: 1rem;
+        }
+
+        .example-button:hover {
+            background: rgba(255, 152, 0, 0.1);
+            transform: translateX(5px);
+        }
+
+        .example-dialog {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 2rem;
+            border-radius: 5px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            max-width: 800px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .example-dialog-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        .example-dialog .close-button {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-color);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            overflow-y: auto;
+            padding: 2rem;
+        }
+
+        .modal-content {
+            background: white;
+            max-width: 1000px;
+            margin: 2rem auto;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .modal-header {
+            padding: 2rem;
+            border-bottom: 1px solid rgba(255, 152, 0, 0.2);
+        }
+
+        .modal-header h2 {
+            color: var(--advanced-orange-dark);
+            margin: 0 0 1rem 0;
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #666;
+            cursor: pointer;
+            padding: 0.5rem;
+            line-height: 1;
+        }
+
+        .modal-close:hover {
+            color: var(--advanced-orange-dark);
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .info-item {
+            background: rgba(255, 152, 0, 0.05);
+            padding: 1rem;
+            border-radius: 8px;
+        }
+
+        .info-item h5 {
+            color: var(--advanced-orange-dark);
+            margin: 0 0 0.5rem 0;
+        }
+
+        .info-item p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: #495057;
+        }
+
+        @media (max-width: 768px) {
+            .modal {
+                padding: 1rem;
+            }
+
+            .modal-content {
+                margin: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="concepts.html" class="back-link" id="back-link">← Back</a>
+
+    <header>
+        <h1>Service Creation Wizard</h1>
+        <p>Answer a few questions to determine the best service setup for your needs</p>
+    </header>
+
+    <div class="wizard-container">
+        <div class="progress-container">
+            <div class="progress-labels">
+                <div class="progress-step" id="step1">
+                    State
+                    <span></span>
+                </div>
+                <div class="progress-step" id="step2">
+                    Unity Integration
+                    <span></span>
+                </div>
+                <div class="progress-step" id="step3">
+                    Availability
+                    <span></span>
+                </div>
+                <div class="progress-step" id="step4">
+                    Instance
+                    <span></span>
+                </div>
+                <div class="progress-step" id="step5">
+                    Result
+                    <span></span>
+                </div>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <!-- Question 1: State Management -->
+        <div class="question-card active" id="q1">
+            <h2>1. Does your service need to maintain state?</h2>
+            <p>State refers to data that persists between service calls (e.g., settings, cached data, current status)</p>
+            <div class="simple-example" id="simple-example-q1">
+                Example: A GameSettingsService that stores volume levels needs state, while a MathService that just performs calculations doesn't.
+            </div>
+            <button class="option-button" data-value="yes">Yes, needs to maintain state</button>
+            <button class="option-button" data-value="no">No, stateless operations only</button>
+            <div class="loading-spinner" id="spinner-q1"></div>
+            <div class="examples-list" id="examples-q1"></div>
+            <div class="button-group">
+                <button class="another-example-button" style="display: none;" onclick="showAnotherExample('q1')">Show Another Example</button>
+                <button class="next-button" style="display: none;" onclick="nextQuestion()">Next Question →</button>
+            </div>
+        </div>
+
+        <!-- Question 2: Unity Integration -->
+        <div class="question-card" id="q2">
+            <h2>2. How does your service interact with Unity?</h2>
+            <p>Choose the level of Unity integration your service requires</p>
+            <div class="simple-example" id="simple-example-q2">
+                Example: An InputManager needs scene interaction for Update() calls, while a DataValidator works without Unity integration.
+            </div>
+            <button class="option-button" data-value="none">No Unity integration needed (pure C# logic)</button>
+            <button class="option-button" data-value="scene">Needs scene interaction or Unity lifecycle</button>
+            <button class="option-button" data-value="config">Needs Unity Inspector configuration</button>
+            <div class="loading-spinner" id="spinner-q2"></div>
+            <div class="examples-list" id="examples-q2"></div>
+            <div class="button-group">
+                <button class="another-example-button" style="display: none;" onclick="showAnotherExample('q2')">Show Another Example</button>
+                <button class="next-button" style="display: none;" onclick="nextQuestion()">Next Question →</button>
+            </div>
+        </div>
+
+        <!-- Question 3: Availability Context -->
+        <div class="question-card" id="q3">
+            <h2>3. When should the service be available?</h2>
+            <p>Choose when your service needs to operate</p>
+            <div class="simple-example" id="simple-example-q3">
+                Example: A LevelEditorService is EditorOnly, while a PlayerProgressService needs to run during gameplay (Runtime).
+            </div>
+            <button class="option-button" data-value="runtime">Only during gameplay (Runtime)</button>
+            <button class="option-button" data-value="editor">Only in Unity Editor (EditorOnly)</button>
+            <button class="option-button" data-value="both">Both gameplay and editor (RuntimeAndEditor)</button>
+            <div class="loading-spinner" id="spinner-q3"></div>
+            <div class="examples-list" id="examples-q3"></div>
+            <div class="button-group">
+                <button class="another-example-button" style="display: none;" onclick="showAnotherExample('q3')">Show Another Example</button>
+                <button class="next-button" style="display: none;" onclick="nextQuestion()">Next Question →</button>
+            </div>
+        </div>
+
+        <!-- Question 4: Instance Management -->
+        <div class="question-card" id="q4">
+            <h2>4. How should instances be managed?</h2>
+            <p>Choose how service instances should be created and managed</p>
+            <div class="simple-example" id="simple-example-q4">
+                Example: GameSettingsService can be Singleton (shared across app), LevelManagerService as SceneSingleton (one per scene), LocalizationService as Transient (new per request), or EnemyFactoryService as SceneTransient (new per request within scene).
+            </div>
+            <button class="option-button" data-value="singleton">Single shared instance</button>
+            <button class="option-button" data-value="sceneSingleton">Single instance per scene</button>
+            <button class="option-button" data-value="transient">New instance per request</button>
+            <button class="option-button" data-value="sceneTransient">New instance per request within scene</button>
+            <div class="loading-spinner" id="spinner-q4"></div>
+            <div class="examples-list" id="examples-q4"></div>
+            <div class="button-group">
+                <button class="another-example-button" style="display: none;" onclick="showAnotherExample('q4')">Show Another Example</button>
+                <button class="next-button" style="display: none;" onclick="nextQuestion()">See Recommendation →</button>
+            </div>
+        </div>
+
+        <!-- Result Card as a separate step -->
+        <div class="question-card" id="result">
+            <h2>Recommended Service Setup</h2>
+            <div id="recommendation"></div>
+            <button class="restart-button" onclick="restartWizard()">Start Over</button>
+        </div>
+    </div>
+
+    <script>
+        let serviceExamples = null;
+        let currentExamples = {};
+        let currentQuestion = 1;
+        const totalQuestions = 5;
+        let answers = {};
+        let previousAnswers = {};
+        let modal = null;
+
+        // Add function to update back link based on referrer
+        function updateBackLink() {
+            const backLink = document.getElementById('back-link');
+            const urlParams = new URLSearchParams(window.location.search);
+            const source = urlParams.get('source');
+            
+            if (source === 'concepts') {
+                backLink.href = 'concepts.html';
+                backLink.textContent = '← Back to Core Concepts';
+            } else if (source === 'quickstart') {
+                backLink.href = 'quick-start.html';
+                backLink.textContent = '← Back to Quick Start';
+            } else {
+                backLink.href = 'index.html';
+                backLink.textContent = '← Back to Documentation';
+            }
+        }
+
+        // Initialize by loading examples and updating back link
+        document.addEventListener('DOMContentLoaded', async () => {
+            const loaded = await loadServiceExamples();
+            if (!loaded) {
+                console.warn('Failed to load initial examples');
+            }
+            updateBackLink();
+        });
+
+        // Load examples from JSON file when the page loads
+        async function loadServiceExamples() {
+            try {
+                // Use the global SERVICE_EXAMPLES variable
+                if (typeof SERVICE_EXAMPLES === 'undefined') {
+                    throw new Error('Service examples data not loaded. Please check if service-examples-data.js is properly included.');
+                }
+                serviceExamples = SERVICE_EXAMPLES;
+                console.log('Service examples loaded successfully:', serviceExamples);
+                return true;
+            } catch (error) {
+                console.error('Failed to load service examples:', error);
+                const examplesContainers = document.querySelectorAll('.examples-list');
+                examplesContainers.forEach(container => {
+                    container.innerHTML = `
+                        <div class="no-examples" style="background: #fff3cd; padding: 1rem; border-left: 3px solid #ffc107;">
+                            Error loading examples. Please check if service-examples-data.js exists and is properly loaded.
+                            <br>Error: ${error.message}
+                        </div>
+                    `;
+                });
+                return false;
+            }
+        }
+
+        async function showExamples(questionId, value) {
+            const examplesContainer = document.getElementById(`examples-${questionId}`);
+            const spinner = document.getElementById(`spinner-${questionId}`);
+            const questionCard = document.getElementById(questionId);
+            const simpleExample = document.getElementById(`simple-example-${questionId}`);
+            
+            // Show loading spinner immediately
+            spinner.classList.add('active');
+            
+            // Hide simple example with a slight delay
+            if (simpleExample) {
+                simpleExample.classList.add('fade-out');
+                await new Promise(resolve => setTimeout(resolve, 300));
+            }
+
+            try {
+                // If examples haven't been loaded yet, try loading them
+                if (!serviceExamples) {
+                    const loaded = await loadServiceExamples();
+                    if (!loaded) {
+                        throw new Error('Failed to load service examples');
+                    }
+                }
+
+                // Simulate loading delay
+                await new Promise(resolve => setTimeout(resolve, 500));
+
+                // Filter examples based on all accumulated answers
+                let matchingExamples = serviceExamples.examples;
+
+                // Apply filters based on current question and all previous answers
+                if (answers.state) {
+                    matchingExamples = matchingExamples.filter(example => 
+                        example.has_state === (answers.state === 'yes')
+                    );
+                }
+                if (answers.unity) {
+                    matchingExamples = matchingExamples.filter(example => 
+                        example.unity_integration === answers.unity
+                    );
+                }
+                if (answers.availability) {
+                    matchingExamples = matchingExamples.filter(example => 
+                        example.context === mapContextToDatabase(answers.availability)
+                    );
+                }
+                if (answers.instances) {
+                    matchingExamples = matchingExamples.filter(example => 
+                        example.lifetime === answers.instances
+                    );
+                }
+
+                // Apply current answer if not already in answers object
+                switch(questionId) {
+                    case 'q1':
+                        matchingExamples = matchingExamples.filter(example => 
+                            example.has_state === (value === 'yes')
+                        );
+                        break;
+                    case 'q2':
+                        matchingExamples = matchingExamples.filter(example => 
+                            example.unity_integration === value
+                        );
+                        break;
+                    case 'q3':
+                        matchingExamples = matchingExamples.filter(example => 
+                            example.context === mapContextToDatabase(value)
+                        );
+                        break;
+                    case 'q4':
+                        matchingExamples = matchingExamples.filter(example => 
+                            example.lifetime === value
+                        );
+                        break;
+                }
+
+                // Store matching examples for this question
+                currentExamples[questionId] = matchingExamples;
+
+                if (matchingExamples.length > 0) {
+                    await showRandomExample(questionId);
+                    
+                    // Show buttons
+                    const anotherExampleBtn = questionCard.querySelector('.another-example-button');
+                    const nextBtn = questionCard.querySelector('.next-button');
+                    
+                    anotherExampleBtn.style.display = matchingExamples.length > 1 ? 'block' : 'none';
+                    nextBtn.style.display = 'block';
+                } else {
+                    examplesContainer.innerHTML = `
+                        <div class="no-examples">
+                            No examples match your exact requirements so far:
+                            ${answers.state ? `<br>- State: ${answers.state === 'yes' ? 'Stateful' : 'Stateless'}` : '<br>- State: Not answered yet'}
+                            ${answers.unity ? `<br>- Unity Integration: ${answers.unity === 'none' ? 'Pure C#' : answers.unity === 'scene' ? 'Scene-based' : 'Inspector Config'}` : '<br>- Unity Integration: Not answered yet'}
+                            ${answers.availability ? `<br>- Availability: ${answers.availability === 'runtime' ? 'Runtime' : answers.availability === 'editor' ? 'Editor Only' : 'Runtime & Editor'}` : '<br>- Availability: Not answered yet'}
+                            ${answers.instances ? `<br>- Instance: ${answers.instances === 'singleton' ? 'Singleton' : 'Transient'}` : '<br>- Instance: Not answered yet'}
+                        </div>
+                    `;
+                    questionCard.querySelector('.another-example-button').style.display = 'none';
+                    questionCard.querySelector('.next-button').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error showing examples:', error);
+                examplesContainer.innerHTML = `
+                    <div class="no-examples">
+                        Error loading examples. Please try again.
+                        <br>Error: ${error.message}
+                    </div>
+                `;
+            } finally {
+                // Always hide spinner and show examples container
+                spinner.classList.remove('active');
+                examplesContainer.classList.remove('fade-out');
+                examplesContainer.classList.add('active');
+            }
+        }
+
+        async function showRandomExample(questionId) {
+            const examples = currentExamples[questionId];
+            const examplesContainer = document.getElementById(`examples-${questionId}`);
+            const spinner = document.getElementById(`spinner-${questionId}`);
+            
+            // Show loading spinner
+            spinner.classList.add('active');
+            examplesContainer.classList.add('fade-out');
+
+            // Simulate loading delay
+            await new Promise(resolve => setTimeout(resolve, 300));
+            
+            if (examples && examples.length > 0) {
+                const randomExample = examples[Math.floor(Math.random() * examples.length)];
+                examplesContainer.innerHTML = `
+                    <div class="example-item">
+                        <h4>${randomExample.name}</h4>
+                        <p>${randomExample.description}</p>
+                        <div class="example-metadata">
+                            <span class="category">Category: ${randomExample.category}</span>
+                            <span class="complexity">Complexity: ${randomExample.complexity}</span>
+                            <span class="tags">Tags: ${randomExample.tags.join(', ')}</span>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Hide spinner and show examples
+            spinner.classList.remove('active');
+            examplesContainer.classList.remove('fade-out');
+        }
+
+        function showAnotherExample(questionId) {
+            showRandomExample(questionId);
+        }
+
+        function mapContextToDatabase(context) {
+            switch(context) {
+                case 'runtime': return 'runtime';
+                case 'editor': return 'editor_only';
+                case 'both': return 'runtime_and_editor';
+                default: return null;
+            }
+        }
+
+        function countMatchingCriteria(example) {
+            let matches = 0;
+            if (answers.state && example.has_state === (answers.state === 'yes')) matches++;
+            if (answers.unity && example.unity_integration === answers.unity) matches++;
+            if (answers.availability && example.context === mapContextToDatabase(answers.availability)) matches++;
+            if (answers.instances && example.lifetime === answers.instances) matches++;
+            return matches;
+        }
+
+        // Add styles for the new metadata section
+        const style = document.createElement('style');
+        style.textContent = `
+            .example-metadata {
+                margin-top: 0.5rem;
+                font-size: 0.9rem;
+                color: #666;
+            }
+            .example-metadata span {
+                margin-right: 1rem;
+            }
+            .category {
+                color: #4CAF50;
+            }
+            .complexity {
+                font-style: italic;
+            }
+        `;
+        document.head.appendChild(style);
+
+        function updateProgress() {
+            let progress = 0;
+            
+            // Set fixed progress based on answered questions
+            if (answers.state) progress = 20;
+            if (answers.unity) progress = 40;
+            if (answers.availability) progress = 60;
+            if (answers.instances) progress = 80;
+            
+            document.querySelector('.progress-fill').style.width = `${progress}%`;
+            
+            // Update progress step styles
+            document.querySelectorAll('.progress-step').forEach((step, index) => {
+                step.classList.remove('active');
+                if (index + 1 === currentQuestion) {
+                    step.classList.add('active');
+                }
+            });
+
+            // Update choice labels
+            if (answers.state) {
+                const step1 = document.getElementById('step1');
+                step1.classList.add('answered');
+                step1.querySelector('span').textContent = answers.state === 'yes' ? 'Stateful' : 'Stateless';
+            }
+            
+            if (answers.unity) {
+                const step2 = document.getElementById('step2');
+                step2.classList.add('answered');
+                step2.querySelector('span').textContent = answers.unity === 'none' ? 'Pure C#' : 
+                    answers.unity === 'scene' ? 'Scene-based' : 'Inspector Config';
+            }
+            
+            if (answers.availability) {
+                const step3 = document.getElementById('step3');
+                step3.classList.add('answered');
+                step3.querySelector('span').textContent = answers.availability === 'runtime' ? 'Runtime' :
+                    answers.availability === 'editor' ? 'Editor Only' : 'Runtime & Editor';
+            }
+            
+            if (answers.instances) {
+                const step4 = document.getElementById('step4');
+                step4.classList.add('answered');
+                step4.querySelector('span').textContent = answers.instances === 'singleton' ? 'Singleton' : 
+                    answers.instances === 'sceneSingleton' ? 'SceneSingleton' : 
+                    answers.instances === 'transient' ? 'Transient' : 'SceneTransient';
+            }
+        }
+
+        function showQuestion(questionNumber) {
+            // Hide all questions and the result page
+            document.querySelectorAll('.question-card, #result').forEach(card => {
+                card.style.display = 'none';
+            });
+            
+            // Hide all examples and navigation buttons
+            document.querySelectorAll('.examples-list').forEach(list => {
+                list.classList.add('hidden');
+                list.innerHTML = '';
+            });
+            document.querySelectorAll('.loading-spinner').forEach(spinner => {
+                spinner.classList.remove('active');
+            });
+            document.querySelectorAll('.button-group button').forEach(button => {
+                button.style.display = 'none';
+            });
+            
+            // If it's the result page
+            if (questionNumber === 5) {
+                generateRecommendation();
+                document.getElementById('result').style.display = 'block';
+                return;
+            }
+            
+            // Show the target question
+            const targetQuestion = document.getElementById(`q${questionNumber}`);
+            if (targetQuestion) {
+                targetQuestion.style.display = 'block';
+                
+                // Show simple example by default
+                const simpleExample = targetQuestion.querySelector('.simple-example');
+                if (simpleExample) {
+                    simpleExample.classList.remove('fade-out');
+                    
+                    // Add previous selection text if exists
+                    let previousValue = '';
+                    switch(questionNumber) {
+                        case 1:
+                            if (previousAnswers.state) {
+                                previousValue = previousAnswers.state === 'yes' ? 'Stateful' : 
+                                              previousAnswers.state === 'no' ? 'Stateless' : '';
+                            }
+                            break;
+                        case 2:
+                            if (previousAnswers.unity) {
+                                previousValue = previousAnswers.unity === 'none' ? 'Pure C#' : 
+                                              previousAnswers.unity === 'scene' ? 'Scene-based' : 
+                                              previousAnswers.unity === 'config' ? 'Inspector Config' : '';
+                            }
+                            break;
+                        case 3:
+                            if (previousAnswers.availability) {
+                                previousValue = previousAnswers.availability === 'runtime' ? 'Runtime' :
+                                              previousAnswers.availability === 'editor' ? 'Editor Only' : 
+                                              previousAnswers.availability === 'both' ? 'Runtime & Editor' : '';
+                            }
+                            break;
+                        case 4:
+                            if (previousAnswers.instances) {
+                                previousValue = previousAnswers.instances === 'singleton' ? 'Singleton' : 
+                                              previousAnswers.instances === 'sceneSingleton' ? 'SceneSingleton' : 
+                                              previousAnswers.instances === 'transient' ? 'Transient' : 'SceneTransient';
+                            }
+                            break;
+                    }
+                    
+                    // Add or update previous selection text
+                    let prevSelectionText = simpleExample.querySelector('.prev-selection');
+                    if (!prevSelectionText) {
+                        prevSelectionText = document.createElement('div');
+                        prevSelectionText.className = 'prev-selection';
+                        prevSelectionText.style.marginTop = '1rem';
+                        prevSelectionText.style.fontStyle = 'italic';
+                        prevSelectionText.style.color = '#666';
+                        simpleExample.appendChild(prevSelectionText);
+                    }
+                    prevSelectionText.textContent = previousValue ? `You have chosen ${previousValue} previously` : '';
+                }
+                
+                // If this question has a current answer, show the selected option and buttons
+                const answerKey = Object.keys(answers)[questionNumber - 1];
+                if (answers[answerKey]) {
+                    const value = answers[answerKey];
+                    targetQuestion.querySelector(`[data-value="${value}"]`).classList.add('selected');
+                    
+                    // Show navigation buttons
+                    targetQuestion.querySelectorAll('.button-group button').forEach(button => {
+                        button.style.display = 'block';
+                    });
+
+                    // Re-show examples if there's a current answer
+                    const examplesList = targetQuestion.querySelector('.examples-list');
+                    if (examplesList) {
+                        examplesList.classList.remove('hidden');
+                        showExamples(`q${questionNumber}`, value);
+                    }
+                }
+            }
+            
+            // Update progress step highlighting
+            document.querySelectorAll('.progress-step').forEach((step, index) => {
+                step.classList.remove('active');
+                if (index + 1 === questionNumber) {
+                    step.classList.add('active');
+                }
+            });
+        }
+
+        function restartWizard() {
+            // Reset all state variables
+            currentQuestion = 1;
+            answers = {};
+            previousAnswers = {};
+            currentExamples = {};
+            
+            // Reset all UI elements
+            document.querySelectorAll('.simple-example').forEach(example => {
+                example.classList.remove('fade-out');
+            });
+            
+            document.querySelectorAll('.examples-list').forEach(list => {
+                list.classList.remove('active');
+                list.classList.remove('fade-out');
+                list.classList.remove('hidden');
+                list.innerHTML = '';
+            });
+            
+            document.querySelectorAll('.loading-spinner').forEach(spinner => {
+                spinner.classList.remove('active');
+            });
+            
+            document.querySelectorAll('.option-button').forEach(button => {
+                button.classList.remove('selected');
+            });
+            
+            document.querySelectorAll('.button-group button').forEach(button => {
+                button.style.display = 'none';
+            });
+
+            // Reset progress steps
+            document.querySelectorAll('.progress-step').forEach(step => {
+                step.classList.remove('active', 'answered');
+                step.querySelector('span').textContent = '';
+            });
+
+            // Reset progress bar width to 0%
+            document.querySelector('.progress-fill').style.width = '0%';
+
+            // Reset result card
+            document.getElementById('recommendation').innerHTML = '';
+            
+            // Show first question and activate first step
+            showQuestion(1);
+            document.getElementById('step1').classList.add('active');
+        }
+
+        function generateRecommendation() {
+            let serviceType = 'Regular C#';
+            let lifetime = 'Singleton';
+            let context = 'Runtime';
+            let example = '';
+
+            // Determine service type
+            if (answers.unity === 'scene') {
+                serviceType = 'MonoBehaviour';
+            } else if (answers.unity === 'config') {
+                serviceType = 'ScriptableObject';
+            }
+
+            // Determine lifetime
+            if (answers.state === 'no' && answers.instances === 'transient') {
+                lifetime = 'Transient';
+            } else if (answers.instances === 'sceneSingleton') {
+                lifetime = 'SceneSingleton';
+            } else if (answers.instances === 'sceneTransient') {
+                lifetime = 'SceneTransient';
+            }
+
+            // Determine context
+            if (answers.availability === 'editor') {
+                context = 'EditorOnly';
+            } else if (answers.availability === 'both') {
+                context = 'RuntimeAndEditor';
+            }
+
+            // Generate example code
+            example = `[Service(typeof(IMyService), "MyService", ServiceLifetime.${lifetime}, ServiceContext.${context})]
+public class MyService ${serviceType === 'MonoBehaviour' ? ': MonoBehaviour, ' : serviceType === 'ScriptableObject' ? ': SOServiceBase, ' : ': '}IMyService
+{
+    ${serviceType === 'ScriptableObject' ? '[SerializeField] private float _configValue;\n    ' : ''}${serviceType === 'MonoBehaviour' ? 'private void Update() { /* Unity lifecycle */ }\n    ' : ''}// Your service implementation
+}`;
+
+            // Find similar examples
+            const similarExamples = serviceExamples.examples.filter(ex => {
+                return (answers.state === 'yes' === ex.has_state) && // exact match for state
+                       (answers.unity === ex.unity_integration) && // exact match for unity integration
+                       (mapContextToDatabase(answers.availability) === ex.context) && // exact match for context
+                       (answers.instances === ex.lifetime); // exact match for lifetime
+            });
+
+            const recommendation = `
+                <h3>Service Type: ${serviceType}</h3>
+                <p>Based on your needs for ${answers.unity === 'scene' ? 'Unity lifecycle and scene interaction' : 
+                   answers.unity === 'config' ? 'Unity Inspector configuration' : 'pure C# logic'}.</p>
+
+                <h3>Lifetime: ${lifetime}</h3>
+                <p>${lifetime === 'Singleton' ? 
+                    'A single instance will be shared across your application.' : 
+                    lifetime === 'SceneSingleton' ?
+                    'A single instance per scene that will be disposed when the scene unloads.' :
+                    lifetime === 'SceneTransient' ?
+                    'Each request creates a new instance within the current scene. All instances are disposed when the scene unloads.' :
+                    'Each request will get a fresh instance of the service.'}</p>
+
+                <h3>Context: ${context}</h3>
+                <p>Service will be available in ${context === 'Runtime' ? 'gameplay only' : 
+                   context === 'EditorOnly' ? 'Unity Editor only' : 'both gameplay and editor'}.</p>
+
+                <div class="implementation-header">
+                    <h3>Example Implementation:</h3>
+                    <button class="copy-button" onclick="copyCode()">Copy Code</button>
+                </div>
+                <div class="code-container">
+                    <pre><code>${example}</code></pre>
+                </div>
+
+                <div class="similar-examples">
+                    <h3>Similar Examples</h3>
+                    ${similarExamples.length > 0 ? `
+                        <p>Here are examples that match your exact requirements:</p>
+                        ${similarExamples.map((ex, index) => `
+                            <button class="example-button" onclick="showExampleDetails('${ex.name}')">
+                                ${ex.name}
+                            </button>
+                        `).join('')}
+                    ` : '<p>No exact matching examples found for this combination of requirements.</p>'}
+                </div>
+
+                <div class="example-dialog-overlay" onclick="hideExampleDetails()"></div>
+                <div class="example-dialog">
+                    <button class="close-button" onclick="hideExampleDetails()">×</button>
+                    <div id="example-dialog-content"></div>
+                </div>
+            `;
+
+            document.getElementById('recommendation').innerHTML = recommendation;
+        }
+
+        function showExampleDetails(exampleName) {
+            // Initialize modal only when needed
+            if (!modal) {
+                modal = new ServiceModal();
+            }
+
+            const example = serviceExamples.examples.find(ex => ex.name === exampleName);
+            if (!example) {
+                console.error('Example not found:', exampleName);
+                return;
+            }
+
+            modal.show(example);
+
+            // Update progress to 100% when opening example details
+            document.querySelector('.progress-fill').style.width = '100%';
+            document.getElementById('step5').classList.add('answered');
+            document.getElementById('step5').querySelector('span').textContent = 'Complete';
+        }
+
+        function copyCode() {
+            const codeElement = document.querySelector('#result pre code');
+            const textArea = document.createElement('textarea');
+            textArea.value = codeElement.textContent;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+
+            // Update progress to 100% when code is copied
+            document.querySelector('.progress-fill').style.width = '100%';
+            document.getElementById('step5').classList.add('answered');
+            document.getElementById('step5').querySelector('span').textContent = 'Complete';
+
+            // Visual feedback
+            const button = document.querySelector('.copy-button');
+            const originalText = button.textContent;
+            button.textContent = 'Copied!';
+            setTimeout(() => {
+                button.textContent = originalText;
+            }, 2000);
+        }
+
+        function nextQuestion() {
+            // Check if an answer is selected for the current question
+            const currentQuestionElement = document.getElementById(`q${currentQuestion}`);
+            const hasSelectedAnswer = currentQuestionElement.querySelector('.option-button.selected') !== null;
+            
+            if (!hasSelectedAnswer) {
+                alert('Please select an answer before proceeding.');
+                return;
+            }
+            
+            if (currentQuestion < totalQuestions) {
+                currentQuestion++;
+                showQuestion(currentQuestion);
+                updateProgress();
+            }
+        }
+
+        // Add click handlers for progress steps
+        document.querySelectorAll('.progress-step').forEach(step => {
+            step.addEventListener('click', () => {
+                const stepNum = parseInt(step.id.replace('step', ''));
+                // Only allow clicking on answered steps
+                if (step.classList.contains('answered')) {
+                    currentQuestion = stepNum;
+                    
+                    // Store current answers as previous answers before clearing
+                    previousAnswers = { ...previousAnswers, ...answers };
+                    
+                    // Clear answers for the current step and steps after it
+                    if (stepNum <= 1) delete answers.state;
+                    if (stepNum <= 2) delete answers.unity;
+                    if (stepNum <= 3) delete answers.availability;
+                    if (stepNum <= 4) delete answers.instances;
+                    
+                    // Clear UI state for current and subsequent questions
+                    for (let i = stepNum; i <= 5; i++) {
+                        // Clear selected state from all options in this question
+                        document.querySelectorAll(`#q${i} .option-button`).forEach(btn => {
+                            btn.classList.remove('selected');
+                        });
+                        
+                        // Update progress step state
+                        const laterStep = document.getElementById(`step${i}`);
+                        laterStep.classList.remove('answered', 'active');
+                        
+                        // Show previous answer in the label
+                        const span = laterStep.querySelector('span');
+                        let labelText = '';
+                        
+                        if (i === stepNum) {
+                            // For current step, show previous answer if exists
+                            switch(i) {
+                                case 1:
+                                    labelText = previousAnswers.state === 'yes' ? 'Stateful' : 
+                                              previousAnswers.state === 'no' ? 'Stateless' : '';
+                                    break;
+                                case 2:
+                                    labelText = previousAnswers.unity === 'none' ? 'Pure C#' : 
+                                              previousAnswers.unity === 'scene' ? 'Scene-based' : 
+                                              previousAnswers.unity === 'config' ? 'Inspector Config' : '';
+                                    break;
+                                case 3:
+                                    labelText = previousAnswers.availability === 'runtime' ? 'Runtime' :
+                                              previousAnswers.availability === 'editor' ? 'Editor Only' : 
+                                              previousAnswers.availability === 'both' ? 'Runtime & Editor' : '';
+                                    break;
+                                case 4:
+                                    labelText = previousAnswers.instances === 'singleton' ? 'Singleton' : 
+                                              previousAnswers.instances === 'sceneSingleton' ? 'SceneSingleton' : 
+                                              previousAnswers.instances === 'transient' ? 'Transient' : 'SceneTransient';
+                                    break;
+                            }
+                        } else if (i < stepNum) {
+                            // For previous steps, show current answer
+                            switch(i) {
+                                case 1:
+                                    labelText = answers.state === 'yes' ? 'Stateful' : 'Stateless';
+                                    break;
+                                case 2:
+                                    labelText = answers.unity === 'none' ? 'Pure C#' : 
+                                              answers.unity === 'scene' ? 'Scene-based' : 'Inspector Config';
+                                    break;
+                                case 3:
+                                    labelText = answers.availability === 'runtime' ? 'Runtime' :
+                                              answers.availability === 'editor' ? 'Editor Only' : 'Runtime & Editor';
+                                    break;
+                                case 4:
+                                    labelText = answers.instances === 'singleton' ? 'Singleton' : 
+                                              answers.instances === 'sceneSingleton' ? 'SceneSingleton' : 
+                                              answers.instances === 'transient' ? 'Transient' : 'SceneTransient';
+                                    break;
+                            }
+                        }
+                        span.textContent = labelText;
+                    }
+                    
+                    // Highlight current step
+                    document.getElementById(`step${stepNum}`).classList.add('active');
+                    
+                    // Show the selected question
+                    showQuestion(stepNum);
+                    
+                    // Update progress bar
+                    const progress = Math.max(0, (stepNum - 1) * 20);
+                    document.querySelector('.progress-fill').style.width = `${progress}%`;
+                    
+                    // Hide any visible examples
+                    document.querySelectorAll('.examples-list').forEach(list => {
+                        list.classList.add('hidden');
+                        list.innerHTML = '';
+                    });
+                    document.querySelectorAll('.loading-spinner').forEach(spinner => {
+                        spinner.classList.remove('active');
+                    });
+                }
+            });
+        });
+
+        // Update the option button click handler
+        document.querySelectorAll('.option-button').forEach(button => {
+            button.addEventListener('click', async (e) => {
+                const questionCard = e.target.closest('.question-card');
+                
+                // Clear previous selection in this question
+                e.target.parentElement.querySelectorAll('.option-button').forEach(btn => {
+                    btn.classList.remove('selected');
+                });
+                
+                // Select this option
+                e.target.classList.add('selected');
+
+                // Show navigation buttons
+                questionCard.querySelectorAll('.button-group button').forEach(button => {
+                    button.style.display = 'block';
+                });
+
+                // Store answer
+                const questionId = e.target.parentElement.id;
+                const value = e.target.dataset.value;
+                
+                // Clear previous answer for this step
+                switch(questionId) {
+                    case 'q1': 
+                        delete previousAnswers.state;
+                        answers.state = value; 
+                        break;
+                    case 'q2': 
+                        delete previousAnswers.unity;
+                        answers.unity = value; 
+                        break;
+                    case 'q3': 
+                        delete previousAnswers.availability;
+                        answers.availability = value; 
+                        break;
+                    case 'q4': 
+                        delete previousAnswers.instances;
+                        answers.instances = value; 
+                        break;
+                }
+
+                // Update progress immediately
+                updateProgress();
+
+                // Remove previous selection text when making a new selection
+                const simpleExample = questionCard.querySelector('.simple-example');
+                if (simpleExample) {
+                    const prevSelectionText = simpleExample.querySelector('.prev-selection');
+                    if (prevSelectionText) {
+                        prevSelectionText.textContent = '';
+                    }
+                }
+
+                // Prepare examples list for new content
+                const examplesList = document.getElementById(`examples-${questionId}`);
+                if (examplesList) {
+                    examplesList.classList.remove('hidden');
+                    examplesList.innerHTML = '';
+                }
+
+                // Show spinner while loading examples
+                const spinner = document.getElementById(`spinner-${questionId}`);
+                if (spinner) {
+                    spinner.classList.add('active');
+                }
+
+                // Show examples
+                await showExamples(questionId, value);
+            });
+        });
+
+        // Update example card generation
+        function createExampleCard(example) {
+            const card = document.createElement('div');
+            card.className = 'example-item';
+            card.innerHTML = `
+                <h4>${example.name}</h4>
+                <p>${example.description}</p>
+                <div class="tag-list">
+                    ${example.tags.map(tag => `<span class="advanced-tag">${tag}</span>`).join('')}
+                </div>
+            `;
+            return card;
+        }
+
+        // Update navigation generation
+        function createNavigation(prev, next) {
+            const nav = document.createElement('div');
+            nav.className = 'nav-buttons';
+            nav.innerHTML = `
+                ${prev ? `<a href="${prev}" class="nav-button secondary">Back</a>` : ''}
+                ${next ? `<a href="${next}" class="nav-button primary">Next Question →</a>` : ''}
+            `;
+            return nav;
+        }
+    </script>
+</body>
+</html> 

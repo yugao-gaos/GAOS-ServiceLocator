@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mock Testing - Advanced Topics</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles-advanced.css">
+    <style>
+        .service-type {
+            margin: 3rem 0;
+            padding: 2rem;
+            background: white;
+            border-radius: 12px;
+            border-left: 4px solid var(--advanced-orange-light);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .service-type h3 {
+            color: var(--advanced-orange-dark);
+            margin-top: 0;
+        }
+
+        .info-box {
+            background: rgba(255, 152, 0, 0.05);
+            border-left: 4px solid var(--advanced-orange-light);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .code-block {
+            margin: 1.5rem 0;
+            background: #f8f9fa;
+            padding: 1.5rem;
+            font-family: monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            overflow-x: auto;
+        }
+
+        .page-navigation {
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 152, 0, 0.2);
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .nav-button {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            background: white;
+            border: 1px solid rgba(255, 152, 0, 0.2);
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--advanced-orange-dark);
+            transition: all 0.2s ease;
+            min-width: 200px;
+        }
+
+        .nav-button:hover {
+            background: rgba(255, 152, 0, 0.05);
+            border-color: var(--advanced-orange-light);
+            transform: translateY(-2px);
+            text-decoration: none;
+        }
+
+        .nav-button.prev {
+            padding-right: 2rem;
+        }
+
+        .nav-button.next {
+            margin-left: auto;
+            padding-left: 2rem;
+        }
+
+        .nav-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .nav-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #666;
+        }
+
+        .nav-title {
+            font-weight: 500;
+            color: var(--advanced-orange-dark);
+        }
+
+        .nav-arrow {
+            font-size: 1.2rem;
+            margin: 0 1rem;
+            color: var(--advanced-orange-dark);
+        }
+
+        .nav-bottom {
+            text-align: center;
+            margin-top: 2rem;
+            color: #666;
+        }
+
+        .nav-bottom a {
+            color: var(--advanced-orange-dark);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .nav-bottom a:hover {
+            color: var(--advanced-orange-deep);
+            text-decoration: underline;
+        }
+
+        .nav-separator {
+            margin: 0 1rem;
+            color: #ccc;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                flex-direction: column;
+            }
+
+            .nav-button {
+                width: 100%;
+            }
+
+            .nav-button.next {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body class="advanced-content">
+    <a href="advanced.html" class="advanced-back-link">← Back to Advanced Topics</a>
+
+    <header>
+        <h1>Mock Testing</h1>
+        <p>Testing services effectively with mocks using ITestServiceRegistration</p>
+    </header>
+
+    <section>
+        <h2>Overview</h2>
+        <div class="service-type">
+            <h3>Why Mock Testing?</h3>
+            <p>While ServiceLocator uses attributes for automatic registration in production, testing requires a different approach to:</p>
+            <ul>
+                <li>Test services in isolation without their dependencies</li>
+                <li>Control service behavior for specific test scenarios</li>
+                <li>Verify service interactions and method calls</li>
+                <li>Test error handling and edge cases</li>
+            </ul>
+
+            <div class="info-box" style="background: rgba(33, 150, 243, 0.1); border-left-color: #2196F3;">
+                <h4>Unity Test Runner</h4>
+                <p>This guide assumes you're using Unity Test Runner. For setup and general usage, refer to the <a href="https://docs.unity3d.com/Manual/testing-editortestsrunner.html">Unity Test Runner Documentation</a>.</p>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>Test Registration Interface</h2>
+        <div class="service-type">
+            <h3>Using ITestServiceRegistration</h3>
+            <p>ServiceLocator provides <code>ITestServiceRegistration</code> specifically for testing scenarios:</p>
+
+            <div class="code-block">
+                <pre><code>public class ServiceTests
+{
+    private ITestServiceRegistration _registration;
+
+    [SetUp]
+    public void Setup()
+    {
+        // Get test registration interface
+        _registration = ServiceLocatorTestUtils.GetTestRegistration();
+    }
+
+    [TearDown]
+    public void Cleanup()
+    {
+        // Clear all services after each test
+        // Note: This API is internal and only exposed for testing
+        _registration.Clear();
+    }
+}</code></pre>
+            </div>
+
+            <div class="info-box">
+                <h4>Registration Methods</h4>
+                <p class="warning-text"><strong>Note:</strong> These methods are internal and intended for testing purposes only. They are not part of the public API and should not be used in production code. Use the <code>[Service]</code> attribute for service registration in production.</p>
+                <ul>
+                    <li><code>Register&lt;TService, TImplementation&gt;</code> - Regular services</li>
+                    <li><code>RegisterMonoBehaviourService&lt;TService, TImplementation&gt;</code> - MonoBehaviour services</li>
+                    <li><code>RegisterScriptableObjectService&lt;TService, TImplementation&gt;</code> - ScriptableObject services</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>Code Examples</h2>
+        <div class="service-type">
+            <h3>Basic Mock Service</h3>
+            <div class="code-block">
+                <pre><code>// Service interface
+public interface IDataService
+{
+    Task<Data> LoadDataAsync();
+    Task SaveDataAsync(Data data);
+}
+
+// Mock implementation
+public class MockDataService : IDataService
+{
+    private Data _mockData;
+    public bool SaveWasCalled { get; private set; }
+
+    public Task<Data> LoadDataAsync()
+    {
+        return Task.FromResult(_mockData);
+    }
+
+    public Task SaveDataAsync(Data data)
+    {
+        SaveWasCalled = true;
+        _mockData = data;
+        return Task.CompletedTask;
+    }
+}
+
+// Test class
+[Test]
+public async Task TestDataService()
+{
+    // Using TestServiceRegistration helper for test-only registration
+    // Note: These APIs are internal and only exposed for testing
+    var testRegistration = new TestServiceRegistration();
+    
+    // Register mock service  
+    testRegistration.Register<IDataService, MockDataService>("DataService");
+
+    // Get service and test
+    var service = ServiceLocator.GetService<IDataService>("DataService");
+    var testData = new Data { Value = "test" };
+    
+    await service.SaveDataAsync(testData);
+    var loadedData = await service.LoadDataAsync();
+    
+    Assert.That(loadedData.Value, Is.EqualTo("test"));
+}
+
+<div class="service-type">
+    <h3>MonoBehaviour Service Mock</h3>
+    <div class="code-block">
+        <pre><code>public class MockGameService : MonoBehaviour, IGameService
+{
+    public bool InitializeCalled { get; private set; }
+    
+    public void Initialize()
+    {
+        InitializeCalled = true;
+    }
+}
+
+[Test]
+public void TestMonoBehaviourService()
+{
+    // Using TestServiceRegistration helper for test-only registration
+    // Note: These APIs are internal and only exposed for testing
+    var testRegistration = new TestServiceRegistration();
+    
+    // Register MonoBehaviour mock
+    testRegistration.RegisterMonoBehaviourService<IGameService, MockGameService>(
+        "GameService",
+        ServiceContext.Runtime
+    );
+
+    var service = ServiceLocator.GetService<IGameService>();
+    service.Initialize();
+    
+    Assert.That(((MockGameService)service).InitializeCalled, Is.True);
+}</code></pre>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>Best Practices</h2>
+        <div class="service-type">
+            <h3>Do's</h3>
+            <ul>
+                <li>Always clear services in TearDown</li>
+                <li>Use meaningful mock names that indicate their test purpose</li>
+                <li>Keep mocks simple and focused on the test scenario</li>
+                <li>Test both success and error scenarios</li>
+                <li>Verify service interactions when relevant</li>
+            </ul>
+        </div>
+
+        <div class="service-type">
+            <h3>Don'ts</h3>
+            <ul>
+                <li>Don't use real service implementations in unit tests</li>
+                <li>Don't make mocks more complex than necessary</li>
+                <li>Don't forget to test error conditions</li>
+                <li>Don't mix test and production registration methods</li>
+                <li>Don't leave services registered between tests</li>
+            </ul>
+
+            <div class="info-box">
+                <h4>Common Pitfalls</h4>
+                <ul>
+                    <li>Not clearing services between tests can cause test interference</li>
+                    <li>Complex mocks can make tests harder to understand and maintain</li>
+                    <li>Missing error scenario tests can lead to runtime issues</li>
+                    <li>Using real services in unit tests can make them slow and unreliable</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <div class="page-navigation">
+        <div class="nav-links">
+            <a href="advanced-diagnostics.html" class="nav-button">
+                <span class="nav-arrow">←</span>
+                <span class="nav-text">
+                    <span class="nav-label">Previous</span>
+                    <span class="nav-title">Diagnostics Tools</span>
+                </span>
+            </a>
+            <a href="advanced-sample-usecases.html" class="nav-button">
+                <span class="nav-text">
+                    <span class="nav-label">Next</span>
+                    <span class="nav-title">Sample Usecases</span>
+                </span>
+                <span class="nav-arrow">→</span>
+            </a>
+        </div>
+        <div class="nav-bottom">
+            <a href="advanced.html">Back to Advanced Topics</a>
+            <span class="nav-separator">|</span>
+            <a href="index.html">Documentation Home</a>
+        </div>
+    </div>
+</body>
+</html> 

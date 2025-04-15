@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Core Concepts - GAOS Service Locator</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .nav-steps {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+
+        .step-button {
+            padding: 0.75rem 1.5rem;
+            background: var(--bg-color);
+            border: 1px solid #4CAF50;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #4CAF50;
+        }
+
+        .step-button:hover {
+            background: rgba(76, 175, 80, 0.1);
+        }
+
+        .step-button.active {
+            background: #4CAF50;
+            color: white;
+            border-color: #4CAF50;
+        }
+
+        .concept-section {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .concept-section.active {
+            display: block;
+            opacity: 1;
+        }
+
+        .step-controls {
+            display: flex;
+            justify-content: space-between;
+            margin: 2rem 0;
+        }
+
+        .step-controls button {
+            padding: 0.75rem 1.5rem;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .step-controls button:hover {
+            background: #388E3C;
+        }
+
+        .step-controls button:disabled {
+            background: var(--border-color);
+            cursor: not-allowed;
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: rgba(76, 175, 80, 0.1);
+            margin: 2rem 0;
+            border-radius: 2px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #4CAF50;
+            border-radius: 2px;
+            transition: width 0.3s;
+        }
+
+        h1 {
+            color: #4CAF50;
+        }
+
+        .concept-box {
+            border-left: 4px solid #4CAF50;
+        }
+
+        .concept-box h3 {
+            color: #4CAF50;
+        }
+
+        .code-example {
+            border-left: 4px solid #4CAF50;
+        }
+
+        .tip-box {
+            background: rgba(76, 175, 80, 0.05);
+            border: 1px solid rgba(76, 175, 80, 0.2);
+        }
+
+        .tip-box h4 {
+            color: #4CAF50;
+        }
+
+        .back-link {
+            background: #4CAF50;
+        }
+
+        .back-link:hover {
+            background: #388E3C;
+        }
+
+        .topic-section h2 {
+            color: #4CAF50;
+            border-bottom: 2px solid rgba(76, 175, 80, 0.1);
+        }
+
+        .concept-section h2 {
+            color: #4CAF50;
+            margin-bottom: 1.5rem;
+        }
+
+        section h2 {
+            color: #4CAF50;
+        }
+
+        /* Ensure all headings in the content use green */
+        #concept-content h2,
+        #service-types h2,
+        #service-lifetime h2,
+        #service-context h2,
+        #service-discovery h2 {
+            color: #4CAF50;
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-link">← Back to Documentation</a>
+
+    <header>
+        <h1>Core Concepts</h1>
+        <p>Understanding the fundamental concepts of the Service Locator pattern</p>
+    </header>
+
+    <div class="nav-steps">
+        <button class="step-button active" data-step="1">Service Types</button>
+        <button class="step-button" data-step="2">Service Lifetime</button>
+        <button class="step-button" data-step="3">Service Context</button>
+        <button class="step-button" data-step="4">Service Discovery</button>
+    </div>
+
+    <div class="progress-bar">
+        <div class="progress-fill" style="width: 25%"></div>
+    </div>
+
+    <div id="concept-content">
+        <section id="service-types" class="concept-section active">
+            <h2>Service Types</h2>
+            <p>The Service Locator supports three main types of services, each designed for specific use cases in Unity:</p>
+            
+            <!-- Regular Services -->
+            <div class="concept-box">
+                <h3>Regular C# Services</h3>
+                <p>Standard C# classes that implement service interfaces. Best for:</p>
+                <ul>
+                    <li>System-level functionality (logging, analytics, networking)</li>
+                    <li>Business logic that doesn't require Unity components</li>
+                    <li>Services that need to be easily testable</li>
+                </ul>
+                <div class="example">
+                    <pre><code>[Service(typeof(IAnalyticsService), "Analytics")]
+public class AnalyticsService : IAnalyticsService
+{
+    public void TrackEvent(string eventName, Dictionary&lt;string, object&gt; parameters)
+    {
+        // Implementation
+    }
+}</code></pre>
+                </div>
+            </div>
+
+            <!-- MonoBehaviour Services -->
+            <div class="concept-box">
+                <h3>MonoBehaviour Services</h3>
+                <p>Services that inherit from MonoBehaviour. Ideal for:</p>
+                <ul>
+                    <li>Services that need to exist in a Unity scene</li>
+                    <li>Components that require Unity's lifecycle methods</li>
+                    <li>Services that interact with other scene objects</li>
+                </ul>
+                <div class="example">
+                    <pre><code>[Service(typeof(IInputService), "Input")]
+public class InputService : MonoBehaviour, IInputService
+{
+    private void Update()
+    {
+        // Process input
+    }
+}</code></pre>
+                </div>
+            </div>
+
+            <!-- ScriptableObject Services -->
+            <div class="concept-box">
+                <h3>ScriptableObject Services</h3>
+                <p>Services based on ScriptableObjects. Perfect for:</p>
+                <ul>
+                    <li>Configuration data that persists across scenes</li>
+                    <li>Shared data between multiple services</li>
+                    <li>Services that need Unity Inspector configuration</li>
+                </ul>
+                <div class="example">
+                    <pre><code>[Service(typeof(IGameConfig), "GameConfig")]
+public class GameConfig : SOServiceBase, IGameConfig
+{
+    [SerializeField] private float _defaultVolume = 0.75f;
+}</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <section id="service-lifetime" class="concept-section">
+            <h2>Service Lifetime</h2>
+            <p>The lifetime of a service determines how instances are created and managed:</p>
+
+            <div class="concept-box">
+                <h3>Singleton</h3>
+                <p>The default lifetime. A single instance is shared across the entire application.</p>
+                <ul>
+                    <li>Instance is created on first request</li>
+                    <li>Same instance is returned for all subsequent requests</li>
+                    <li>Ideal for services that maintain state</li>
+                </ul>
+                <div class="example">
+                    <pre><code>[Service(typeof(IGameSettingsService), "GameSettings", ServiceLifetime.Singleton)]
+public class GameSettingsService : IGameSettingsService
+{
+    private float _volume = 1.0f;
+    public float Volume
+    {
+        get => _volume;
+        set => _volume = value;
+    }
+}</code></pre>
+                </div>
+            </div>
+
+            <div class="concept-box">
+                <h3>SceneSingleton</h3>
+                <p>A single instance per scene, automatically disposed when the scene unloads.</p>
+                <ul>
+                    <li>One instance per active scene</li>
+                    <li>Automatically created when requested in a scene</li>
+                    <li>Automatically disposed when the scene unloads</li>
+                    <li>Ideal for scene-specific managers and controllers</li>
+                </ul>
+                <div class="example">
+                    <pre><code>[Service(typeof(ILevelService), "LevelService", ServiceLifetime.SceneSingleton)]
+public class LevelService : ILevelService, IDisposable
+{
+    private bool _isDisposed;
+    
+    public void Initialize()
+    {
+        // Initialize level-specific resources
+    }
+    
+    public void Dispose()
+    {
+        if (!_isDisposed)
+        {
+            // Clean up scene-specific resources
+            _isDisposed = true;
+        }
+    }
+}</code></pre>
+                </div>
+            </div>
+
+            <div class="concept-box">
+                <h3>Transient</h3>
+                <p>A new instance is created for each request.</p>
+                <ul>
+                    <li>Fresh instance returned every time</li>
+                    <li>No shared state between instances</li>
+                    <li>Useful for stateless services</li>
+                </ul>
+                <div class="example">
+                    <pre><code>// Example of using transient services
+[Service(typeof(ITranslator), "Translator", ServiceLifetime.Transient)]
+public class LocalizationTranslator : ITranslator
+{
+    public string Translate(string key) => // ... translation logic ...
+}
+
+// Using the service
+var translator = ServiceLocator.GetService<ITranslator>("Translator");
+var result = translator.Translate("welcome");</code></pre>
+                </div>
+            </div>
+
+            <div class="concept-box">
+                <h3>SceneTransient</h3>
+                <p>A new instance is created for each request within a scene and all instances are disposed when the scene unloads.</p>
+                <ul>
+                    <li>Fresh instance returned every time</li>
+                    <li>Instances created in the current scene</li>
+                    <li>All instances automatically disposed when scene unloads</li>
+                    <li>Useful for scene-specific objects that need unique instances</li>
+                </ul>
+                <div class="example">
+                    <pre><code>// Example of using scene-transient services
+[Service(typeof(IEnemyFactory), "EnemyFactory", ServiceLifetime.SceneTransient)]
+public class EnemyFactory : MonoBehaviour, IEnemyFactory, IDisposable
+{
+    private bool _isDisposed;
+    
+    public IEnemy CreateEnemy(string enemyType)
+    {
+        // Create a unique enemy instance with specific parameters
+        return new Enemy(enemyType);
+    }
+    
+    public void Dispose()
+    {
+        if (!_isDisposed)
+        {
+            // Clean up resources when scene unloads
+            _isDisposed = true;
+        }
+    }
+}
+
+// Using the service to create multiple unique instances
+var factory1 = ServiceLocator.GetService<IEnemyFactory>("EnemyFactory");
+var enemy1 = factory1.CreateEnemy("Goblin");
+
+var factory2 = ServiceLocator.GetService<IEnemyFactory>("EnemyFactory");
+var enemy2 = factory2.CreateEnemy("Orc");
+
+// factory1 and factory2 are different instances
+// Both factories will be disposed when the scene unloads</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <section id="service-context" class="concept-section">
+            <h2>Service Context</h2>
+            <p>The context determines when and where a service is available:</p>
+
+            <div class="concept-box">
+                <h3>Runtime</h3>
+                <p>The default context. Services available during gameplay.</p>
+                <ul>
+                    <li>Available in play mode and builds</li>
+                    <li>Typically used for game functionality</li>
+                    <li>Can be accessed from any scene</li>
+                </ul>
+                <div class="example">
+                    <pre><code>[Service(typeof(IPlayerService), "Player", ServiceLifetime.Singleton, ServiceContext.Runtime)]
+public class PlayerService : IPlayerService
+{
+    public void UpdatePlayer() { /* ... */ }
+}</code></pre>
+                </div>
+            </div>
+
+            <div class="concept-box">
+                <h3>EditorOnly</h3>
+                <p>Services that are only available in the Unity Editor.</p>
+                <ul>
+                    <li>Used for editor tools and extensions</li>
+                    <li>Not included in builds</li>
+                    <li>Can access Unity's editor APIs</li>
+                </ul>
+                <div class="example">
+                    <pre><code>[Service(typeof(ILevelEditorService), "LevelEditor", ServiceLifetime.Singleton, ServiceContext.EditorOnly)]
+public class LevelEditorService : ILevelEditorService
+{
+    public void SaveLevel() { /* ... */ }
+}</code></pre>
+                </div>
+            </div>
+
+            <div class="concept-box">
+                <h3>RuntimeAndEditor</h3>
+                <p>Services that are available in both runtime and editor.</p>
+                <ul>
+                    <li>Available in both play mode and editor mode</li>
+                    <li>Included in builds</li>
+                    <li>Useful for services that need to work in both contexts</li>
+                </ul>
+                <div class="example">
+                    <pre><code>[Service(typeof(IAssetManager), "AssetManager", ServiceLifetime.Singleton, ServiceContext.RuntimeAndEditor)]
+public class AssetManager : IAssetManager
+{
+    public T LoadAsset<T>(string path) where T : UnityEngine.Object
+    {
+        // Works in both editor and runtime
+        return Resources.Load<T>(path);
+    }
+}</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <section id="service-discovery" class="concept-section">
+            <h2>Service Discovery</h2>
+            <p>The Service Locator provides automatic service discovery and registration:</p>
+
+            <div class="concept-box">
+                <h3>Automatic Registration</h3>
+                <p>Services marked with the Service attribute are automatically discovered and cached.</p>
+                <ul>
+                    <li>Service types are scanned and cached at editor time</li>
+                    <li>Cached information includes interface type, implementation type, lifetime, and context</li>
+                    <li>Services are registered when first accessed using cached information</li>
+                    <li>Caching improves runtime performance by avoiding reflection</li>
+                    <li>Supports all service types (Regular C#, MonoBehaviour, ScriptableObject)</li>
+                </ul>
+                <div class="example">
+                    <pre><code>// Service is automatically discovered and cached
+[Service(typeof(IGameService), "GameService")]
+public class GameService : IGameService
+{
+    // Implementation
+}
+
+// Later in code, first access triggers registration
+var service = ServiceLocator.GetService<IGameService>("GameService");</code></pre>
+                </div>
+            </div>
+
+            <div class="info-box" style="background: rgba(33, 150, 243, 0.1); border-left-color: #2196F3; display: flex; gap: 2rem; align-items: flex-start;">
+                <img src="Images/type-cache-inspector.png" alt="Service Type Cache Inspector" style="width: 300px; border: 1px solid #ddd; border-radius: 4px;">
+                <div>
+                    <h4>Service Type Cache Inspector</h4>
+                    <p>The Service Type Cache inspector provides a quick way to view and validate all discovered services in your project.</p>
+                    <ul>
+                        <li>Access via <code>GAOS/Service Locator/Open Service Cache</code> menu</li>
+                        <li>View all discovered services and their configurations</li>
+                        <li>Validate service setup before runtime</li>
+                        <li>Debug registration and dependency issues</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div class="step-controls">
+        <button id="prev-btn" disabled>← Previous</button>
+        <button id="next-btn">Next →</button>
+    </div>
+
+    <footer>
+        <p><a href="index.html">Back to Documentation</a> | <a href="api.html">API Documentation</a></p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sections = ['service-types', 'service-lifetime', 'service-context', 'service-discovery'];
+            let currentStep = 1;
+
+            function updateUI() {
+                // Update sections
+                document.querySelectorAll('.concept-section').forEach(section => {
+                    section.classList.remove('active');
+                });
+                document.getElementById(sections[currentStep - 1]).classList.add('active');
+
+                // Update buttons
+                document.querySelectorAll('.step-button').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                document.querySelector(`[data-step="${currentStep}"]`).classList.add('active');
+
+                // Update navigation buttons
+                document.getElementById('prev-btn').disabled = currentStep === 1;
+                const nextBtn = document.getElementById('next-btn');
+                nextBtn.disabled = false; // Never disable the next button
+                nextBtn.textContent = currentStep === sections.length ? 'Create a Service →' : 'Next →';
+
+                // Update progress bar
+                const progress = (currentStep / sections.length) * 100;
+                document.querySelector('.progress-fill').style.width = `${progress}%`;
+            }
+
+            // Step button clicks
+            document.querySelectorAll('.step-button').forEach(button => {
+                button.addEventListener('click', () => {
+                    currentStep = parseInt(button.dataset.step);
+                    updateUI();
+                });
+            });
+
+            // Navigation button clicks
+            document.getElementById('prev-btn').addEventListener('click', () => {
+                if (currentStep > 1) {
+                    currentStep--;
+                    updateUI();
+                }
+            });
+
+            document.getElementById('next-btn').addEventListener('click', () => {
+                if (currentStep === sections.length) {
+                    // Redirect to service wizard with source parameter
+                    window.location.href = 'service-wizard.html?source=concepts';
+                } else {
+                    currentStep++;
+                    updateUI();
+                }
+            });
+
+            // Initial UI update
+            updateUI();
+        });
+    </script>
+</body>
+</html> 

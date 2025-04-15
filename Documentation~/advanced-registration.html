@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Registration - Advanced Topics</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles-advanced.css">
+    <style>
+        .service-type {
+            margin: 3rem 0;
+            padding: 2rem;
+            background: white;
+            border-radius: 12px;
+            border-left: 4px solid var(--advanced-orange-light);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .service-type h3 {
+            color: var(--advanced-orange-dark);
+            margin-top: 0;
+        }
+
+        .info-box {
+            background: rgba(255, 152, 0, 0.05);
+            border-left: 4px solid var(--advanced-orange-light);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .code-block {
+            margin: 1.5rem 0;
+            background: #f8f9fa;
+            padding: 1.5rem;
+            font-family: monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            overflow-x: auto;
+        }
+
+        .page-navigation {
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 152, 0, 0.2);
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .nav-button {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            background: white;
+            border: 1px solid rgba(255, 152, 0, 0.2);
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--advanced-orange-dark);
+            transition: all 0.2s ease;
+            min-width: 200px;
+        }
+
+        .nav-button:hover {
+            background: rgba(255, 152, 0, 0.05);
+            border-color: var(--advanced-orange-light);
+            transform: translateY(-2px);
+            text-decoration: none;
+        }
+
+        .nav-button.prev {
+            padding-right: 2rem;
+        }
+
+        .nav-button.next {
+            margin-left: auto;
+            padding-left: 2rem;
+        }
+
+        .nav-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .nav-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #666;
+        }
+
+        .nav-title {
+            font-weight: 500;
+            color: var(--advanced-orange-dark);
+        }
+
+        .nav-arrow {
+            font-size: 1.2rem;
+            margin: 0 1rem;
+            color: var(--advanced-orange-dark);
+        }
+
+        .nav-bottom {
+            text-align: center;
+            margin-top: 2rem;
+            color: #666;
+        }
+
+        .nav-bottom a {
+            color: var(--advanced-orange-dark);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .nav-bottom a:hover {
+            color: var(--advanced-orange-deep);
+            text-decoration: underline;
+        }
+
+        .nav-separator {
+            margin: 0 1rem;
+            color: #ccc;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                flex-direction: column;
+            }
+
+            .nav-button {
+                width: 100%;
+            }
+
+            .nav-button.next {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body class="advanced-content">
+    <a href="advanced.html" class="advanced-back-link">← Back to Advanced Topics</a>
+
+    <header>
+        <h1>Service Registration</h1>
+        <p>Understanding service registration and lifetime management</p>
+    </header>
+
+    <section>
+        <h2>Overview</h2>
+        <div class="service-type">
+            <h3>Service Registration Basics</h3>
+            <p>Service registration is the process of telling ServiceLocator about your services. Each registration requires:</p>
+            <ul>
+                <li>Service interface (what the service provides)</li>
+                <li>Implementation class (how the service works)</li>
+                <li>Service name (unique identifier)</li>
+                <li>Lifetime scope (how long the service lives)</li>
+            </ul>
+
+            <div class="info-box">
+                <h4>Key Concepts</h4>
+                <ul>
+                    <li><strong>Service Interface:</strong> Defines the contract</li>
+                    <li><strong>Implementation:</strong> The actual service class</li>
+                    <li><strong>Service Name:</strong> Unique identifier for the service</li>
+                    <li><strong>Lifetime:</strong> How the service instance is managed</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>Registration Methods</h2>
+        <div class="service-type">
+            <h3>Attribute-based Registration</h3>
+            <p>The primary way to register services is using the <code>[Service]</code> attribute:</p>
+
+            <div class="code-block">
+                <pre><code>public interface IGameService
+{
+    void Initialize();
+    void Update();
+}
+
+[Service(typeof(IGameService), "GameService")]
+public class GameService : IGameService
+{
+    public void Initialize() { }
+    public void Update() { }
+}</code></pre>
+            </div>
+
+            <div class="info-box">
+                <h4>Service Types</h4>
+                <ul>
+                    <li><strong>Regular C# Services:</strong> Standard C# classes</li>
+                    <li><strong>MonoBehaviour Services:</strong> Unity component services</li>
+                    <li><strong>ScriptableObject Services:</strong> Asset-based services</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="service-type">
+            <h3>MonoBehaviour Services</h3>
+            <div class="code-block">
+                <pre><code>[Service(typeof(IUIService), "UIService")]
+public class UIService : MonoBehaviour, IUIService
+{
+    public void ShowMenu() { }
+    public void HideMenu() { }
+}</code></pre>
+            </div>
+        </div>
+
+        <div class="service-type">
+            <h3>ScriptableObject Services</h3>
+            <div class="code-block">
+                <pre><code>[Service(typeof(IGameConfig), "GameConfig")]
+[CreateAssetMenu(fileName = "GameConfig", menuName = "Services/GameConfig")]
+public class GameConfig : ScriptableObject, IGameConfig
+{
+    public int MaxPlayers => 4;
+    public float RoundTime => 300f;
+}</code></pre>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>Service Lifetime</h2>
+        <div class="service-type">
+            <h3>Lifetime Options</h3>
+            <p>ServiceLocator supports four lifetime scopes:</p>
+
+            <div class="code-block">
+                <pre><code>[Service(typeof(IGameService), "GameService", ServiceLifetime.Singleton)]
+[Service(typeof(IPlayerService), "PlayerService", ServiceLifetime.Transient)]
+[Service(typeof(ILevelService), "LevelService", ServiceLifetime.SceneSingleton)]
+[Service(typeof(IEnemyService), "EnemyService", ServiceLifetime.SceneTransient)]</code></pre>
+            </div>
+
+            <div class="info-box">
+                <h4>Lifetime Types</h4>
+                <ul>
+                    <li><strong>Singleton:</strong> One instance shared across the application</li>
+                    <li><strong>Transient:</strong> New instance created each time</li>
+                    <li><strong>SceneSingleton:</strong> One instance per scene, disposed when scene unloads</li>
+                    <li><strong>SceneTransient:</strong> New instance created each time within a scene, all disposed when scene unloads</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>Service Context</h2>
+        <div class="service-type">
+            <h3>Context Options</h3>
+            <p>Services can be registered with different contexts to control when they are available:</p>
+
+            <div class="code-block">
+                <pre><code>[Service(typeof(IGameService), "GameService", context: ServiceContext.Runtime)]
+[Service(typeof(IEditorService), "EditorService", context: ServiceContext.EditorOnly)]
+[Service(typeof(ISharedService), "SharedService", context: ServiceContext.RuntimeAndEditor)]</code></pre>
+            </div>
+
+            <div class="info-box">
+                <h4>Context Types</h4>
+                <ul>
+                    <li><strong>Runtime:</strong> Available in both play mode and builds (default)</li>
+                    <li><strong>EditorOnly:</strong> Only available in Unity Editor</li>
+                    <li><strong>RuntimeAndEditor:</strong> Available in both editor and runtime contexts</li>
+                </ul>
+
+                <h4>Important Notes</h4>
+                <ul>
+                    <li>EditorOnly services are stripped from builds</li>
+                    <li>Runtime services cannot depend on EditorOnly services</li>
+                    <li>RuntimeAndEditor services persist between play mode sessions</li>
+                    <li>Use EditorOnly for editor tools and utilities</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>Best Practices</h2>
+        <div class="service-type">
+            <h3>Do's</h3>
+            <ul>
+                <li>Use meaningful service names</li>
+                <li>Choose appropriate lifetime scopes</li>
+                <li>Keep services focused and single-responsibility</li>
+                <li>Document service dependencies</li>
+                <li>Use interfaces for service contracts</li>
+            </ul>
+        </div>
+
+        <div class="service-type">
+            <h3>Don'ts</h3>
+            <ul>
+                <li>Don't register the same service multiple times</li>
+                <li>Don't use overly generic service names</li>
+                <li>Don't mix lifetime scopes unnecessarily</li>
+                <li>Don't create circular dependencies</li>
+                <li>Don't expose implementation details in interfaces</li>
+            </ul>
+
+            <div class="info-box">
+                <h4>Common Pitfalls</h4>
+                <ul>
+                    <li>Using Singleton for services that should be SceneSingleton</li>
+                    <li>Creating tight coupling between services</li>
+                    <li>Not considering service initialization order</li>
+                    <li>Missing service registration validation</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <div class="page-navigation">
+        <div class="nav-links">
+            <a href="advanced-create-service.html" class="nav-button">
+                <span class="nav-arrow">←</span>
+                <span class="nav-text">
+                    <span class="nav-label">Previous</span>
+                    <span class="nav-title">Create Service Tool</span>
+                </span>
+            </a>
+            <a href="advanced-lifecycle.html" class="nav-button">
+                <span class="nav-text">
+                    <span class="nav-label">Next</span>
+                    <span class="nav-title">Service Lifecycle</span>
+                </span>
+                <span class="nav-arrow">→</span>
+            </a>
+        </div>
+        <div class="nav-bottom">
+            <a href="advanced.html">Back to Advanced Topics</a>
+            <span class="nav-separator">|</span>
+            <a href="index.html">Documentation Home</a>
+        </div>
+    </div>
+</body>
+</html> 

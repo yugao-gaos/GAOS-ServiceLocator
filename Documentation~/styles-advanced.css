@@ -1,0 +1,168 @@
+/* Advanced Topics Color Scheme */
+:root {
+    --advanced-orange-light: #FF9800;   /* Light orange for main titles and decorative elements */
+    --advanced-orange-dark: #EF6C00;    /* Brown-orange for interactive elements and subtitles */
+    --advanced-orange-deep: #B53D00;    /* Deep brown for hover states */
+}
+
+/* Common Advanced Topics Styles */
+.advanced-content h1,
+.advanced-title {
+    color: var(--advanced-orange-light);
+}
+
+.advanced-content h2,
+.advanced-content h3 {
+    color: var(--advanced-orange-dark);
+}
+
+.advanced-link {
+    color: var(--advanced-orange-dark);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+.advanced-link:hover {
+    color: var(--advanced-orange-deep);
+    text-decoration: none;
+}
+
+.advanced-back-link {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background: var(--advanced-orange-dark);
+    color: white;
+    text-decoration: none;
+    border-radius: 3px;
+    transition: background 0.2s;
+}
+
+.advanced-back-link:hover {
+    background: var(--advanced-orange-deep);
+    text-decoration: none;
+}
+
+.advanced-tag {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    background: rgba(255, 152, 0, 0.1);
+    color: var(--advanced-orange-dark);
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.advanced-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    padding: 2rem;
+    border-top: 3px solid var(--advanced-orange-light);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.advanced-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.advanced-warning {
+    background: rgba(255, 152, 0, 0.05);
+    border: 1px solid rgba(255, 152, 0, 0.2);
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin: 2rem 0;
+    color: #495057;
+}
+
+.advanced-warning::before {
+    content: "⚠️";
+    margin-right: 0.75rem;
+}
+
+.advanced-code {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin: 1.5rem 0;
+    border-left: 4px solid var(--advanced-orange-light);
+}
+
+.advanced-info {
+    background: rgba(255, 152, 0, 0.05);
+    border: 1px solid rgba(255, 152, 0, 0.2);
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin: 1.5rem 0;
+    color: #495057;
+}
+
+.advanced-info::before {
+    content: "💡";
+    margin-right: 0.75rem;
+}
+
+/* Navigation elements */
+.advanced-next {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.advanced-next a {
+    color: var(--advanced-orange-dark);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.advanced-next a:hover {
+    color: var(--advanced-orange-deep);
+}
+
+/* Remove the general arrow and add it only to the right link */
+.advanced-next a:last-child::after {
+    content: " →";
+    margin-left: 0.5rem;
+}
+
+.example-item {
+    margin: 0.75rem 0;
+    padding: 0.75rem;
+    background: white;
+    border-radius: 3px;
+    border-left: 3px solid var(--advanced-orange-light);
+}
+
+.example-item h4 {
+    color: var(--advanced-orange-dark);
+    margin: 0 0 0.5rem 0;
+}
+
+.examples-list {
+    background: rgba(255, 152, 0, 0.05);
+    border: 1px solid rgba(255, 152, 0, 0.2);
+    border-radius: 5px;
+    padding: 1rem;
+    margin: 1.5rem 0;
+}
+
+/* Next Question button */
+[href*="Next Question"] {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background: #4CAF50;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    margin-bottom: 2rem;
+    transition: background 0.3s;
+}
+
+[href*="Next Question"]:hover {
+    background: #388E3C;
+    text-decoration: none;
+} 

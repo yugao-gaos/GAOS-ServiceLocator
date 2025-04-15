@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Dependencies - Advanced Topics</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles-advanced.css">
+    <style>
+        .dependency-section {
+            margin: 3rem 0;
+            padding: 2rem;
+            background: white;
+            border-radius: 12px;
+            border-left: 4px solid var(--advanced-orange-light);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .dependency-section h3 {
+            color: var(--advanced-orange-dark);
+            margin-top: 0;
+        }
+
+        .code-example {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 6px;
+            margin: 1.5rem 0;
+            font-family: monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            overflow-x: auto;
+        }
+
+        .warning-box {
+            background: rgba(255, 152, 0, 0.1);
+            border-left: 4px solid #FF9800;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .info-box {
+            background: rgba(33, 150, 243, 0.1);
+            border-left: 4px solid #2196F3;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .page-navigation {
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 152, 0, 0.2);
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .nav-button {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            background: white;
+            border: 1px solid rgba(255, 152, 0, 0.2);
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--advanced-orange-dark);
+            transition: all 0.2s ease;
+            min-width: 200px;
+        }
+
+        .nav-button:hover {
+            background: rgba(255, 152, 0, 0.05);
+            border-color: var(--advanced-orange-light);
+            transform: translateY(-2px);
+            text-decoration: none;
+        }
+
+        .nav-button.prev {
+            padding-right: 2rem;
+        }
+
+        .nav-button.next {
+            margin-left: auto;
+            padding-left: 2rem;
+        }
+
+        .nav-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .nav-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #666;
+        }
+
+        .nav-title {
+            font-weight: 500;
+            color: var(--advanced-orange-dark);
+        }
+
+        .nav-arrow {
+            font-size: 1.2rem;
+            margin: 0 1rem;
+            color: var(--advanced-orange-dark);
+        }
+
+        .nav-bottom {
+            text-align: center;
+            margin-top: 2rem;
+            color: #666;
+        }
+
+        .nav-bottom a {
+            color: var(--advanced-orange-dark);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .nav-bottom a:hover {
+            color: var(--advanced-orange-deep);
+            text-decoration: underline;
+        }
+
+        .nav-separator {
+            margin: 0 1rem;
+            color: #ccc;
+        }
+
+        /* Common styles for dependency chain diagrams */
+        .dependency-chain {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            display: inline-block;
+            font-family: monospace;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .dependency-chain.warning {
+            background: #fff3e0;
+            border-left: 4px solid #FF9800;
+        }
+
+        .dependency-chain.error {
+            background: #ffebee;
+            border-left: 4px solid #C62828;
+        }
+
+        .dependency-chain pre {
+            margin: 0;
+            font-family: inherit;
+        }
+
+        .dependency-chain.warning pre {
+            color: #EF6C00;
+        }
+
+        .dependency-chain.error pre {
+            color: #C62828;
+        }
+
+        .dependency-chain-caption {
+            color: #666;
+            font-style: italic;
+            margin: 0.5rem 0;
+            text-align: center;
+        }
+    </style>
+</head>
+<body class="advanced-content">
+    <a href="advanced.html" class="advanced-back-link">← Back to Advanced Topics</a>
+
+    <header>
+        <h1>Service Dependencies</h1>
+        <p>Understanding dependencies between services, validation, and common pitfalls</p>
+    </header>
+
+    <div class="warning-box" style="margin: 2rem 0;">
+        <h4>Important Note</h4>
+        <p>This document specifically covers dependencies between services registered with the Service Locator. It does not cover general class dependencies or other architectural patterns. Understanding how services depend on each other is crucial for proper initialization order and lifecycle management.</p>
+    </div>
+
+    <section>
+        <h2>Types of Service Dependencies</h2>
+
+        <div class="dependency-section">
+            <h3>Interface Dependencies</h3>
+            <p>Interface dependencies are the recommended way to define relationships between services. They provide loose coupling and better maintainability.</p>
+
+            <div class="code-example">
+                <pre><code>public class GameManager : IGameManager
+{
+    private readonly IDataService _dataService;
+    private readonly IConfigService _configService;
+
+    // Services depending on other services through interfaces
+    public GameManager(
+        IDataService dataService,
+        IConfigService configService
+    )
+    {
+        _dataService = dataService;
+        _configService = configService;
+    }
+}</code></pre>
+            </div>
+
+            <div class="info-box">
+                <h4>Benefits of Interface Dependencies</h4>
+                <ul>
+                    <li>Loose coupling between services</li>
+                    <li>Easier to test with mock services</li>
+                    <li>Better maintainability and flexibility</li>
+                    <li>Circular dependencies through interfaces are allowed (with warnings)</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="dependency-section">
+            <h3>Implementation Dependencies</h3>
+            <p>Implementation dependencies occur when a service directly depends on concrete service implementations rather than interfaces.</p>
+
+            <div class="code-example">
+                <pre><code>// Bad: Direct implementation dependency
+public class GameManager : IGameManager
+{
+    private readonly DataService _dataService;  // Concrete service type!
+
+    public GameManager()
+    {
+        // Direct dependency on service implementation
+        _dataService = ServiceLocator.GetService<DataService>("DataService");
+    }
+}
+
+// Good: Interface dependency
+public class GameManager : IGameManager
+{
+    private readonly IDataService _dataService;  // Service interface!
+
+    public GameManager(IDataService dataService)
+    {
+        _dataService = dataService;
+    }
+}</code></pre>
+            </div>
+
+            <div class="warning-box">
+                <h4>Warning: Implementation Dependencies</h4>
+                <ul>
+                    <li>Creates tight coupling between services</li>
+                    <li>Makes testing more difficult</li>
+                    <li>Circular implementation dependencies are not allowed</li>
+                    <li>Can lead to maintenance issues</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="dependency-section">
+            <h3>Manual Dependency Declaration</h3>
+            <p>Sometimes services have dependencies that cannot be detected through static analysis, such as dependencies resolved through ServiceLocator.Get calls in methods. These dependencies can be explicitly declared using the additionalDependencies parameter in the ServiceAttribute.</p>
+
+            <div class="code-example">
+                <pre><code>[Service(typeof(IGameManager), "GameManager", 
+    additionalDependencies: new[] { typeof(IDataService), typeof(IConfigService) })]
+public class GameManager : IGameManager
+{
+    public void Initialize()
+    {
+        // Dependencies resolved through Get calls
+        var dataService = ServiceLocator.GetService<IDataService>("DataService");
+        var configService = ServiceLocator.GetService<IConfigService>("ConfigService");
+    }
+}</code></pre>
+            </div>
+
+            <div class="info-box">
+                <h4>When to Use Manual Dependency Declaration</h4>
+                <ul>
+                    <li>Dependencies resolved through ServiceLocator.Get calls in methods</li>
+                    <li>Dependencies injected through factory patterns</li>
+                    <li>Dependencies resolved at runtime based on conditions</li>
+                    <li>Any dependency that can't be detected through constructor, field, or property analysis</li>
+                </ul>
+            </div>
+
+            <div class="warning-box">
+                <h4>Important Considerations</h4>
+                <ul>
+                    <li>Manual dependencies are included in circular dependency detection</li>
+                    <li>Over-declaring dependencies can make the system harder to maintain</li>
+                    <li>Consider refactoring to use constructor injection if possible</li>
+                    <li>Document why manual dependencies are needed in your code</li>
+                </ul>
+            </div>
+
+            <p>Example of circular dependency detection with manual declarations:</p>
+            <div class="code-example">
+                <pre><code>// Service A depends on Service B through Get call
+[Service(typeof(IServiceA), "ServiceA", 
+    additionalDependencies: new[] { typeof(IServiceB) })]
+public class ServiceA : IServiceA
+{
+    public void DoWork()
+    {
+        var serviceB = ServiceLocator.GetService<IServiceB>("ServiceB");
+        // Use serviceB...
+    }
+}
+
+// Service B depends on Service A through Get call
+[Service(typeof(IServiceB), "ServiceB", 
+    additionalDependencies: new[] { typeof(IServiceA) })]
+public class ServiceB : IServiceB
+{
+    public void Process()
+    {
+        var serviceA = ServiceLocator.GetService<IServiceA>("ServiceA");
+        // Use serviceA...
+    }
+}
+
+// The circular dependency will be detected during validation:
+// IServiceA (ServiceA) → IServiceB (ServiceB) → IServiceA</code></pre>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>Dependency Validation</h2>
+
+        <div class="dependency-section">
+            <h3>Static Analysis</h3>
+            <p>The Service Locator performs static analysis to detect dependencies between services:</p>
+            <ul>
+                <li>Constructor parameter analysis</li>
+                <li>Field and property type analysis</li>
+                <li>ServiceLocator.Get calls analysis</li>
+                <li>Interface implementation relationships</li>
+            </ul>
+
+            <div class="info-box">
+                <h4>What's Validated</h4>
+                <ul>
+                    <li>Circular dependencies (both interface and implementation)</li>
+                    <li>Missing service registrations</li>
+                    <li>Context compatibility (Runtime/Editor)</li>
+                    <li>Initialization order</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="dependency-section">
+            <h3>Circular Dependencies</h3>
+            <p>The Service Locator handles two types of circular dependencies differently:</p>
+
+            <div style="text-align: center; margin: 2rem 0;">
+                <div class="dependency-chain warning">
+                    <pre>Interface Circular Dependency (Allowed with Warning)
+IPlayerManager (PlayerManager) → IInventoryService (InventoryService) → IPlayerManager</pre>
+                </div>
+                <p class="dependency-chain-caption">Services depend on each other through interfaces. This is allowed but generates a warning.</p>
+
+                <div class="dependency-chain error">
+                    <pre>Implementation Circular Dependency (Not Allowed)
+PlayerManager → InventoryService → PlayerManager</pre>
+                </div>
+                <p class="dependency-chain-caption">Services depend directly on concrete implementations. This is not allowed and throws an error.</p>
+            </div>
+
+            <div class="code-example">
+                <pre><code>// Interface Circular Dependency (Allowed but Warned)
+public interface IServiceA { void DoA(); }
+public interface IServiceB { void DoB(); }
+
+public class ServiceA : IServiceA
+{
+    private readonly IServiceB _serviceB;
+    public ServiceA(IServiceB serviceB) => _serviceB = serviceB;
+    public void DoA() => _serviceB.DoB();
+}
+
+public class ServiceB : IServiceB
+{
+    private readonly IServiceA _serviceA;
+    public ServiceB(IServiceA serviceA) => _serviceA = serviceA;
+    public void DoB() => _serviceA.DoA();
+}
+
+// Implementation Circular Dependency (Not Allowed)
+public class ServiceA : IServiceA
+{
+    private readonly ServiceB _serviceB;  // Direct implementation!
+    public ServiceA() => _serviceB = ServiceLocator.GetService<ServiceB>();
+}
+
+public class ServiceB : IServiceB
+{
+    private readonly ServiceA _serviceA;  // Direct implementation!
+    public ServiceB() => _serviceA = ServiceLocator.GetService<ServiceA>();
+}</code></pre>
+            </div>
+
+            <div class="warning-box">
+                <h4>Important Notes</h4>
+                <ul>
+                    <li>Interface circular dependencies generate warnings but are allowed</li>
+                    <li>Implementation circular dependencies throw exceptions</li>
+                    <li>Use events or messaging to break circular dependencies</li>
+                    <li>Consider refactoring services with circular dependencies</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>Async Dependency Management</h2>
+        <div class="service-type">
+            <h3>Async Service Dependencies</h3>
+            <p>Services can have async initialization requirements through the <code>IServiceInitializable</code> interface. When a service implements this interface, it and its entire dependency chain should be accessed asynchronously.</p>
+
+            <div class="code-block">
+                <pre><code>// An async service with dependencies
+[Service(typeof(IDataService), "DataService")]
+public class DataService : IDataService, IServiceInitializable
+{
+    private IConfigService _configService;
+    private IStorageService _storageService;
+    
+    public DataService()
+    {
+        // Resolve dependencies in constructor
+        _configService = ServiceLocator.GetService<IConfigService>("Config");
+        
+        // Async dependencies must be resolved in InitializeAsync
+    }
+    
+    public async Task InitializeAsync()
+    {
+        // Wait for async dependency to be ready
+        _storageService = await ServiceLocator.GetAsyncService<IStorageService>("Storage");
+        
+        // Initialize this service
+        await LoadDataAsync();
+    }
+}</code></pre>
+            </div>
+
+            <div class="info-box">
+                <h4>Best Practices</h4>
+                <ul>
+                    <li>Use <code>GetService</code> for synchronous dependencies in the constructor</li>
+                    <li>Use <code>GetAsyncService</code> for asynchronous dependencies in <code>InitializeAsync</code></li>
+                    <li>Make all services in an async dependency chain implement <code>IServiceInitializable</code></li>
+                    <li>Avoid circular references between async services</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>Async Dependency Detection</h2>
+        <div class="service-type">
+            <h3>Async Dependency Detection</h3>
+            <p>The Service Inspector automatically detects and validates async dependency chains, providing visual indicators and warnings for proper usage.</p>
+
+            <div style="text-align: center; margin: 2rem 0;">
+                <div class="dependency-chain warning">
+                    <pre>Async Dependency Chain Example
+IGameManager [Async] → IDataService [Async] → IStorageService [Async]</pre>
+                </div>
+                <p class="dependency-chain-caption">Service Inspector shows [Async] tags for services in async dependency chains</p>
+            </div>
+
+            <div class="warning-box">
+                <h4>Important Considerations</h4>
+                <ul>
+                    <li>Accessing a service with async dependencies synchronously can lead to deadlocks</li>
+                    <li>All services in an async chain should implement IServiceInitializable</li>
+                    <li>The Service Inspector will warn about improper async access patterns</li>
+                    <li>Async services should be initialized before being used</li>
+                </ul>
+            </div>
+
+            <div class="info-box">
+                <h4>Key Rules</h4>
+                <ul>
+                    <li>Avoid creating service instances outside of ServiceLocator</li>
+                    <li>Carefully plan initialization order of dependent services</li>
+                    <li>All services in an async chain should implement IServiceInitializable</li>
+                    <li>Consider lifetime implications for transient services</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>Common Issues & Solutions</h2>
+
+        <div class="dependency-section">
+            <h3>Undetected ServiceLocator.Get Calls</h3>
+            <p>Static analysis may miss dependencies from dynamic ServiceLocator.Get calls, which becomes problematic during service initialization:</p>
+
+            <div class="code-example">
+                <pre><code>public class GameManager : IGameManager
+{
+    // This dependency is detected
+    private readonly IDataService _dataService;
+
+    public GameManager(IDataService dataService)
+    {
+        _dataService = dataService;
+
+        // PROBLEM: This Get call during initialization
+        // can cause circular dependency or initialization
+        // order issues!
+        var configService = ServiceLocator.GetService<IConfigService>("Config");
+        configService.LoadConfig();
+    }
+
+    public void ProcessData()
+    {
+        // This is fine - not during initialization
+        var analyticsService = ServiceLocator.GetService<IAnalyticsService>();
+        analyticsService.LogEvent("ProcessData");
+    }
+}</code></pre>
+            </div>
+
+            <div class="dependency-chain error">
+                <pre>ServiceValidationException: Circular dependency detected in service chain:
+IGameManager (GameManager) → IConfigService (ConfigService) → IGameManager
+ERROR: Service depends on concrete implementations which creates a strong circular dependency.</pre>
+            </div>
+
+            <div class="info-box">
+                <h4>Best Practices</h4>
+                <ul>
+                    <li>Avoid ServiceLocator.Get calls during initialization</li>
+                    <li>Use constructor parameters for initialization-time dependencies</li>
+                    <li>ServiceLocator.Get is safe to use after initialization</li>
+                    <li>Consider using the GetDependencies override for SOServiceBase to declare dependencies</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="dependency-section">
+            <h3>Hidden Dependencies</h3>
+            <p>Dependencies can be hidden behind non-service classes, but the Type Cache Inspector will detect these:</p>
+
+            <div style="text-align: center; margin: 2rem 0;">
+                <div class="dependency-chain warning">
+                    <pre>Hidden Service Dependency Chain
+IGameManager (GameManager) → DataProcessor → ILogger (FileLogger)</pre>
+                </div>
+                <p class="dependency-chain-caption">Type Cache Inspector detects service dependencies through non-service classes</p>
+            </div>
+
+            <div class="code-example">
+                <pre><code>// Hidden dependency through utility class
+public class DataProcessor
+{
+    public void Process()
+    {
+        // Hidden dependency!
+        var logger = ServiceLocator.GetService<ILogger>("Logger");
+        logger.Log("Processing data...");
+    }
+}
+
+public class GameManager : IGameManager
+{
+    private readonly DataProcessor _processor;
+
+    public GameManager()
+    {
+        // Seems independent, but has hidden logger dependency
+        // Type Cache Inspector will show this dependency!
+        _processor = new DataProcessor();
+    }
+}</code></pre>
+            </div>
+
+            <div class="info-box">
+                <h4>Type Cache Inspector Detection</h4>
+                <ul>
+                    <li>Static analysis finds hidden service dependencies</li>
+                    <li>Dependencies are shown in the service details view</li>
+                    <li>Validation messages warn about hidden dependencies</li>
+                    <li>Consider making utility classes stateless or passing service references explicitly</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <div class="page-navigation">
+        <div class="nav-links">
+            <a href="advanced-disposable-service.html" class="nav-button">
+                <span class="nav-arrow">←</span>
+                <span class="nav-text">
+                    <span class="nav-label">Previous</span>
+                    <span class="nav-title">Disposable Service</span>
+                </span>
+            </a>
+            <a href="advanced-assembly-packaging.html" class="nav-button">
+                <span class="nav-text">
+                    <span class="nav-label">Next</span>
+                    <span class="nav-title">Assembly Packaging</span>
+                </span>
+                <span class="nav-arrow">→</span>
+            </a>
+        </div>
+        <div class="nav-bottom">
+            <a href="advanced.html">Back to Advanced Topics</a>
+            <span class="nav-separator">|</span>
+            <a href="index.html">Documentation Home</a>
+        </div>
+    </div>
+</body>
+</html> 
