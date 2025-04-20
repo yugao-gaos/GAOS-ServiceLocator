@@ -20,10 +20,10 @@ namespace GAOS.ServiceLocator
                 {
                     if(mb.gameObject.scene.name == sceneName)
                     {
-                        if(mb.gameObject.name == name)
-                        {
-                            return mb;
-                        }
+                        // Don't check name - just use the first instance found in the scene
+                        // This allows SceneSingleton services to find existing instances regardless of GameObject name
+                        ServiceDiagnostics.LogInfo($"Found existing MonoBehaviour of type {typeInfo.Name} in scene {sceneName}");
+                        return mb;
                     }           
                 }
             }
