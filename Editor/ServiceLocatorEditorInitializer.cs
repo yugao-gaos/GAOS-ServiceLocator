@@ -22,17 +22,17 @@ namespace GAOS.ServiceLocator.Editor
         static ServiceLocatorEditorInitializer()
         {
             // Ensure we register editor services when Unity loads
-            EditorApplication.delayCall += RegisterEditorOnlyServices;
+            EditorApplication.delayCall += RegisterEditorServices;
             
             // Also register after domain reload
             AssemblyReloadEvents.afterAssemblyReload += () => {
-                EditorApplication.delayCall += RegisterEditorOnlyServices;
+                EditorApplication.delayCall += RegisterEditorServices;
             };
             
             Debug.Log("ServiceLocatorEditorInitializer initialized");
         }
         
-        private static void RegisterEditorOnlyServices()
+        private static void RegisterEditorServices()
         {
             if (_serviceTypes == null)
             {
@@ -40,10 +40,11 @@ namespace GAOS.ServiceLocator.Editor
                 return;
             }
             
-            Debug.Log("Registering editor-only services");
-            int count = 0;
+            Debug.Log("Registering editor services (EditorOnly and RuntimeAndEditor)");
+            int editorOnlyCount = 0;
+            int runtimeAndEditorCount = 0;
             
-            // Get all types with the ServiceAttribute and EditorOnly context using reflection
+            // Get all types with the ServiceAttribute and EditorOnly or RuntimeAndEditor context using reflection
             foreach (var infoObj in _serviceTypes)
             {
                 if (infoObj == null) continue;
@@ -63,8 +64,9 @@ namespace GAOS.ServiceLocator.Editor
                 string name = nameProp?.GetValue(infoObj) as string;
                 object lifetimeObj = lifetimeProp?.GetValue(infoObj);
                 
-                // Check if it's an editor-only service
-                if (contextObj == null || (ServiceContext)contextObj != ServiceContext.EditorOnly)
+                if (contextObj == null || 
+                    ((ServiceContext)contextObj != ServiceContext.EditorOnly && 
+                     (ServiceContext)contextObj != ServiceContext.RuntimeAndEditor))
                     continue;
                 
                 if (implType == null || interfaceType == null || string.IsNullOrEmpty(name))
@@ -91,16 +93,26 @@ namespace GAOS.ServiceLocator.Editor
                     
                     if (registerMethod != null)
                     {
+                        ServiceContext context = (ServiceContext)contextObj;
+                        
                         registerMethod.Invoke(null, new object[] { 
                             interfaceType, 
                             implType, 
                             name, 
                             lifetimeObj, 
-                            ServiceContext.EditorOnly 
+                            context
                         });
                         
-                        Debug.Log($"Registered editor service: {implType.Name} with name {name}");
-                        count++;
+                        if (context == ServiceContext.EditorOnly)
+                        {
+                            editorOnlyCount++;
+                            Debug.Log($"Registered EditorOnly service: {implType.Name} with name {name}");
+                        }
+                        else if (context == ServiceContext.RuntimeAndEditor)
+                        {
+                            runtimeAndEditorCount++;
+                            Debug.Log($"Registered RuntimeAndEditor service: {implType.Name} with name {name}");
+                        }
                     }
                     else
                     {
@@ -113,7 +125,7 @@ namespace GAOS.ServiceLocator.Editor
                 }
             }
             
-            Debug.Log($"Registered {count} editor-only services");
+            Debug.Log($"Registered {editorOnlyCount} EditorOnly services and {runtimeAndEditorCount} RuntimeAndEditor services");
         }
     }
 } 

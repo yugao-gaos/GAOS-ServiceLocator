@@ -2,6 +2,22 @@
 
 All notable changes to the Service Locator package will be documented in this file.
 
+## [1.11.2] - 2024-06-10
+
+### Fixed
+- Fixed SceneSingleton MonoBehaviour service behavior
+  - Fixed an issue where SceneSingleton services would create a new instance in DontDestroyOnLoad instead of finding and moving existing scene instances
+  - Modified MonoServiceFactory.FindSceneInstance to prioritize finding existing instances by type rather than exact GameObject name
+  - Improved instance reuse for MonoBehaviour services with SceneSingleton lifetime
+  - Enhanced logging when finding existing service instances in scenes
+
+### Added
+- Extended ServiceLocatorEditorInitializer to support RuntimeAndEditor services
+  - Updated editor initialization to register both EditorOnly and RuntimeAndEditor services during domain reload
+  - Improved service initialization in the editor
+  - Added better logging with separate counters for EditorOnly and RuntimeAndEditor services
+  - Enhanced service discovery reliability across domain reloads
+
 ## [1.11.1] - 2024-05-15
 
 ### Fixed

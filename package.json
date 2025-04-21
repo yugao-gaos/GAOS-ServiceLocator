@@ -1,6 +1,6 @@
 {
     "name": "com.gaos.servicelocator",
-    "version": "1.10.0",
+    "version": "1.11.2",
     "displayName": "GAOS Service Locator",
     "description": "A thread-safe service locator system supporting both regular C# classes and MonoBehaviours with automatic registration capabilities.",
     "unity": "2021.3",
