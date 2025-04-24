@@ -17,7 +17,7 @@ A thread-safe service locator system for Unity that provides seamless management
 
 1. Open the Unity Package Manager
 2. Click the '+' button and select "Add package from git URL"
-3. Enter: `com.gaos.servicelocator`
+3. Enter: `https://github.com/yugao-gaos/GAOS-ServiceLocator.git`
 
 ## Quick Start
 
