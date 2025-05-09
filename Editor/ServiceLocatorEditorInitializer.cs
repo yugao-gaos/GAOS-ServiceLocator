@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using GAOS.ServiceLocator.Editor.Diagnostics;
+using GAOS.Logger;
 
 namespace GAOS.ServiceLocator.Editor
 {
@@ -29,18 +31,18 @@ namespace GAOS.ServiceLocator.Editor
                 EditorApplication.delayCall += RegisterEditorServices;
             };
             
-            Debug.Log("ServiceLocatorEditorInitializer initialized");
+            GLog.Info<ServiceLocatorEditorLogSystem>("ServiceLocatorEditorInitializer initialized");
         }
         
         private static void RegisterEditorServices()
         {
             if (_serviceTypes == null)
             {
-                Debug.LogError("Could not access ServiceTypes via reflection");
+                GLog.Error<ServiceLocatorEditorLogSystem>("Could not access ServiceTypes via reflection");
                 return;
             }
             
-            Debug.Log("Registering editor services (EditorOnly and RuntimeAndEditor)");
+            GLog.Info<ServiceLocatorEditorLogSystem>("Registering editor services (EditorOnly and RuntimeAndEditor)");
             int editorOnlyCount = 0;
             int runtimeAndEditorCount = 0;
             
@@ -71,7 +73,7 @@ namespace GAOS.ServiceLocator.Editor
                 
                 if (implType == null || interfaceType == null || string.IsNullOrEmpty(name))
                 {
-                    Debug.LogWarning("Incomplete type info found");
+                    GLog.Warning<ServiceLocatorEditorLogSystem>("Incomplete type info found");
                     continue;
                 }
 
@@ -80,7 +82,7 @@ namespace GAOS.ServiceLocator.Editor
                     // Use the public API to check if the service is already registered
                     if (ServiceLocator.GetServiceNames(interfaceType).Contains(name))
                     {
-                        Debug.Log($"Editor service already registered: {implType.Name} with name {name}");
+                        GLog.Info<ServiceLocatorEditorLogSystem>($"Editor service already registered: {implType.Name} with name {name}");
                         continue;
                     }
 
@@ -106,26 +108,26 @@ namespace GAOS.ServiceLocator.Editor
                         if (context == ServiceContext.EditorOnly)
                         {
                             editorOnlyCount++;
-                            Debug.Log($"Registered EditorOnly service: {implType.Name} with name {name}");
+                            GLog.Info<ServiceLocatorEditorLogSystem>($"Registered EditorOnly service: {implType.Name} with name {name}");
                         }
                         else if (context == ServiceContext.RuntimeAndEditor)
                         {
                             runtimeAndEditorCount++;
-                            Debug.Log($"Registered RuntimeAndEditor service: {implType.Name} with name {name}");
+                            GLog.Info<ServiceLocatorEditorLogSystem>($"Registered RuntimeAndEditor service: {implType.Name} with name {name}");
                         }
                     }
                     else
                     {
-                        Debug.LogError("Could not find Register method via reflection");
+                        GLog.Error<ServiceLocatorEditorLogSystem>("Could not find Register method via reflection");
                     }
                 }
                 catch (Exception ex)
                 {
-                    Debug.LogError($"Error registering editor service: {ex.Message}");
+                    GLog.Error<ServiceLocatorEditorLogSystem>($"Error registering editor service: {ex.Message}");
                 }
             }
             
-            Debug.Log($"Registered {editorOnlyCount} EditorOnly services and {runtimeAndEditorCount} RuntimeAndEditor services");
+            GLog.Info<ServiceLocatorEditorLogSystem>($"Registered {editorOnlyCount} EditorOnly services and {runtimeAndEditorCount} RuntimeAndEditor services");
         }
     }
 } 

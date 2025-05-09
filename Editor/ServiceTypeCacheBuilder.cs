@@ -4,8 +4,10 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Reflection;
-using GAOS.ServiceLocator.Diagnostics;
+using GAOS.ServiceLocator.Editor.Diagnostics;
 using GAOS.ServiceLocator.Optional;
+using GAOS.Logger;
+
 namespace GAOS.ServiceLocator.Editor
 {
     [InitializeOnLoad]
@@ -51,8 +53,14 @@ namespace GAOS.ServiceLocator.Editor
 
         static ServiceTypeCacheBuilder()
         {
+            // Ensure logging system is registered
+            if (ServiceLocatorEditorLogSystem.Instance == null)
+            {
+                GLog.Debug<ServiceLocatorEditorLogSystem>("Initializing ServiceLocatorEditorLogSystem");
+            }
+
             if(ServiceEditorValidator.EnableLogging)
-                Debug.Log("[ServiceLocator] Initializing ServiceTypeCacheBuilder");
+                GLog.Info<ServiceLocatorEditorLogSystem>("Initializing ServiceTypeCacheBuilder");
             RefreshAssemblies();
             
             // Always unsubscribe first to prevent duplicate subscriptions
@@ -70,7 +78,7 @@ namespace GAOS.ServiceLocator.Editor
             if (EditorPrefs.GetBool(AUTO_REBUILD_PREF, true) && !_isRebuilding)
             {
                 if(ServiceEditorValidator.EnableLogging)
-                    Debug.Log("[ServiceLocator] Scheduling type cache rebuild after assembly reload...");
+                    GLog.Info<ServiceLocatorEditorLogSystem>("Scheduling type cache rebuild after assembly reload...");
                 // Always unsubscribe before subscribing to prevent duplicates
                 EditorApplication.delayCall -= RebuildTypeCache;
                 EditorApplication.delayCall += RebuildTypeCache;
@@ -87,7 +95,7 @@ namespace GAOS.ServiceLocator.Editor
         {
             if (_isRebuilding)
             {
-                Debug.LogWarning("[ServiceLocator] Type cache rebuild already in progress, please wait...");
+                GLog.Warning<ServiceLocatorEditorLogSystem>("Type cache rebuild already in progress, please wait...");
                 return null;
             }
 
@@ -103,7 +111,7 @@ namespace GAOS.ServiceLocator.Editor
                 typeCache.Clear();
 
                 if(ServiceEditorValidator.EnableLogging)
-                    Debug.Log($"[ServiceLocator] Starting type cache rebuild. Current cache has {typeCache.ServiceTypes.Count} types");
+                    GLog.Info<ServiceLocatorEditorLogSystem>($"Starting type cache rebuild. Current cache has {typeCache.ServiceTypes.Count} types");
 
                 RefreshAssemblies();
 
@@ -123,7 +131,7 @@ namespace GAOS.ServiceLocator.Editor
                             typesAdded++;
 
                             if(ServiceEditorValidator.EnableLogging)
-                                Debug.Log($"[ServiceLocator] Added service: {type.Name}\n" +
+                                GLog.Info<ServiceLocatorEditorLogSystem>($"Added service: {type.Name}\n" +
                                     $"- Interface: {typeInfo.InterfaceTypeName}\n" +
                                     $"- Type: {typeInfo.ServiceType}\n" +
                                     $"- Lifetime: {typeInfo.DefaultLifetime}\n" +
@@ -132,7 +140,7 @@ namespace GAOS.ServiceLocator.Editor
                     }
                     catch (Exception ex)
                     {
-                        Debug.LogError($"[ServiceLocator] Error processing type {type.Name}: {ex}");
+                        GLog.Error<ServiceLocatorEditorLogSystem>($"Error processing type {type.Name}: {ex}");
                     }
                 }
 
@@ -144,7 +152,7 @@ namespace GAOS.ServiceLocator.Editor
                 AssetDatabase.Refresh();
 
                 if(ServiceEditorValidator.EnableLogging)
-                    Debug.Log($"[ServiceLocator] Type cache rebuild completed:\n" +
+                    GLog.Info<ServiceLocatorEditorLogSystem>($"Type cache rebuild completed:\n" +
                         $"- Types processed: {typesProcessed}\n" +
                         $"- Types added: {typesAdded}\n" +
                         $"- Final cache count: {typeCache.ServiceTypes.Count}\n" +
@@ -156,7 +164,7 @@ namespace GAOS.ServiceLocator.Editor
             }
             catch (Exception ex)
             {
-                Debug.LogError($"[ServiceLocator] Error rebuilding type cache: {ex}");
+                GLog.Error<ServiceLocatorEditorLogSystem>($"Error rebuilding type cache: {ex}");
                 return null;
             }
             finally
@@ -203,7 +211,7 @@ namespace GAOS.ServiceLocator.Editor
                         {
                             _assemblies.Add(assembly);
                             if(ServiceEditorValidator.EnableLogging)
-                                Debug.Log($"[ServiceLocator] Including test assembly: {assemblyName}");
+                                GLog.Info<ServiceLocatorEditorLogSystem>($"Including test assembly: {assemblyName}");
                         }
                         continue;
                     }
@@ -212,7 +220,7 @@ namespace GAOS.ServiceLocator.Editor
                     if (assemblyType == ServiceAssemblyType.Test)
                     {
                         if(ServiceEditorValidator.EnableLogging)
-                            Debug.Log($"[ServiceLocator] Excluding test assembly from initial scan: {assemblyName}");
+                            GLog.Info<ServiceLocatorEditorLogSystem>($"Excluding test assembly from initial scan: {assemblyName}");
                         continue;
                     }
 
@@ -240,7 +248,7 @@ namespace GAOS.ServiceLocator.Editor
                 }
                 catch (Exception ex)
                 {
-                    Debug.LogWarning($"[ServiceLocator] Error scanning assembly {assembly.GetName().Name}: {ex}");
+                    GLog.Warning<ServiceLocatorEditorLogSystem>($"Error scanning assembly {assembly.GetName().Name}: {ex}");
                 }
             }
 
@@ -255,7 +263,7 @@ namespace GAOS.ServiceLocator.Editor
             // Validate service type
             if (attribute.ServiceInterface != null && !attribute.ServiceInterface.IsAssignableFrom(type))
             {
-                Debug.LogError($"[ServiceLocator] Service {type.Name} does not implement interface {attribute.ServiceInterface.Name}");
+                GLog.Error<ServiceLocatorEditorLogSystem>($"Service {type.Name} does not implement interface {attribute.ServiceInterface.Name}");
                 return null;
             }
 
@@ -318,7 +326,7 @@ namespace GAOS.ServiceLocator.Editor
             bool current = EditorPrefs.GetBool(AUTO_REBUILD_PREF, true);
             EditorPrefs.SetBool(AUTO_REBUILD_PREF, !current);
             if(ServiceEditorValidator.EnableLogging)
-                Debug.Log($"[ServiceLocator] Auto-rebuild is now {(!current ? "enabled" : "disabled")}");
+                GLog.Info<ServiceLocatorEditorLogSystem>($"Auto-rebuild is now {(!current ? "enabled" : "disabled")}");
         }
 
         [MenuItem("GAOS/Service Locator/Toggle Auto-Rebuild", true)]
@@ -355,7 +363,7 @@ namespace GAOS.ServiceLocator.Editor
                     ));
 
                     if(ServiceEditorValidator.EnableLogging)
-                        Debug.Log($"Service {serviceInfo.ImplementationType.Name} implements IServiceInitializable");
+                        GLog.Info<ServiceLocatorEditorLogSystem>($"Service {serviceInfo.ImplementationType.Name} implements IServiceInitializable");
                 }
 
                 // Check for circular and async dependencies

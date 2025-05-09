@@ -13,6 +13,67 @@ namespace GAOS.ServiceLocator.Editor
     {
         
         public static bool EnableLogging { get; set; } = true;
+        private static DependencyValidationSettings _validationSettings;
+        
+        /// <summary>
+        /// The current dependency validation settings asset
+        /// </summary>
+        public static DependencyValidationSettings ValidationSettings 
+        {
+            get
+            {
+                if (_validationSettings == null)
+                {
+                    LoadValidationSettings();
+                }
+                return _validationSettings;
+            }
+        }
+        
+        /// <summary>
+        /// Load the dependency validation settings from Resources
+        /// </summary>
+        private static void LoadValidationSettings()
+        {
+            _validationSettings = Resources.Load<DependencyValidationSettings>("DependencyValidationSettings");
+            
+            // If not found, try to find in the project
+            if (_validationSettings == null)
+            {
+                string[] guids = AssetDatabase.FindAssets("t:DependencyValidationSettings");
+                if (guids.Length > 0)
+                {
+                    string path = AssetDatabase.GUIDToAssetPath(guids[0]);
+                    _validationSettings = AssetDatabase.LoadAssetAtPath<DependencyValidationSettings>(path);
+                }
+            }
+            
+            // If still not found, create a default one
+            if (_validationSettings == null)
+            {
+                CreateDefaultValidationSettings();
+            }
+        }
+        
+        /// <summary>
+        /// Create default validation settings asset in the Resources folder
+        /// </summary>
+        private static void CreateDefaultValidationSettings()
+        {
+            // Create Resources folder if it doesn't exist
+            if (!AssetDatabase.IsValidFolder("Assets/Resources"))
+            {
+                AssetDatabase.CreateFolder("Assets", "Resources");
+            }
+            
+            _validationSettings = ScriptableObject.CreateInstance<DependencyValidationSettings>();
+            AssetDatabase.CreateAsset(_validationSettings, "Assets/Resources/DependencyValidationSettings.asset");
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            
+            Debug.Log("Created default DependencyValidationSettings.asset in Resources folder");
+        }
+        
         static ServiceEditorValidator()
         {
             // Always unsubscribe first to prevent duplicate handlers
@@ -86,6 +147,12 @@ namespace GAOS.ServiceLocator.Editor
         /// <returns>A tuple containing whether circular dependencies were found and the dependency chain if any</returns>
         public static (bool hasCircular, string dependencyChain, bool isImplementationDependency, bool hasAsyncDependency) ValidateDependencies(Type serviceType, ServiceTypeCache typeCache)
         {
+            // Check if this type or its assembly is excluded from validation
+            if (ValidationSettings != null && !ValidationSettings.ShouldValidateDependency(serviceType))
+            {
+                return (false, $"Validation skipped for {serviceType.Name}", false, false);
+            }
+            
             var visited = new HashSet<Type>();  // Types fully processed in current path
             var path = new List<Type>();        // Current dependency path for display
             var inPath = new HashSet<Type>();   // Current dependency path for cycle detection
@@ -128,6 +195,12 @@ namespace GAOS.ServiceLocator.Editor
 
             void TravoseDependencies(Type currentType, bool isImplementationOfInterface = false)
             {
+                // Skip validation for excluded types
+                if (ValidationSettings != null && !ValidationSettings.ShouldValidateDependency(currentType))
+                {
+                    return;
+                }
+            
                 // If we've seen this type in current path, we found a cycle
                 if (inPath.Contains(currentType))
                 {

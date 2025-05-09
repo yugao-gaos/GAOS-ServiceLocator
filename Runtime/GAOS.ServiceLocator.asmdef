@@ -1,7 +1,9 @@
 {
     "name": "GAOS.ServiceLocator",
     "rootNamespace": "GAOS.ServiceLocator",
-    "references": [],
+    "references": [
+        "GAOS.Logger"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

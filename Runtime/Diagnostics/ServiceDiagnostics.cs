@@ -2,6 +2,7 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using GAOS.Logger;
 
 namespace GAOS.ServiceLocator.Diagnostics
 {
@@ -19,14 +20,15 @@ namespace GAOS.ServiceLocator.Diagnostics
         #region General Logging
         internal static void LogInfo(string message, bool requireDebugMode = true)
         {
-            Debug.Log($"[ServiceLocator] {message}");
+            if (requireDebugMode && !_isDebugLoggingEnabled) return;
+            GLog.Info<ServiceLocatorLogSystem>(message);
         }
 
         internal static void LogWarning(string message) => 
-            Debug.LogWarning($"[ServiceLocator] {message}");
+            GLog.Warning<ServiceLocatorLogSystem>(message);
 
         internal static void LogError(string message) => 
-            Debug.LogError($"[ServiceLocator] {message}");
+            GLog.Error<ServiceLocatorLogSystem>(message);
         #endregion
 
         #region Service Lifecycle Logging
@@ -136,7 +138,7 @@ namespace GAOS.ServiceLocator.Diagnostics
                 return;
             }
 #endif
-            Debug.Log(message);
+            GLog.Info<ServiceLocatorLogSystem>(message);
         }
 
         internal static void NotifyServiceNotFound(Type type, string location, string details)
@@ -153,11 +155,11 @@ namespace GAOS.ServiceLocator.Diagnostics
 #endif
             if (details.Contains("Creating new GameObject"))
             {
-                Debug.Log(message);
+                GLog.Info<ServiceLocatorLogSystem>(message);
             }
             else
             {
-                Debug.LogError(message);
+                GLog.Error<ServiceLocatorLogSystem>(message);
             }
         }
 
@@ -171,7 +173,7 @@ namespace GAOS.ServiceLocator.Diagnostics
                 return;
             }
 #endif
-            Debug.LogError(message);
+            GLog.Error<ServiceLocatorLogSystem>(message);
         }
 
         internal static void NotifyValidationError(Type type, string context, string message)
@@ -184,7 +186,7 @@ namespace GAOS.ServiceLocator.Diagnostics
                 return;
             }
 #endif
-            Debug.LogError(formattedMessage);
+            GLog.Error<ServiceLocatorLogSystem>(formattedMessage);
         }
 
         internal static void NotifyInitializationError(Type type, string context, Exception error)
@@ -197,7 +199,7 @@ namespace GAOS.ServiceLocator.Diagnostics
                 return;
             }
 #endif
-            Debug.LogError(message);
+            GLog.Error<ServiceLocatorLogSystem>(message);
         }
 
         internal static void NotifyCircularDependency(Type type, string[] dependencyChain)
@@ -210,33 +212,33 @@ namespace GAOS.ServiceLocator.Diagnostics
                 return;
             }
 #endif
-            Debug.LogError(message);
+            GLog.Error<ServiceLocatorLogSystem>(message);
         }
 
-        internal static void NotifyRuntimeServiceAccessedInEditor(Type type, string details)
+        internal static void NotifyRuntimeServiceAccessedInEditor(Type type, string location)
         {
-            var message = ServiceDiagnosticsFormatter.FormatRuntimeServiceAccessedInEditor(type, details);
+            var message = $"[ServiceLocator] Runtime service {type.Name} accessed in editor mode at {location}";
 #if UNITY_EDITOR
             if (OnRuntimeServiceAccessedInEditor != null)
             {
-                OnRuntimeServiceAccessedInEditor(type, details, message);
+                OnRuntimeServiceAccessedInEditor(type, location, message);
                 return;
             }
 #endif
-            Debug.LogWarning(message);
+            GLog.Warning<ServiceLocatorLogSystem>(message);
         }
 
-        internal static void NotifyMultipleServiceAssetsFound(Type type, string[] paths)
+        internal static void NotifyMultipleServiceAssetsFound(Type type, string[] assetPaths)
         {
-            var message = ServiceDiagnosticsFormatter.FormatMultipleServiceAssetsFound(type, paths);
+            var message = $"[ServiceLocator] Found multiple service assets for {type.Name}:\n{string.Join("\n", assetPaths)}";
 #if UNITY_EDITOR
             if (OnMultipleServiceAssetsFound != null)
             {
-                OnMultipleServiceAssetsFound(type, paths, message);
+                OnMultipleServiceAssetsFound(type, assetPaths, message);
                 return;
             }
 #endif
-            Debug.LogError(message);
+            GLog.Warning<ServiceLocatorLogSystem>(message);
         }
 
         internal static void NotifyEditorOnlyServiceInBuild(Type type)
@@ -249,7 +251,7 @@ namespace GAOS.ServiceLocator.Diagnostics
                 return;
             }
 #endif
-            Debug.LogError(message);
+            GLog.Error<ServiceLocatorLogSystem>(message);
         }
 
         internal static void NotifyServiceInstanceValidationError(Type type, string details)
@@ -262,7 +264,7 @@ namespace GAOS.ServiceLocator.Diagnostics
                 return;
             }
 #endif
-            Debug.LogError(message);
+            GLog.Error<ServiceLocatorLogSystem>(message);
         }
 
         internal static void NotifyAsyncDependencyViolation(Type type, string[] dependencyChain)
@@ -275,7 +277,7 @@ namespace GAOS.ServiceLocator.Diagnostics
                 return;
             }
 #endif
-            Debug.LogError(message);
+            GLog.Error<ServiceLocatorLogSystem>(message);
         }
 
         internal static void NotifyAsyncOperationLog(Type type, string context, string message)
@@ -288,12 +290,12 @@ namespace GAOS.ServiceLocator.Diagnostics
                 return;
             }
 #endif
-            Debug.Log(formattedMessage);
+            GLog.Info<ServiceLocatorLogSystem>(formattedMessage);
         }
 
         internal static void NotifyAsyncOperationError(Type type, string context, Exception error)
         {
-            var message = $"[ServiceLocator] Error accessing service {type.Name}: {error.Message}";
+            var message = $"[ServiceLocator] Async Operation Error ({type.Name}): {error.Message}";
 #if UNITY_EDITOR
             if (OnAsyncOperationError != null)
             {
@@ -301,7 +303,7 @@ namespace GAOS.ServiceLocator.Diagnostics
                 return;
             }
 #endif
-            Debug.LogError(message);
+            GLog.Error<ServiceLocatorLogSystem>(message);
         }
         #endregion
 

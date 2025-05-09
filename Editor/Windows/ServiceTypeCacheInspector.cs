@@ -57,6 +57,11 @@ namespace GAOS.ServiceLocator.Editor
 
         private ServiceTypeFilter _typeFilter = ServiceTypeFilter.All;
         private ServiceContextFilter _contextFilter = ServiceContextFilter.All;
+        
+        // Dependency validation settings
+        private bool _showValidationSettings = false;
+        private Vector2 _exclusionListScrollPosition;
+        private string _newExcludedAssembly = "";
 
         private void OnEnable()
         {
@@ -251,6 +256,10 @@ namespace GAOS.ServiceLocator.Editor
                 RecalculateItemsPerPage();
                 
                 DrawHeader(_filteredServices.Count);
+                EditorGUILayout.Space();
+                
+                // Draw validation settings
+                DrawValidationSettings();
                 EditorGUILayout.Space();
 
                 DrawSearchAndFilter();
@@ -650,13 +659,66 @@ namespace GAOS.ServiceLocator.Editor
             if (validationData?.ValidationMessages != null)
             {
                 EditorGUILayout.Space();
+                
+                // Show circular dependency messages and add buttons to exclude
+                bool hasCircularDependency = false;
                 foreach (var (message, type) in validationData.ValidationMessages)
                 {
-                    // Only show messages about async dependencies or circular dependencies
-                    if (message.Contains("async dependencies") || message.Contains("circular dependency"))
+                    // Only show messages about circular dependencies
+                    if (message.Contains("circular dependency"))
+                    {
+                        hasCircularDependency = true;
+                        EditorGUILayout.HelpBox(message, type);
+                        
+                        // Add buttons to exclude the assembly or specific type
+                        EditorGUILayout.BeginHorizontal();
+                        
+                        if (GUILayout.Button("Exclude This Type", GUILayout.Width(120)))
+                        {
+                            var settings = ServiceEditorValidator.ValidationSettings;
+                            if (settings != null && settings.AddExcludedType(info.ImplementationType))
+                            {
+                                EditorUtility.SetDirty(settings);
+                                AssetDatabase.SaveAssets();
+                                Debug.Log($"Added {info.ImplementationType.FullName} to dependency validation exclusion list");
+                                
+                                // Rebuild cache to apply changes
+                                ServiceTypeCacheBuilder.RebuildTypeCache();
+                            }
+                        }
+                        
+                        if (GUILayout.Button("Exclude Assembly", GUILayout.Width(120)))
+                        {
+                            var settings = ServiceEditorValidator.ValidationSettings;
+                            string assemblyName = info.ImplementationType.Assembly.GetName().Name;
+                            if (settings != null && settings.AddExcludedAssembly(assemblyName))
+                            {
+                                EditorUtility.SetDirty(settings);
+                                AssetDatabase.SaveAssets();
+                                Debug.Log($"Added assembly {assemblyName} to dependency validation exclusion list");
+                                
+                                // Rebuild cache to apply changes
+                                ServiceTypeCacheBuilder.RebuildTypeCache();
+                            }
+                        }
+                        
+                        EditorGUILayout.EndHorizontal();
+                    }
+                    // Show other messages without buttons
+                    else if (message.Contains("async dependencies"))
                     {
                         EditorGUILayout.HelpBox(message, type);
                     }
+                }
+                
+                // Show message if the type is already excluded
+                if (!hasCircularDependency && 
+                    ServiceEditorValidator.ValidationSettings != null && 
+                    !ServiceEditorValidator.ValidationSettings.ShouldValidateDependency(info.ImplementationType))
+                {
+                    EditorGUILayout.HelpBox(
+                        "This type or its assembly is excluded from circular dependency validation.",
+                        MessageType.Info);
                 }
             }
 
@@ -1276,6 +1338,124 @@ namespace GAOS.ServiceLocator.Editor
                 default:
                     return assemblyType.ToString();
             }
+        }
+
+        private void DrawValidationSettings()
+        {
+            var validationSettings = ServiceEditorValidator.ValidationSettings;
+            if (validationSettings == null) return;
+            
+            // Validation settings foldout
+            _showValidationSettings = EditorGUILayout.BeginFoldoutHeaderGroup(_showValidationSettings, "Dependency Validation Settings");
+            
+            if (_showValidationSettings)
+            {
+                EditorGUI.indentLevel++;
+                
+                // Use a helpbox style with margins and padding
+                var boxStyle = new GUIStyle(EditorStyles.helpBox);
+                boxStyle.margin = new RectOffset(12, 12, 8, 8);
+                boxStyle.padding = new RectOffset(10, 10, 10, 10);
+                
+                EditorGUILayout.BeginVertical(boxStyle);
+                
+                // Add explanation
+                EditorGUILayout.HelpBox(
+                    "Exclude specific assemblies or types from circular dependency validation. " +
+                    "This is useful when integrating with third-party libraries that contain internal circular dependencies.", 
+                    MessageType.Info);
+                
+                EditorGUILayout.Space();
+                
+                // Excluded assemblies section
+                EditorGUILayout.LabelField("Excluded Assemblies", EditorStyles.boldLabel);
+                
+                // Display current excluded assemblies
+                if (validationSettings.ExcludedAssemblies.Count > 0)
+                {
+                    _exclusionListScrollPosition = EditorGUILayout.BeginScrollView(
+                        _exclusionListScrollPosition, 
+                        GUILayout.Height(Mathf.Min(100, validationSettings.ExcludedAssemblies.Count * 22)));
+                    
+                    for (int i = 0; i < validationSettings.ExcludedAssemblies.Count; i++)
+                    {
+                        EditorGUILayout.BeginHorizontal();
+                        EditorGUILayout.LabelField(validationSettings.ExcludedAssemblies[i]);
+                        
+                        if (GUILayout.Button("Remove", GUILayout.Width(70)))
+                        {
+                            validationSettings.RemoveExcludedAssembly(validationSettings.ExcludedAssemblies[i]);
+                            EditorUtility.SetDirty(validationSettings);
+                            GUIUtility.ExitGUI(); // Prevents issues with modifying the collection during iteration
+                        }
+                        
+                        EditorGUILayout.EndHorizontal();
+                    }
+                    
+                    EditorGUILayout.EndScrollView();
+                }
+                else
+                {
+                    EditorGUILayout.LabelField("No excluded assemblies", EditorStyles.miniLabel);
+                }
+                
+                // Add new assembly field
+                EditorGUILayout.BeginHorizontal();
+                _newExcludedAssembly = EditorGUILayout.TextField("Add Assembly", _newExcludedAssembly);
+                
+                GUI.enabled = !string.IsNullOrWhiteSpace(_newExcludedAssembly);
+                if (GUILayout.Button("Add", GUILayout.Width(50)))
+                {
+                    if (validationSettings.AddExcludedAssembly(_newExcludedAssembly))
+                    {
+                        EditorUtility.SetDirty(validationSettings);
+                        _newExcludedAssembly = "";
+                    }
+                }
+                GUI.enabled = true;
+                
+                EditorGUILayout.EndHorizontal();
+                
+                EditorGUILayout.Space();
+                
+                // Excluded types section
+                EditorGUILayout.LabelField("Excluded Types", EditorStyles.boldLabel);
+                
+                // Display current excluded types
+                if (validationSettings.ExcludedTypeFullNames.Count > 0)
+                {
+                    _exclusionListScrollPosition = EditorGUILayout.BeginScrollView(
+                        _exclusionListScrollPosition, 
+                        GUILayout.Height(Mathf.Min(100, validationSettings.ExcludedTypeFullNames.Count * 22)));
+                    
+                    for (int i = 0; i < validationSettings.ExcludedTypeFullNames.Count; i++)
+                    {
+                        EditorGUILayout.BeginHorizontal();
+                        EditorGUILayout.LabelField(validationSettings.ExcludedTypeFullNames[i]);
+                        
+                        if (GUILayout.Button("Remove", GUILayout.Width(70)))
+                        {
+                            validationSettings.RemoveExcludedTypeByName(validationSettings.ExcludedTypeFullNames[i]);
+                            EditorUtility.SetDirty(validationSettings);
+                            GUIUtility.ExitGUI(); // Prevents issues with modifying the collection during iteration
+                        }
+                        
+                        EditorGUILayout.EndHorizontal();
+                    }
+                    
+                    EditorGUILayout.EndScrollView();
+                }
+                else
+                {
+                    EditorGUILayout.LabelField("No excluded types", EditorStyles.miniLabel);
+                }
+                
+                EditorGUILayout.EndVertical();
+                
+                EditorGUI.indentLevel--;
+            }
+            
+            EditorGUILayout.EndFoldoutHeaderGroup();
         }
     }
 } 

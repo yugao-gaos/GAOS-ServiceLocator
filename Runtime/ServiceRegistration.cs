@@ -29,6 +29,8 @@ namespace GAOS.ServiceLocator
         private readonly ConcurrentDictionary<string, object> _instances = new ConcurrentDictionary<string, object>();
         private readonly ConcurrentDictionary<IServiceDisposable, byte> _disposingInProgress = new ConcurrentDictionary<IServiceDisposable, byte>();
         private readonly ConcurrentDictionary<object, byte> _pooledInstances = new ConcurrentDictionary<object, byte>();
+        // Track whether a ScriptableObject was loaded from Resources
+        private readonly ConcurrentDictionary<object, bool> _loadedFromResources = new ConcurrentDictionary<object, bool>();
         private Transform _servicePoolParent;
 
         public Type InterfaceType => _typeInfo.InterfaceType;
@@ -341,7 +343,15 @@ namespace GAOS.ServiceLocator
                         var so = instance as ScriptableObject;
                         if (so != null)
                         {
-                            UnityEngine.Object.DestroyImmediate(so);
+                            // Only destroy ScriptableObjects that weren't loaded from Resources
+                            if (!_loadedFromResources.TryGetValue(so, out bool loadedFromResources) || !loadedFromResources)
+                            {
+                                UnityEngine.Object.DestroyImmediate(so);
+                            }
+                            else
+                            {
+                                Debug.Log($"Not destroying ScriptableObject {so.name} as it was loaded from Resources");
+                            }
                         }
                     }
                     
@@ -478,7 +488,16 @@ namespace GAOS.ServiceLocator
                     // For non-poolable, non-disposable instances, destroy normally
                     await DestroyUnityObjectAsync(instance);
                     _instances.TryRemove(key, out _);
-                    ServiceDiagnostics.LogInfo($"Destroyed service instance for key: {key}");
+                    
+                    // If it was a ScriptableObject loaded from Resources, remove from tracking without destroying
+                    if (instance is ScriptableObject so && _loadedFromResources.TryGetValue(so, out bool loadedFromResources) && loadedFromResources) 
+                    {
+                        ServiceDiagnostics.LogInfo($"Removed resource-loaded ScriptableObject instance {so.name} for key: {key} without destroying it");
+                    }
+                    else
+                    {
+                        ServiceDiagnostics.LogInfo($"Destroyed service instance for key: {key}");
+                    }
                 }
                 else
                 {
@@ -801,10 +820,21 @@ namespace GAOS.ServiceLocator
                     case ServiceType.ScriptableObject:
                         // Create a ScriptableObject instance
                         if(Lifetime == ServiceLifetime.Singleton)
+                        {
                             instance = SOServiceFactory.FindResourceInstance(ImplementationType, key);
+                            if (instance != null)
+                            {
+                                // Mark this instance as loaded from Resources
+                                _loadedFromResources.TryAdd(instance, true);
+                            }
+                        }
                        
                         if(instance == null)
+                        {
                             instance = SOServiceFactory.CreateInstance(ImplementationType, key);
+                            // Mark this instance as not loaded from Resources
+                            _loadedFromResources.TryAdd(instance, false);
+                        }
 
                         break;
                     

@@ -14,6 +14,7 @@ using UnityEditor;
 using GAOS.ServiceLocator.Diagnostics;
 using GAOS.ServiceLocator.Tracking;
 using GAOS.ServiceLocator.Optional;
+using GAOS.Logger;
 
 namespace GAOS.ServiceLocator
 {
@@ -75,6 +76,9 @@ namespace GAOS.ServiceLocator
         private static void Initialize()
         {
             if (_isInitialized) return;
+            
+            // Register the logging system first
+            GLog.RegisterSystem( ServiceLocatorLogSystem.Instance);
             
             ServiceDiagnostics.LogInfo("Initializing ServiceLocator");
             
@@ -193,25 +197,25 @@ namespace GAOS.ServiceLocator
         /// </summary>
         public static void AutoRegisterServices()
         {
-            Debug.Log($"Starting AutoRegisterServices. Cache has {TypeCache.ServiceTypes.Count} types");
+            GLog.Info<ServiceLocatorLogSystem>($"Starting AutoRegisterServices. Cache has {TypeCache.ServiceTypes.Count} types");
             var registeredTypes = new HashSet<Type>();
 
             foreach (var info in TypeCache.ServiceTypes)
             {
                 if (info == null)
                 {
-                    Debug.LogWarning("Null type info found in registry");
+                    GLog.Warning<ServiceLocatorLogSystem>("Null type info found in registry");
                     continue;
                 }
 
                 try
                 {
                     var type = info.ImplementationType;
-                    Debug.Log($"Processing type info: ServiceType={info.ServiceType}, ImplementationType={info.ImplementationTypeName}");
+                    GLog.Info<ServiceLocatorLogSystem>($"Processing type info: ServiceType={info.ServiceType}, ImplementationType={info.ImplementationTypeName}");
                     
                     if (type == null)
                     {
-                        Debug.LogError($"Failed to resolve type: {info.ImplementationTypeName} from {info.ImplementationTypeAssemblyQualifiedName}");
+                        GLog.Error<ServiceLocatorLogSystem>($"Failed to resolve type: {info.ImplementationTypeName} from {info.ImplementationTypeAssemblyQualifiedName}");
                         continue;
                     }
 
@@ -221,7 +225,7 @@ namespace GAOS.ServiceLocator
                     {
                         if (existing.Context == ServiceContext.EditorOnly)
                         {
-                            Debug.Log($"Keeping existing EditorOnly service: {type.Name} with name {info.DefaultName}");
+                            GLog.Info<ServiceLocatorLogSystem>($"Keeping existing EditorOnly service: {type.Name} with name {info.DefaultName}");
                             continue;
                         }
                     }
@@ -229,17 +233,17 @@ namespace GAOS.ServiceLocator
                     var registration = new ServiceRegistration(info);
                     _registrations.AddOrUpdate(key, registration, (_, __) => registration);
                            
-                    Debug.Log($"Registered MonoBehaviour service: {type.Name} with name {info.DefaultName}");
+                    GLog.Info<ServiceLocatorLogSystem>($"Registered MonoBehaviour service: {type.Name} with name {info.DefaultName}");
                     
                     registeredTypes.Add(type);
                 }
                 catch (Exception ex)
                 {
-                    Debug.LogError($"Error registering service {info.ImplementationTypeName}: {ex}");
+                    GLog.Error<ServiceLocatorLogSystem>($"Error registering service {info.ImplementationTypeName}: {ex}");
                 }
             }
 
-            Debug.Log($"AutoRegisterServices completed. Registered {registeredTypes.Count} types");
+            GLog.Info<ServiceLocatorLogSystem>($"AutoRegisterServices completed. Registered {registeredTypes.Count} types");
         }
 
         /// <summary>
@@ -269,18 +273,7 @@ namespace GAOS.ServiceLocator
             // Check if service is already registered
             if (_registrations.TryGetValue(key, out var existing))
             {
-                // Only replace if contexts match or we're replacing a non-EditorOnly with an EditorOnly
-                if (existing.Context == context || (context == ServiceContext.EditorOnly && existing.Context != ServiceContext.EditorOnly))
-                {
-                    // Update the registration
-                    _registrations.TryUpdate(key, registration, existing);
-                    ServiceDiagnostics.LogInfo($"Updated existing registration for service {serviceType.Name} with name '{name}'");
-                }
-                else
-                {
-                    // Keep the existing registration
-                    ServiceDiagnostics.LogInfo($"Keeping existing {existing.Context} registration for service {serviceType.Name} with name '{name}'");
-                }
+                throw new InvalidOperationException($"Service of type {serviceType.Name} with name '{name}' is already registered");
             }
             else
             {
