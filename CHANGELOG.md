@@ -2,6 +2,13 @@
 
 All notable changes to the Service Locator package will be documented in this file.
 
+## [1.12.0] - 2024-07-29
+
+### Added
+- Integration with GAOS.Logger package for improved logging capabilities
+- Added dependency on com.gaos.logger package
+- Enhanced logging system with standardized logger implementation
+
 ## [1.11.2] - 2024-06-10
 
 ### Fixed

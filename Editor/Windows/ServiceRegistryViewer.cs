@@ -20,7 +20,8 @@ namespace GAOS.ServiceLocator.Editor
         private GUIStyle _groupStyle;
         private bool _stylesInitialized;
 
-        [MenuItem("Window/GAOS/Service Registry Viewer")]
+        // Removed menu item to hide from Window menu
+        // [MenuItem("Window/GAOS/Service Registry Viewer")]
         public static void ShowWindow()
         {
             var window = GetWindow<ServiceRegistryViewer>();

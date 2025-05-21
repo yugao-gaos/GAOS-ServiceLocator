@@ -1,16 +1,16 @@
 using UnityEngine;
-using UnityEditor;
 using System;
-using GAOS.ServiceLocator.Diagnostics;
+using GAOS.Logger;
+using GAOS.ServiceLocator.Diagnostics;   
 
-namespace GAOS.ServiceLocator.Editor
+namespace GAOS.ServiceLocator.Editor.Diagnostics
 {
-    [InitializeOnLoad]
-    internal static class ServiceDiagnosticsHandler
+    public static class ServiceDiagnosticsHandler
     {
-        static ServiceDiagnosticsHandler()
+        [UnityEditor.InitializeOnLoadMethod]
+        private static void Initialize()
         {
-            // Always unsubscribe first to prevent duplicate handlers
+            // First unsubscribe to avoid double subscription
             ServiceDiagnostics.OnServiceCreated -= HandleServiceCreated;
             ServiceDiagnostics.OnServiceNotFound -= HandleServiceNotFound;
             ServiceDiagnostics.OnMultipleServicesFound -= HandleMultipleServicesFound;
@@ -39,64 +39,64 @@ namespace GAOS.ServiceLocator.Editor
 
         private static void HandleServiceCreated(Type type, string location, string details, string message)
         {
-            Debug.Log(message);
+            GLog.Info<ServiceLocatorEditorLogSystem>(message);
         }
 
         private static void HandleServiceNotFound(Type type, string location, string details, string message)
         {
             if (details.Contains("Creating new GameObject"))
             {
-                Debug.Log(message);
+                GLog.Info<ServiceLocatorEditorLogSystem>(message);
             }
             else
             {
-                Debug.LogWarning(message);
+                GLog.Warning<ServiceLocatorEditorLogSystem>(message);
             }
         }
 
         private static void HandleMultipleServicesFound(Type type, string location, string[] instances, string message)
         {
-            Debug.LogError(message);
+            GLog.Error<ServiceLocatorEditorLogSystem>(message);
         }
 
         private static void HandleValidationError(Type type, string context, string details, string message)
         {
-            Debug.LogError(message);
+            GLog.Error<ServiceLocatorEditorLogSystem>(message);
         }
 
         private static void HandleInitializationError(Type type, string context, Exception error, string message)
         {
-            Debug.LogError(message);
+            GLog.Error<ServiceLocatorEditorLogSystem>(message);
         }
 
         private static void HandleCircularDependency(Type type, string[] dependencyChain, string message)
         {
-            Debug.LogError(message);
+            GLog.Error<ServiceLocatorEditorLogSystem>(message);
         }
 
-        private static void HandleRuntimeServiceAccessedInEditor(Type type, string details, string message)
+        private static void HandleRuntimeServiceAccessedInEditor(Type type, string location, string message)
         {
-            Debug.LogWarning(message);
+            GLog.Warning<ServiceLocatorEditorLogSystem>(message);
         }
 
-        private static void HandleMultipleServiceAssetsFound(Type type, string[] paths, string message)
+        private static void HandleMultipleServiceAssetsFound(Type type, string[] assetPaths, string message)
         {
-            Debug.LogError(message);
+            GLog.Warning<ServiceLocatorEditorLogSystem>(message);
         }
 
         private static void HandleEditorOnlyServiceInBuild(Type type, string message)
         {
-            Debug.LogError(message);
+            GLog.Error<ServiceLocatorEditorLogSystem>(message);
         }
 
         private static void HandleServiceInstanceValidationError(Type type, string details, string message)
         {
-            Debug.LogError(message);
+            GLog.Error<ServiceLocatorEditorLogSystem>(message);
         }
 
         private static void HandleAsyncDependencyViolation(Type type, string[] dependencyChain, string message)
         {
-            Debug.LogError($"{message}\nDependency chain: {string.Join(" → ", dependencyChain)}");
+            GLog.Error<ServiceLocatorEditorLogSystem>(message);
         }
     }
 } 

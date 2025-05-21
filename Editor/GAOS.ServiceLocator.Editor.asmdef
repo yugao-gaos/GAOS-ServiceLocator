@@ -3,7 +3,7 @@
     "rootNamespace": "GAOS.ServiceLocator.Editor",
     "references": [
         "GAOS.ServiceLocator",
-        "ModelContextProtocol"
+        "GAOS.Logger"
     ],
     "includePlatforms": [
         "Editor"
