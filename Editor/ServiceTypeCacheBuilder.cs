@@ -389,23 +389,75 @@ namespace GAOS.ServiceLocator.Editor
 
                 if (result.hasCircular)
                 {
-                    var message = result.isImplementationDependency ?
-                        $"Implementation circular dependency detected.\n" +
-                        $"Dependency chain: {result.dependencyChain}\n" +
-                        $"ERROR: Service depends on concrete implementations which creates a strong circular dependency.\n" +
-                        $"This is not allowed and must be refactored to use interfaces instead." :
-                        $"Interface circular dependency detected.\n" +
-                        $"Dependency chain: {result.dependencyChain}\n" +
-                        $"WARNING: Ensure these services don't use each other during initialization.\n" +
-                        $"If this is intended, you can suppress the runtime exception, but make sure to:\n" +
-                        $"1. Don't use dependencies during initialization\n" +
-                        $"2. Implement proper disposal to break circular references\n" +
-                        $"Consider using events/messaging for better decoupling.";
+                    // Check if we should report this circular dependency based on project settings
+                    bool shouldReport = true;
+                    
+                    if (ServiceEditorValidator.ValidationSettings != null && 
+                        ServiceEditorValidator.ValidationSettings.OnlyReportProjectCircularDependencies)
+                    {
+                        // Extract types from dependency chain
+                        var dependencyTypes = new List<Type>();
+                        var parts = result.dependencyChain.Split(" → ");
+                        foreach (var part in parts)
+                        {
+                            string typeName = part;
+                            
+                            // Handle the format "InterfaceName (ImplementationName)"
+                            int implementationStart = part.IndexOf(" (");
+                            if (implementationStart > 0)
+                            {
+                                typeName = part.Substring(implementationStart + 2).TrimEnd(')');
+                            }
+                            
+                            // Remove [Async] tag if present
+                            typeName = typeName.Replace(" [Async]", "");
+                            
+                            // Find the type in the service cache
+                            foreach (var info in typeCache.ServiceTypes)
+                            {
+                                if (info.ImplementationType?.Name == typeName || info.InterfaceType?.Name == typeName)
+                                {
+                                    dependencyTypes.Add(info.ImplementationType);
+                                    break;
+                                }
+                            }
+                        }
+                        
+                        shouldReport = ServiceEditorValidator.ValidationSettings.ShouldReportCircularDependency(dependencyTypes);
+                    }
+                    
+                    if (shouldReport)
+                    {
+                        var message = result.isImplementationDependency ?
+                            $"Implementation circular dependency detected.\n" +
+                            $"Dependency chain: {result.dependencyChain}\n" +
+                            $"ERROR: Service depends on concrete implementations which creates a strong circular dependency.\n" +
+                            $"This is not allowed and must be refactored to use interfaces instead." :
+                            $"Interface circular dependency detected.\n" +
+                            $"Dependency chain: {result.dependencyChain}\n" +
+                            $"WARNING: Ensure these services don't use each other during initialization.\n" +
+                            $"If this is intended, you can suppress the runtime exception, but make sure to:\n" +
+                            $"1. Don't use dependencies during initialization\n" +
+                            $"2. Implement proper disposal to break circular references\n" +
+                            $"Consider using events/messaging for better decoupling.";
 
-                    validationData.ValidationMessages.Add((
-                        message,
-                        result.isImplementationDependency ? UnityEditor.MessageType.Error : UnityEditor.MessageType.Warning
-                    ));
+                        validationData.ValidationMessages.Add((
+                            message,
+                            result.isImplementationDependency ? UnityEditor.MessageType.Error : UnityEditor.MessageType.Warning
+                        ));
+                    }
+                    else
+                    {
+                        // Add a low-priority info message for third-party circular dependencies
+                        var message = $"Third-party circular dependency ignored.\n" +
+                                     $"Dependency chain: {result.dependencyChain}\n" +
+                                     $"This circular dependency is in third-party code and is being ignored.";
+                                     
+                        validationData.ValidationMessages.Add((message, UnityEditor.MessageType.Info));
+                        
+                        if(ServiceEditorValidator.EnableLogging)
+                            GLog.Info<ServiceLocatorEditorLogSystem>($"Ignoring third-party circular dependency: {result.dependencyChain}");
+                    }
                 }
 
                 // Build dependency tree

@@ -349,13 +349,30 @@ namespace GAOS.ServiceLocator.Editor
             
             if (foundCircular && EnableLogging)
             {
-                if (isImplementationDependency)
+                // Check if we should report this circular dependency based on project settings
+                bool shouldReport = true;
+                
+                if (ValidationSettings != null && ValidationSettings.OnlyReportProjectCircularDependencies)
                 {
-                    Debug.LogError($"Implementation circular dependency detected: {chain}");
+                    // Only report if at least one type in the circular dependency is from a project assembly
+                    shouldReport = ValidationSettings.ShouldReportCircularDependency(path);
                 }
-                else
+                
+                if (shouldReport)
                 {
-                    Debug.LogWarning($"Interface Circular dependency detected: {chain}");
+                    if (isImplementationDependency)
+                    {
+                        Debug.LogError($"Implementation circular dependency detected: {chain}");
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"Interface Circular dependency detected: {chain}");
+                    }
+                }
+                else if (EnableLogging)
+                {
+                    // Log as info instead of warning/error since this is in third-party code
+                    Debug.Log($"Third-party circular dependency ignored: {chain}");
                 }
             }
             
