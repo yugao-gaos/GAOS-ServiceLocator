@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assembly Packaging - Advanced Topics</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles-advanced.css">
+    <style>
+        .section-card {
+            margin: 3rem 0;
+            padding: 2rem;
+            background: white;
+            border-radius: 12px;
+            border-left: 4px solid var(--advanced-orange-light);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .section-card h3 {
+            color: var(--advanced-orange-dark);
+            margin-top: 0;
+        }
+
+        .info-box {
+            background: rgba(255, 152, 0, 0.05);
+            border-left: 4px solid var(--advanced-orange-light);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .unity-link {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 152, 0, 0.1);
+            color: var(--advanced-orange-dark);
+            border-radius: 4px;
+            text-decoration: none;
+            margin: 0.5rem 0;
+            transition: all 0.2s;
+        }
+
+        .unity-link:hover {
+            background: rgba(255, 152, 0, 0.2);
+            transform: translateX(5px);
+        }
+
+        .approach-comparison {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .approach-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            border-top: 3px solid var(--advanced-orange-light);
+        }
+
+        .approach-card h4 {
+            color: var(--advanced-orange-dark);
+            margin-top: 0;
+        }
+
+        .pros-cons {
+            margin-top: 1rem;
+        }
+
+        .pros-cons h5 {
+            color: #2E7D32;
+            margin: 0.5rem 0;
+        }
+
+        .pros-cons h5.cons {
+            color: #C62828;
+        }
+
+        .pros-cons ul {
+            margin: 0.5rem 0;
+            padding-left: 1.5rem;
+        }
+
+        .code-example {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            font-family: monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            overflow-x: auto;
+        }
+
+        .page-navigation {
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 152, 0, 0.2);
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .nav-button {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            background: white;
+            border: 1px solid rgba(255, 152, 0, 0.2);
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--advanced-orange-dark);
+            transition: all 0.2s ease;
+            min-width: 200px;
+        }
+
+        .nav-button:hover {
+            background: rgba(255, 152, 0, 0.05);
+            border-color: var(--advanced-orange-light);
+            transform: translateY(-2px);
+            text-decoration: none;
+        }
+
+        .nav-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .nav-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #666;
+        }
+
+        .nav-title {
+            font-weight: 500;
+            color: var(--advanced-orange-dark);
+        }
+
+        .nav-arrow {
+            font-size: 1.2rem;
+            margin: 0 1rem;
+            color: var(--advanced-orange-dark);
+        }
+    </style>
+</head>
+<body class="advanced-content">
+    <a href="advanced.html" class="advanced-back-link">← Back to Advanced Topics</a>
+
+    <header>
+        <h1>Assembly Packaging</h1>
+        <p>Learn how to organize services across assembly definitions and packages</p>
+    </header>
+
+    <section>
+        <h2>Understanding Assembly Definitions</h2>
+        <div class="section-card">
+            <h3>Why Use Assembly Definitions?</h3>
+            <p>Assembly Definitions provide several key benefits for service organization and management:</p>
+            <ul>
+                <li>Improved compilation times through parallel compilation</li>
+                <li>Better encapsulation of service implementations</li>
+                <li>Clear dependency boundaries between service modules</li>
+                <li>Reduced memory usage through selective assembly loading</li>
+            </ul>
+
+            <div class="info-box">
+                <h4>Key Benefits</h4>
+                <ul>
+                    <li><strong>Modularity:</strong> Isolate services and their dependencies</li>
+                    <li><strong>Performance:</strong> Faster compilation and runtime loading</li>
+                    <li><strong>Maintainability:</strong> Clear boundaries and dependencies</li>
+                    <li><strong>Reusability:</strong> Package services for reuse across projects</li>
+                </ul>
+            </div>
+
+            <a href="https://docs.unity3d.com/Manual/ScriptCompilationAssemblyDefinitionFiles.html" class="unity-link" target="_blank">
+                📖 Unity Documentation: Assembly Definition Files →
+            </a>
+        </div>
+    </section>
+
+    <section>
+        <h2>Custom Packages</h2>
+        <div class="section-card">
+            <h3>Benefits of Package Organization</h3>
+            <p>Organizing services into custom packages offers additional advantages:</p>
+            <ul>
+                <li>Version control and dependency management</li>
+                <li>Easy sharing between projects</li>
+                <li>Standardized distribution format</li>
+                <li>Integration with Unity's Package Manager</li>
+            </ul>
+
+            <div class="code-example">
+                <pre><code>{
+    "name": "com.company.servicepackage",
+    "version": "1.0.0",
+    "displayName": "Service Package",
+    "description": "Collection of core services",
+    "dependencies": {
+        "com.gaos.servicelocator": "1.2.2"
+    }
+}</code></pre>
+            </div>
+
+            <a href="https://docs.unity3d.com/Manual/CustomPackages.html" class="unity-link" target="_blank">
+                📖 Unity Documentation: Custom Packages →
+            </a>
+        </div>
+    </section>
+
+    <section>
+        <h2>Cross-Assembly Service Usage</h2>
+        <div class="section-card">
+            <h3>Managing Service Dependencies</h3>
+            <p>When using services across different assemblies, consider these patterns:</p>
+
+            <div class="code-example">
+                <pre><code>// Assembly: Company.Core.Interfaces
+public interface IDataService { }
+
+// Assembly: Company.Core.Services
+[Service(typeof(IDataService), "Data")]
+public class DataService : IDataService { }
+
+// Assembly: Company.Game
+public class GameManager
+{
+    private readonly IDataService _dataService;
+    
+    public GameManager()
+    {
+        _dataService = ServiceLocator.GetService<IDataService>();
+    }
+}</code></pre>
+            </div>
+
+            <div class="info-box">
+                <h4>Best Practices</h4>
+                <ul>
+                    <li>Keep interface assemblies lightweight</li>
+                    <li>Avoid circular assembly dependencies</li>
+                    <li>Use assembly definition references for Unity-specific dependencies</li>
+                    <li>Consider runtime performance when designing assembly boundaries</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>Interface Organization Approaches</h2>
+        <div class="approach-comparison">
+            <div class="approach-card">
+                <h4>Central Interface Layer</h4>
+                <p>All service interfaces in a single assembly</p>
+                
+                <div class="pros-cons">
+                    <h5>Advantages</h5>
+                    <ul>
+                        <li>Single reference for all consumers</li>
+                        <li>Consistent versioning</li>
+                        <li>Easy to maintain API compatibility</li>
+                        <li>Clear service contract overview</li>
+                    </ul>
+
+                    <h5 class="cons">Disadvantages</h5>
+                    <ul>
+                        <li>Potential unnecessary dependencies</li>
+                        <li>Less granular versioning</li>
+                        <li>May grow too large over time</li>
+                    </ul>
+                </div>
+
+                <div class="code-example">
+                    <pre><code>// Assembly: Company.Services.Interfaces
+namespace Company.Services
+{
+    public interface IDataService { }
+    public interface INetworkService { }
+    public interface IAnalyticsService { }
+}</code></pre>
+                </div>
+            </div>
+
+            <div class="approach-card">
+                <h4>Per-Package Interfaces</h4>
+                <p>Each package contains its own interface assembly</p>
+                
+                <div class="pros-cons">
+                    <h5>Advantages</h5>
+                    <ul>
+                        <li>Better encapsulation</li>
+                        <li>Independent versioning</li>
+                        <li>Minimal dependency overhead</li>
+                        <li>More flexible deployment</li>
+                    </ul>
+
+                    <h5 class="cons">Disadvantages</h5>
+                    <ul>
+                        <li>More assemblies to manage</li>
+                        <li>Potential interface duplication</li>
+                        <li>More complex dependency graph</li>
+                    </ul>
+                </div>
+
+                <div class="code-example">
+                    <pre><code>// Assembly: Company.Data.Interfaces
+namespace Company.Data
+{
+    public interface IDataService { }
+}
+
+// Assembly: Company.Network.Interfaces
+namespace Company.Network
+{
+    public interface INetworkService { }
+}</code></pre>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-box">
+            <h4>Choosing an Approach</h4>
+            <p>Consider these factors when deciding:</p>
+            <ul>
+                <li><strong>Project Size:</strong> Smaller projects benefit from central interfaces, larger ones from per-package</li>
+                <li><strong>Team Structure:</strong> Multiple teams might prefer per-package for independence</li>
+                <li><strong>Deployment:</strong> Need for separate deployment of different service modules</li>
+                <li><strong>Evolution:</strong> Expected rate of change and versioning needs</li>
+            </ul>
+        </div>
+    </section>
+
+    <div class="page-navigation">
+        <div class="nav-links">
+            <a href="advanced-dependency.html" class="nav-button">
+                <span class="nav-arrow">←</span>
+                <span class="nav-text">
+                    <span class="nav-label">Previous</span>
+                    <span class="nav-title">Service Dependency</span>
+                </span>
+            </a>
+            <a href="advanced-best-practices.html" class="nav-button">
+                <span class="nav-text">
+                    <span class="nav-label">Next</span>
+                    <span class="nav-title">Best Practices</span>
+                </span>
+                <span class="nav-arrow">→</span>
+            </a>
+        </div>
+        <div class="nav-bottom">
+            <a href="advanced.html">Back to Advanced Topics</a>
+            <span class="nav-separator">|</span>
+            <a href="index.html">Documentation Home</a>
+        </div>
+    </div>
+</body>
+</html> 

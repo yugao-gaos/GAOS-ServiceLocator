@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GAOS Service Locator Documentation</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles-advanced.css">
+    <style>
+        /* Local override for 3x2 grid */
+        .features-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+        
+        @media (max-width: 768px) {
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .separator {
+            margin: 4rem 0;
+            height: 1px;
+            background: var(--border-color);
+        }
+
+        /* Updated grid layout for 4 cards */
+        .doc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .doc-card {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 2rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            border-top: 3px solid transparent;
+        }
+
+        .doc-card h3 {
+            margin-bottom: 1rem;
+            font-size: 1.4rem;
+        }
+
+        .doc-card h3 a {
+            color: #2196F3;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .doc-card h3 a:hover {
+            color: #1976D2;
+        }
+
+        .doc-card p {
+            flex-grow: 1;
+            margin-bottom: 1.5rem;
+            color: #495057;
+            line-height: 1.6;
+        }
+
+        .doc-card ul {
+            margin-top: auto;
+            padding-left: 0;
+            list-style: none;
+        }
+
+        .doc-card li {
+            margin: 0.8rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+            color: #495057;
+        }
+
+        .doc-card li::before {
+            content: "•";
+            color: #2196F3;
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        /* Quick start specific */
+        .quickstart-card {
+            border-top-color: #2196F3;
+        }
+
+        /* Core concepts specific */
+        .concepts-card {
+            border-top-color: #4CAF50;
+        }
+
+        .concepts-card h3 a {
+            color: #4CAF50;
+        }
+
+        .concepts-card h3 a:hover {
+            color: #388E3C;
+        }
+
+        .concepts-card li::before {
+            color: #4CAF50;
+        }
+
+        /* Wizard card specific */
+        .wizard-card {
+            border-top-color: #4CAF50;
+        }
+
+        .wizard-card h3 {
+            color: #4CAF50;
+        }
+
+        .wizard-card .recommendation {
+            background: rgba(76, 175, 80, 0.05);
+            border: 1px solid rgba(76, 175, 80, 0.1);
+            border-radius: 8px;
+            padding: 0.75rem;
+            margin: 1rem 0;
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
+            color: #495057;
+        }
+
+        .wizard-card .recommendation::before {
+            content: "💡";
+            font-size: 1.2rem;
+            margin-right: 0.75rem;
+        }
+
+        .wizard-card .wizard-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .wizard-card .wizard-button {
+            flex: 1;
+            padding: 0.75rem;
+            text-align: center;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .wizard-card .primary-button {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .wizard-card .primary-button:hover {
+            background: #388E3C;
+            transform: translateY(-2px);
+        }
+
+        .wizard-card .secondary-button {
+            background: white;
+            color: #4CAF50;
+            border: 1px solid #4CAF50;
+        }
+
+        .wizard-card .secondary-button:hover {
+            background: rgba(76, 175, 80, 0.1);
+            transform: translateY(-2px);
+        }
+
+        /* Advanced card specific */
+        .advanced-card {
+            border-top-color: #FF9800;
+        }
+
+        .advanced-tag {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: rgba(255, 152, 0, 0.1);
+            color: #FF9800;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            margin: 0.5rem 0 1rem;
+            font-weight: 500;
+        }
+
+        .doc-button {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            margin-top: 1rem;
+            background: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .doc-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-decoration: none;
+        }
+
+        .concepts-card .doc-button {
+            background: #4CAF50;
+        }
+
+        .concepts-card .doc-button:hover {
+            background: #388E3C;
+        }
+
+        .topic-slide {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 200px;
+        }
+
+        .topic-slide-content {
+            flex-grow: 1;
+        }
+
+        .topic-slide-button {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            margin-top: 1rem;
+            background: var(--advanced-orange-dark);
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            width: fit-content;
+        }
+
+        .topic-slide-button:hover {
+            background: var(--advanced-orange-deep);
+            transform: translateY(-2px);
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>GAOS Service Locator</h1>
+        <p>A modern, Unity-optimized service management solution. Read the <a href="development-story.html" style="color: #2196F3; text-decoration: none; background: rgba(33, 150, 243, 0.1); padding: 0.25rem 0.5rem; border-radius: 4px;">development story</a> to learn about the journey and philosophy behind this package.</p>
+    </header>
+
+    <section id="introduction">
+        <h2>Introduction</h2>
+        <p>GAOS Service Locator provides a powerful yet lightweight dependency management solution built specifically for Unity. It seamlessly integrates with Unity's component lifecycle while delivering thread-safe performance, flexible service configurations, and intuitive dependency resolution—all without the configuration complexity of traditional dependency injection frameworks.</p>
+        
+        <div class="features-grid">
+            <div class="feature-card">
+                <h3>Unity-Optimized Architecture</h3>
+                <ul>
+                    <li>Seamless MonoBehaviour and ScriptableObject integration</li>
+                    <li>Scene-aware service management with automatic cleanup</li>
+                    <li>Support for both runtime and editor-only services</li>
+                    <li>Smart handling of scene transitions</li>
+                </ul>
+            </div>
+
+            <div class="feature-card">
+                <h3>High Performance</h3>
+                <ul>
+                    <li>Thread-safe operations for multi-threaded systems</li>
+                    <li>Service pooling for object reuse</li>
+                    <li>Async service support with Task-based API</li>
+                    <li>Efficient memory management</li>
+                </ul>
+            </div>
+
+            <div class="feature-card">
+                <h3>Developer Experience</h3>
+                <ul>
+                    <li>Attribute-based registration with minimal boilerplate</li>
+                    <li>Flexible service lifetimes (Singleton, Transient, Scene-based)</li>
+                    <li>Comprehensive validation and debugging tools</li>
+                    <li>Clear API with helpful diagnostics</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <div class="separator"></div>
+
+    <section id="documentation-sections" class="doc-grid">
+        <div class="doc-card quickstart-card">
+            <h3><a href="quick-start.html">Quick Start Guide</a></h3>
+            <p>Get started with Service Locator in minutes. Perfect for developers who want to quickly integrate services into their Unity projects.</p>
+            <ul>
+                <li>Simple installation guide</li>
+                <li>Step-by-step service creation</li>
+                <li>Common usage examples</li>
+            </ul>
+            <a href="quick-start.html" class="doc-button">Get Started →</a>
+        </div>
+
+        <div class="doc-card concepts-card">
+            <h3><a href="concepts.html">Core Concepts</a></h3>
+            <p>Master the fundamental concepts behind the Service Locator pattern and understand how to effectively use it in your Unity applications.</p>
+            <ul>
+                <li>Understanding service types</li>
+                <li>Service lifetime management</li>
+                <li>Context-aware services</li>
+            </ul>
+            <a href="concepts.html" class="doc-button">Learn →</a>
+        </div>
+
+        <div class="doc-card wizard-card">
+            <h3>Service Creation Wizard</h3>
+            <p>Not sure which service to create? Let our wizard guide you through the process.</p>
+            <div class="recommendation">
+                We recommend reading the core concepts first.
+            </div>
+            <div class="wizard-buttons">
+                <a href="concepts.html" class="wizard-button secondary-button">Read Concepts</a>
+                <a href="service-wizard.html?source=index" class="wizard-button primary-button">Launch Wizard →</a>
+            </div>
+        </div>
+    </section>
+
+    <div class="separator"></div>
+
+    <section id="advanced-topics">
+        <div class="advanced-layout">
+            <div class="advanced-card doc-card">
+                <div class="topic-carousel">
+                    <div class="topic-slide active">
+                        <div class="topic-slide-content">
+                            <h3>Why Service Locator</h3>
+                            <p>Compare different architectural patterns and understand why GAOS Service Locator is the best choice for Unity projects.</p>
+                        </div>
+                        <a href="advanced-why-service-locator.html" class="topic-slide-button">Explore →</a>
+                    </div>
+                    <div class="topic-slide">
+                        <div class="topic-slide-content">
+                            <h3>Create Service Tool</h3>
+                            <p>Learn how to use the visual service creation tool to quickly create services without writing code.</p>
+                        </div>
+                        <a href="advanced-create-service.html" class="topic-slide-button">Explore →</a>
+                    </div>
+                    <div class="topic-slide">
+                        <div class="topic-slide-content">
+                            <h3>Service Registration</h3>
+                            <p>Master service discovery, type caching, auto-registration, and validation at both editor and runtime.</p>
+                        </div>
+                        <a href="advanced-registration.html" class="topic-slide-button">Explore →</a>
+                    </div>
+                    <div class="topic-slide">
+                        <div class="topic-slide-content">
+                            <h3>Service Lifecycle</h3>
+                            <p>Master service initialization, cleanup, dependency validation, and error handling.</p>
+                        </div>
+                        <a href="advanced-lifecycle.html" class="topic-slide-button">Explore →</a>
+                    </div>
+                    <div class="topic-slide">
+                        <div class="topic-slide-content">
+                            <h3>Assembly Packaging</h3>
+                            <p>Learn how to organize services across assembly definitions and packages.</p>
+                        </div>
+                        <a href="advanced-assembly-packaging.html" class="topic-slide-button">Explore →</a>
+                    </div>
+                    <div class="topic-slide">
+                        <div class="topic-slide-content">
+                            <h3>Diagnostics Tools</h3>
+                            <p>Learn about common errors and exceptions, and how to use Type Cache Inspector and Registry Viewer tools.</p>
+                        </div>
+                        <a href="advanced-diagnostics.html" class="topic-slide-button">Explore →</a>
+                    </div>
+                    <div class="topic-slide">
+                        <div class="topic-slide-content">
+                            <h3>Mock Testing</h3>
+                            <p>Learn how to use runtime service registration for test mocking and create isolated test environments.</p>
+                        </div>
+                        <a href="advanced-mock-testing.html" class="topic-slide-button">Explore →</a>
+                    </div>
+                    <div class="topic-slide">
+                        <div class="topic-slide-content">
+                            <h3>Best Practices</h3>
+                            <p>Compare Service Locator with other patterns like Singleton and Dependency Injection.</p>
+                        </div>
+                        <a href="advanced-best-practices.html" class="topic-slide-button">Explore →</a>
+                    </div>
+                    <div class="topic-slide">
+                        <div class="topic-slide-content">
+                            <h3>Sample Usecases</h3>
+                            <p>Browse a library of real-world examples using the Service Locator pattern.</p>
+                        </div>
+                        <a href="advanced-sample-usecases.html" class="topic-slide-button">Explore →</a>
+                    </div>
+                </div>
+                <div class="carousel-dots"></div>
+            </div>
+            <div class="advanced-intro">
+                <h2 class="advanced-title">Advanced Topics</h2>
+                <p>Deep dive into advanced features and best practices of the Service Locator system.</p>
+                <a href="advanced.html" class="advanced-button">Learn More →</a>
+            </div>
+        </div>
+
+        <style>
+            .topic-carousel {
+                position: relative;
+                overflow: hidden;
+                min-height: 200px;
+            }
+
+            .topic-slide {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                opacity: 0;
+                transform: translateX(100%);
+                transition: all 0.5s ease;
+                padding: 1.5rem;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                min-height: 200px;
+            }
+
+            .topic-slide.active {
+                opacity: 1;
+                transform: translateX(0);
+            }
+
+            .topic-slide h3 {
+                color: var(--advanced-orange-dark);
+                margin: 0 0 1rem 0;
+            }
+
+            .topic-slide p {
+                color: #495057;
+                margin: 0;
+                font-size: 0.95rem;
+            }
+
+            .carousel-dots {
+                display: flex;
+                justify-content: center;
+                gap: 0.5rem;
+                margin-top: 1rem;
+            }
+
+            .carousel-dot {
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                background: rgba(255, 152, 0, 0.2);
+                cursor: pointer;
+                transition: all 0.3s ease;
+            }
+
+            .carousel-dot.active {
+                background: var(--advanced-orange-dark);
+                transform: scale(1.2);
+            }
+
+            @keyframes slideIn {
+                from {
+                    opacity: 0;
+                    transform: translateX(100%);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateX(0);
+                }
+            }
+
+            @keyframes slideOut {
+                from {
+                    opacity: 1;
+                    transform: translateX(0);
+                }
+                to {
+                    opacity: 0;
+                    transform: translateX(-100%);
+                }
+            }
+        </style>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const slides = document.querySelectorAll('.topic-slide');
+                const dotsContainer = document.querySelector('.carousel-dots');
+                let currentSlide = 0;
+                let interval;
+
+                // Create dots
+                slides.forEach((_, index) => {
+                    const dot = document.createElement('div');
+                    dot.className = 'carousel-dot' + (index === 0 ? ' active' : '');
+                    dot.addEventListener('click', () => goToSlide(index));
+                    dotsContainer.appendChild(dot);
+                });
+
+                function goToSlide(index) {
+                    slides[currentSlide].classList.remove('active');
+                    dotsContainer.children[currentSlide].classList.remove('active');
+                    currentSlide = index;
+                    slides[currentSlide].classList.add('active');
+                    dotsContainer.children[currentSlide].classList.add('active');
+                }
+
+                function nextSlide() {
+                    let nextIndex = currentSlide + 1;
+                    if (nextIndex >= slides.length) {
+                        nextIndex = 0;
+                    }
+                    goToSlide(nextIndex);
+                }
+
+                // Start automatic rotation with 5 second interval
+                interval = setInterval(nextSlide, 5000);
+
+                // Pause rotation on hover
+                const carousel = document.querySelector('.topic-carousel');
+                carousel.addEventListener('mouseenter', () => {
+                    clearInterval(interval);
+                });
+
+                carousel.addEventListener('mouseleave', () => {
+                    interval = setInterval(nextSlide, 5000);
+                });
+            });
+        </script>
+    </section>
+
+    <div class="separator"></div>
+
+    <section id="api-documentation" class="api-section">
+        <style>
+            .api-section {
+                padding: 3rem;
+                background: #f8f9fa;
+                border-radius: 12px;
+                margin: 3rem 0;
+                text-align: center;
+            }
+
+            .api-section h2 {
+                color: #2196F3;
+                margin-bottom: 1rem;
+                font-size: 2rem;
+            }
+
+            .api-section p {
+                color: #495057;
+                margin-bottom: 2rem;
+                font-size: 1.1rem;
+            }
+
+            .api-button {
+                display: inline-block;
+                padding: 1rem 2rem;
+                background: #2196F3;
+                color: white;
+                text-decoration: none;
+                border-radius: 8px;
+                font-weight: 600;
+                transition: all 0.3s ease;
+            }
+
+            .api-button:hover {
+                background: #1976D2;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 8px rgba(33, 150, 243, 0.3);
+            }
+        </style>
+
+        <h2>API Documentation</h2>
+        <p>Complete reference documentation for the Service Locator system</p>
+        <a href="api.html" class="api-button">View Full API Reference →</a>
+    </section>
+
+    <footer>
+        <p>Version 1.2.2 | <a href="changelog.html">View Changelog</a> | Created by <a href="https://www.linkedin.com/in/yugao-luckyvr">Yu Gao</a></p>
+    </footer>
+
+    <style>
+        /* Advanced section layout */
+        #advanced-topics .advanced-layout {
+            display: grid;
+            grid-template-columns: 60% 40%;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        #advanced-topics .advanced-intro {
+            padding-right: 2rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        #advanced-topics h2.advanced-title {
+            color: var(--advanced-orange-light);
+            margin-bottom: 1rem;
+            font-size: 2rem;
+        }
+
+        #advanced-topics .advanced-intro p {
+            color: #495057;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        #advanced-topics .advanced-button {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background: var(--advanced-orange-dark);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            align-self: flex-start;
+        }
+
+        #advanced-topics .advanced-button:hover {
+            background: var(--advanced-orange-deep);
+            transform: translateY(-2px);
+        }
+
+        #advanced-topics .advanced-card {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            border-top: 3px solid var(--advanced-orange-light);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        @media (max-width: 768px) {
+            #advanced-topics .advanced-layout {
+                grid-template-columns: 1fr;
+            }
+
+            #advanced-topics .advanced-intro {
+                padding-right: 0;
+                margin-top: 2rem;
+                text-align: center;
+            }
+
+            #advanced-topics .advanced-button {
+                align-self: center;
+            }
+        }
+    </style>
+</body>
+</html> 

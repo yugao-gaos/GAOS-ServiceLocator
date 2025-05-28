@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Async Service - Advanced Topics</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles-advanced.css">
+    <style>
+        .service-type {
+            margin: 3rem 0;
+            padding: 2rem;
+            background: white;
+            border-radius: 12px;
+            border-left: 4px solid var(--advanced-orange-light);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .service-type h3 {
+            color: var(--advanced-orange-dark);
+            margin-top: 0;
+        }
+
+        .info-box {
+            background: rgba(255, 152, 0, 0.05);
+            border-left: 4px solid var(--advanced-orange-light);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .code-block {
+            margin: 1.5rem 0;
+            background: #f8f9fa;
+            padding: 1.5rem;
+            font-family: monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            overflow-x: auto;
+        }
+
+        .lifecycle-diagram {
+            background: #f8f9fa;
+            padding: 2rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        .lifecycle-diagram pre {
+            font-family: monospace;
+            font-size: 1.1rem;
+            color: var(--advanced-orange-dark);
+            background: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .page-navigation {
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 152, 0, 0.2);
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .nav-button {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            background: white;
+            border: 1px solid rgba(255, 152, 0, 0.2);
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--advanced-orange-dark);
+            transition: all 0.2s ease;
+            min-width: 200px;
+        }
+
+        .nav-button:hover {
+            background: rgba(255, 152, 0, 0.05);
+            border-color: var(--advanced-orange-light);
+            transform: translateY(-2px);
+            text-decoration: none;
+        }
+
+        .nav-button.prev {
+            padding-right: 2rem;
+        }
+
+        .nav-button.next {
+            margin-left: auto;
+            padding-left: 2rem;
+        }
+
+        .nav-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .nav-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #666;
+        }
+
+        .nav-title {
+            font-weight: 500;
+            color: var(--advanced-orange-dark);
+        }
+
+        .nav-arrow {
+            font-size: 1.2rem;
+            margin: 0 1rem;
+            color: var(--advanced-orange-dark);
+        }
+
+        .nav-bottom {
+            text-align: center;
+            margin-top: 2rem;
+            color: #666;
+        }
+
+        .nav-bottom a {
+            color: var(--advanced-orange-dark);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .nav-bottom a:hover {
+            color: var(--advanced-orange-deep);
+            text-decoration: underline;
+        }
+
+        .nav-separator {
+            margin: 0 1rem;
+            color: #ccc;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                flex-direction: column;
+            }
+
+            .nav-button {
+                width: 100%;
+            }
+
+            .nav-button.next {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body class="advanced-content">
+    <a href="advanced.html" class="advanced-back-link">← Back to Advanced Topics</a>
+
+    <header>
+        <h1>Async Service</h1>
+        <p>Understanding async service initialization and resolution</p>
+    </header>
+
+    <section>
+        <h2>Overview</h2>
+        <div class="service-type">
+            <h3>What are Async Services?</h3>
+            <p>Async services allow you to perform asynchronous initialization and operations, perfect for services that need to:</p>
+            <ul>
+                <li>Load resources or configuration data</li>
+                <li>Connect to external services</li>
+                <li>Perform heavy initialization tasks</li>
+                <li>Handle network operations</li>
+            </ul>
+
+            <div class="lifecycle-diagram">
+                <pre>
+[Registration] → [Async Initialization] → [Ready for Use]
+                ↓
+        [Waiting for Dependencies]
+                ↓
+          [Init Dependencies]
+                ↓
+         [InitializeAsync()]</pre>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>Understanding Async Services</h2>
+        <div class="service-type">
+            <h3>The IServiceInitializable Interface</h3>
+            <p>The <code>IServiceInitializable</code> interface is a key component for async services. It defines a contract for services that need asynchronous initialization:</p>
+
+            <div class="code-block">
+                <pre><code>public interface IServiceInitializable
+{
+    Task InitializeAsync();
+    bool IsInitialized { get; }
+}</code></pre>
+            </div>
+
+            <p>This interface allows services to perform asynchronous initialization operations like loading data, establishing network connections, or any other task that needs to be awaited.</p>
+
+            <div class="info-box">
+                <h4>Best Practices</h4>
+                <ul>
+                    <li>Always use <code>GetAsyncService</code> to retrieve services implementing <code>IServiceInitializable</code></li>
+                    <li>Create a reliable state to indicate initialization status</li>
+                    <li>Handle exceptions during initialization properly</li>
+                </ul>
+            </div>
+
+            <h3>Creating an Async Service</h3>
+            <p>To create an async service, implement both your service interface and <code>IServiceInitializable</code>:</p>
+
+            <div class="code-block">
+                <pre><code>[Service(typeof(IDataService), "DataService")]
+public class DataService : IDataService, IServiceInitializable
+{
+    private bool _isInitialized;
+    private Dictionary<string, object> _cachedData;
+    
+    public bool IsInitialized => _isInitialized;
+    
+    public async Task InitializeAsync()
+    {
+        if (_isInitialized) return;
+        
+        // Perform async initialization
+        _cachedData = await LoadDataFromDiskAsync();
+        _isInitialized = true;
+    }
+    
+    public async Task<object> GetDataAsync(string key)
+    {
+        // Ensure initialized
+        if (!_isInitialized)
+            throw new InvalidOperationException("Service not initialized");
+            
+        return _cachedData[key];
+    }
+    
+    private async Task<Dictionary<string, object>> LoadDataFromDiskAsync()
+    {
+        // Simulate loading data asynchronously
+        await Task.Delay(100);
+        return new Dictionary<string, object>();
+    }
+}</code></pre>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>Using Async Services</h2>
+        <div class="service-type">
+            <h3>Service Resolution</h3>
+            <p>Use <code>GetAsyncService</code> to properly handle async initialization:</p>
+
+            <div class="code-block">
+                <pre><code>public class GameManager : MonoBehaviour
+{
+    private IDataService _dataService;
+
+    async void Start()
+    {
+        // Get service with async initialization
+        _dataService = await ServiceLocator.GetAsyncService<IDataService>();
+
+        // Service is now initialized and ready to use
+        var data = await _dataService.GetDataAsync();
+        await _dataService.SaveDataAsync(newData);
+    }
+}</code></pre>
+            </div>
+
+            <div class="info-box">
+                <h4>Best Practices</h4>
+                <ul>
+                    <li>Always check initialization state before operations</li>
+                    <li>Handle initialization failures gracefully</li>
+                    <li>Use cancellation tokens for long-running operations</li>
+                    <li>Cache results when appropriate</li>
+                    <li>Implement proper cleanup in Dispose methods</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="service-type">
+            <h3>Dependency Chain</h3>
+            <p>When a service depends on an async service, it becomes part of an async dependency chain:</p>
+
+            <div class="lifecycle-diagram">
+                <pre>
+Service A [Async] → Service B [Async] → Service C [Async]
+     ↓                   ↓                   ↓
+InitializeAsync    InitializeAsync    InitializeAsync
+     ↓                   ↓                   ↓
+   Ready              Waiting             Waiting
+                        ↓                   ↓
+                      Ready              Waiting
+                                          ↓
+                                        Ready</pre>
+            </div>
+
+            <div class="info-box">
+                <h4>Async Chain Guidelines</h4>
+                <ul>
+                    <li>All services in an async chain should implement IServiceInitializable</li>
+                    <li>Always use GetAsyncService for the entire chain</li>
+                    <li>The async chain is automatically validated at registration time</li>
+                    <li>Check IsInitialized before using the service</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <div class="page-navigation">
+        <div class="nav-links">
+            <a href="advanced-lifecycle.html" class="nav-button">
+                <span class="nav-arrow">←</span>
+                <span class="nav-text">
+                    <span class="nav-label">Previous</span>
+                    <span class="nav-title">Service Lifecycle</span>
+                </span>
+            </a>
+            <a href="advanced-disposable-service.html" class="nav-button">
+                <span class="nav-text">
+                    <span class="nav-label">Next</span>
+                    <span class="nav-title">Disposable Service</span>
+                </span>
+                <span class="nav-arrow">→</span>
+            </a>
+        </div>
+        <div class="nav-bottom">
+            <a href="advanced.html">Back to Advanced Topics</a>
+            <span class="nav-separator">|</span>
+            <a href="index.html">Documentation Home</a>
+        </div>
+    </div>
+</body>
+</html> 

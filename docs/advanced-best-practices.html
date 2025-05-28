@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Best Practices - Advanced Topics</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles-advanced.css">
+    <style>
+        .service-type {
+            margin: 3rem 0;
+            padding: 2rem;
+            background: white;
+            border-radius: 12px;
+            border-left: 4px solid var(--advanced-orange-light);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .service-type h3 {
+            color: var(--advanced-orange-dark);
+            margin-top: 0;
+        }
+
+        .info-box {
+            background: rgba(255, 152, 0, 0.05);
+            border-left: 4px solid var(--advanced-orange-light);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .feature-list li {
+            margin: 1rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .feature-list li::before {
+            content: "•";
+            color: var(--advanced-orange-dark);
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        .code-block {
+            margin: 1.5rem 0;
+            background: #f8f9fa;
+            padding: 1.5rem;
+            font-family: monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            overflow-x: auto;
+        }
+
+        .page-navigation {
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 152, 0, 0.2);
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .nav-button {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            background: white;
+            border: 1px solid rgba(255, 152, 0, 0.2);
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--advanced-orange-dark);
+            transition: all 0.2s ease;
+            min-width: 200px;
+        }
+
+        .nav-button:hover {
+            background: rgba(255, 152, 0, 0.05);
+            border-color: var(--advanced-orange-light);
+            transform: translateY(-2px);
+            text-decoration: none;
+        }
+
+        .nav-button.prev {
+            padding-right: 2rem;
+        }
+
+        .nav-button.next {
+            margin-left: auto;
+            padding-left: 2rem;
+        }
+
+        .nav-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .nav-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #666;
+        }
+
+        .nav-title {
+            font-weight: 500;
+            color: var(--advanced-orange-dark);
+        }
+
+        .nav-arrow {
+            font-size: 1.2rem;
+            margin: 0 1rem;
+            color: var(--advanced-orange-dark);
+        }
+
+        .nav-bottom {
+            text-align: center;
+            margin-top: 2rem;
+            color: #666;
+        }
+
+        .nav-bottom a {
+            color: var(--advanced-orange-dark);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .nav-bottom a:hover {
+            color: var(--advanced-orange-deep);
+            text-decoration: underline;
+        }
+
+        .nav-separator {
+            margin: 0 1rem;
+            color: #ccc;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                flex-direction: column;
+            }
+
+            .nav-button {
+                width: 100%;
+            }
+
+            .nav-button.next {
+                margin-left: 0;
+            }
+        }
+
+        .service-type {
+            margin-top: 4rem;
+        }
+    </style>
+</head>
+<body class="advanced-content">
+    <a href="advanced.html" class="advanced-back-link">← Back to Advanced Topics</a>
+
+    <header>
+        <h1>Best Practices</h1>
+        <p>Guidelines for effective service design and organization</p>
+    </header>
+
+    <section>
+        <h2>Service Design Guidelines</h2>
+        <div class="service-type">
+            <h3>General Principles</h3>
+            <ul>
+                <li>Keep services focused and single-responsibility</li>
+                <li>Design clear and minimal interfaces</li>
+                <li>Use dependency injection over direct service resolution</li>
+                <li>Choose appropriate lifetime scopes</li>
+                <li>Implement proper cleanup for resources</li>
+            </ul>
+
+            <div class="info-box">
+                <h4>Key Considerations</h4>
+                <ul>
+                    <li>Service granularity and responsibilities</li>
+                    <li>Dependency management and coupling</li>
+                    <li>Resource lifecycle and cleanup</li>
+                    <li>Error handling and validation</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>Common Issues & Solutions</h2>
+        
+        <div class="service-type">
+            <h3>Initialization Issues</h3>
+            <div class="code-block">
+                <pre><code>// Issue: Service used before initialization
+public void DoSomething()
+{
+    // Could throw if not initialized
+    _dependency.Process();  
+}
+
+// Solution: Always check initialization state
+public void DoSomething()
+{
+    if (!EnsureInitialized()) 
+    {
+        Debug.LogError("Service failed to initialize");
+        return;
+    }
+    _dependency.Process();
+}</code></pre>
+            </div>
+        </div>
+
+        <div class="service-type">
+            <h3>Service Resolution</h3>
+            <div class="code-block">
+                <pre><code>// Issue: Service name mismatch
+[Service(typeof(IDataService), "DataService")]  // Registration
+var service = ServiceLocator.GetService<IDataService>("Data");  // Access
+
+// Solution: Use consistent naming
+[Service(typeof(IDataService), "Data")]  // Registration
+var service = ServiceLocator.GetService<IDataService>("Data");  // Access
+
+// Better: Use constants for service names
+public static class ServiceKeys
+{
+    public const string Data = "Data";
+}
+[Service(typeof(IDataService), ServiceKeys.Data)]</code></pre>
+            </div>
+        </div>
+
+        <div class="service-type">
+            <h3>Lifetime Management</h3>
+            <div class="code-block">
+                <pre><code>// Issue: Singleton depending on transient
+[Service(typeof(IManager), "Manager", ServiceLifetime.Singleton)]
+public class Manager : IManager
+{
+    private readonly ITransientService _transient;  // Wrong!
+    
+    public Manager(ITransientService transient)
+    {
+        _transient = transient;  // Will become stale
+    }
+}
+
+// Solution: Get transient service when needed
+public class Manager : IManager
+{
+    public void DoWork()
+    {
+        var transient = ServiceLocator.GetService<ITransientService>();
+        transient.Process();  // Fresh instance
+    }
+}</code></pre>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>MonoBehaviour Services</h2>
+        <div class="service-type">
+            <h3>Scene Management</h3>
+            <div class="code-block">
+                <pre><code>// Issue: Service destroyed on scene load
+public class SceneService : MonoBehaviour, ISceneService
+{
+    private void Awake()
+    {
+        // Will be destroyed on scene change
+    }
+}
+
+// Solution: Mark as persistent if not singleton
+public class SceneService : MonoBehaviour, ISceneService
+{
+    private void Awake()
+    {
+        // Only needed for non-singleton services
+        // Singleton services are automatically preserved
+        DontDestroyOnLoad(gameObject);
+    }
+}</code></pre>
+
+            <div class="info-box">
+                <h4>Important Note</h4>
+                <p>When a MonoBehaviour service is registered with ServiceLifetime.Singleton, the Service Locator will automatically move its GameObject to DontDestroyOnLoad when discovered. Manual DontDestroyOnLoad is only needed for non-singleton services.</p>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>Resource Management</h2>
+        <div class="service-type">
+            <h3>Resource Cleanup</h3>
+            <div class="code-block">
+                <pre><code>// Issue: Resources not cleaned up
+public class ResourceService : IResourceService
+{
+    private FileStream _file;
+    private HttpClient _client;
+    
+    public void Initialize()
+    {
+        _file = File.OpenRead("data.bin");
+        _client = new HttpClient();
+    }
+}
+
+// Solution: Implement IServiceDisposable
+public class ResourceService : IResourceService, IServiceDisposable
+{
+    private bool _disposed;
+    private FileStream _file;
+    private HttpClient _client;
+    
+    public void Dispose()
+    {
+        if (_disposed) return;
+        _file?.Dispose();
+        _client?.Dispose();
+        _disposed = true;
+    }
+    
+    public void DoWork()
+    {
+        if (_disposed)
+            throw new ObjectDisposedException(nameof(ResourceService));
+        // Work with resources
+    }
+}</code></pre>
+            </div>
+
+            <div class="info-box">
+                <h4>Resource Cleanup Best Practices</h4>
+                <ul>
+                    <li>Always implement IServiceDisposable when managing disposable resources</li>
+                    <li>Check disposed state before operations</li>
+                    <li>Make Dispose method idempotent (safe to call multiple times)</li>
+                    <li>Clean up both managed and unmanaged resources</li>
+                    <li>Throw ObjectDisposedException if service is used after disposal</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>Recommended Patterns</h2>
+        <div class="service-type">
+            <h3>Service Design</h3>
+            <ul class="feature-list">
+                <li>Design services around capabilities, not objects</li>
+                <li>Keep services focused and single-purpose</li>
+                <li>Use interfaces to define service contracts</li>
+                <li>Consider service lifetime carefully</li>
+                <li>Document service dependencies and requirements</li>
+            </ul>
+
+            <div class="code-block">
+                <pre><code>// Good: Focused service interface
+public interface IPlayerProgressService
+{
+    float GetProgress(string key);
+    void SetProgress(string key, float value);
+    void SaveProgress();
+    void LoadProgress();
+}
+
+// Bad: Too many responsibilities
+public interface IGameService
+{
+    void HandleInput();
+    void UpdateUI();
+    void SaveGame();
+    void LoadGame();
+    void ProcessAI();
+}</code></pre>
+            </div>
+        </div>
+
+        <div class="service-type">
+            <h3>Service Organization</h3>
+            <ul class="feature-list">
+                <li>Group related services in meaningful namespaces</li>
+                <li>Use consistent naming conventions</li>
+                <li>Organize services by domain or feature</li>
+                <li>Keep service dependencies minimal and explicit</li>
+            </ul>
+
+            <div class="code-block">
+                <pre><code>// Good: Organized by feature
+namespace Game.Audio
+{
+    public interface IAudioService { }
+    public interface IMusicService { }
+    public interface ISoundEffectService { }
+}
+
+namespace Game.Input
+{
+    public interface IInputService { }
+    public interface IInputBindingService { }
+}
+
+// Bad: Mixed concerns
+namespace Game.Services
+{
+    public interface IAudioService { }
+    public interface IPlayerService { }
+    public interface IUIService { }
+}</code></pre>
+            </div>
+        </div>
+
+        <div class="service-type">
+            <h3>Error Handling & Validation</h3>
+            <ul class="feature-list">
+                <li>Always validate service state before operations</li>
+                <li>Use descriptive error messages for debugging</li>
+                <li>Handle initialization failures gracefully</li>
+                <li>Log service lifecycle events for diagnostics</li>
+                <li>Throw appropriate service exceptions</li>
+            </ul>
+
+            <div class="code-block">
+                <pre><code>public class GameSettingsService : IGameSettings
+{
+    private bool _initialized;
+    private GameSettingsData _data;
+
+    protected override bool OnInitialize()
+    {
+        try
+        {
+            _data = LoadSettings();
+            if (_data == null)
+            {
+                Debug.LogError($"[{nameof(GameSettingsService)}] Failed to load settings");
+                return false;
+            }
+            
+            _initialized = true;
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"[{nameof(GameSettingsService)}] " + 
+                         $"Initialization failed: {ex.Message}");
+            return false;
+        }
+    }
+
+    public float GetVolume()
+    {
+        if (!_initialized)
+            throw new ServiceNotInitializedException(nameof(GameSettingsService));
+        return _data.Volume;
+    }
+}</code></pre>
+            </div>
+        </div>
+
+        <div class="service-type">
+            <h3>Performance & Optimization</h3>
+            <ul class="feature-list">
+                <li>Use Transient lifetime for heavy services</li>
+                <li>Implement proper cleanup in Dispose methods</li>
+                <li>Cache frequently accessed service references</li>
+                <li>Consider using weak references for optional dependencies</li>
+                <li>Profile service initialization times</li>
+                <li>Monitor memory usage in Registry Viewer</li>
+            </ul>
+
+            <div class="code-block">
+                <pre><code>public class ResourceService : IResourceService, IDisposable
+{
+    private readonly Dictionary<string, WeakReference<UnityEngine.Object>> _cache 
+        = new();
+
+    public T LoadResource<T>(string path) where T : UnityEngine.Object
+    {
+        // Try get from cache first
+        if (_cache.TryGetValue(path, out var weakRef) && 
+            weakRef.TryGetTarget(out var obj))
+        {
+            return obj as T;
+        }
+
+        // Load and cache with weak reference
+        var resource = Resources.Load<T>(path);
+        _cache[path] = new WeakReference<UnityEngine.Object>(resource);
+        return resource;
+    }
+
+    public void Dispose()
+    {
+        foreach (var entry in _cache)
+        {
+            if (entry.Value.TryGetTarget(out var obj))
+            {
+                Resources.UnloadAsset(obj);
+            }
+        }
+        _cache.Clear();
+        Resources.UnloadUnusedAssets();
+    }
+}</code></pre>
+            </div>
+
+            <div class="info-box">
+                <h4>Memory Management Tips</h4>
+                <ul>
+                    <li>Use weak references for large assets that can be reloaded</li>
+                    <li>Implement IDisposable for services that manage resources</li>
+                    <li>Clear caches during scene transitions</li>
+                    <li>Monitor service memory usage in profiler</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="service-type">
+            <h3>Unity Integration</h3>
+            <ul class="feature-list">
+                <li>Use MonoBehaviour services for scene-specific functionality</li>
+                <li>Prefer ScriptableObject services for configuration data</li>
+                <li>Handle domain reloads properly</li>
+                <li>Consider play mode state changes</li>
+                <li>Use service contexts appropriately (Runtime/Editor/Both)</li>
+                <li>Implement proper cleanup for scene transitions</li>
+            </ul>
+
+            <div class="code-block">
+                <pre><code>[Service(typeof(IUIManager), "UIManager")]
+public class UIManager : MonoServiceBase, IUIManager
+{
+    [SerializeField] private Canvas _mainCanvas;
+    private readonly Dictionary<string, UIPanel> _panels = new();
+
+    protected override void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        base.OnSceneLoaded(scene, mode);
+        RebuildPanelCache();
+    }
+
+    protected override void OnSceneUnloaded(Scene scene)
+    {
+        base.OnSceneUnloaded(scene);
+        CleanupPanels();
+    }
+
+    private void OnDisable()
+    {
+        if (ServiceLocator.IsQuitting) return;
+        CleanupPanels();
+    }
+}
+
+[Service(typeof(IGameConfig), "GameConfig")]
+public class GameConfig : SOServiceBase, IGameConfig
+{
+    [SerializeField] private float _defaultVolume = 0.75f;
+    [SerializeField] private bool _enableTutorial = true;
+
+    protected override bool OnInitialize()
+    {
+        // ScriptableObject services persist between domain reloads
+        ValidateConfiguration();
+        return true;
+    }
+
+    private void ValidateConfiguration()
+    {
+        _defaultVolume = Mathf.Clamp01(_defaultVolume);
+    }
+}</code></pre>
+            </div>
+
+            <div class="info-box">
+                <h4>Unity Service Guidelines</h4>
+                <ul>
+                    <li><strong>MonoBehaviour Services:</strong>
+                        <ul>
+                            <li>Use for scene-specific functionality</li>
+                            <li>Handle scene loading/unloading</li>
+                            <li>Manage GameObject references</li>
+                        </ul>
+                    </li>
+                    <li><strong>ScriptableObject Services:</strong>
+                        <ul>
+                            <li>Use for shared configuration</li>
+                            <li>Persist data between play mode changes</li>
+                            <li>Support Unity Inspector configuration</li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="service-type">
+            <h3>Thread Safety</h3>
+            <ul class="feature-list">
+                <li>Never block the main thread waiting for async operations</li>
+                <li>Use ServiceCoroutineRunner for Unity object operations</li>
+                <li>Avoid sync-over-async patterns that can cause deadlocks</li>
+                <li>Properly handle async/await lifecycle with coroutines in Unity</li>
+                <li>Validate thread context for Unity API calls</li>
+                <li>Use thread-safe collections for shared state</li>
+            </ul>
+
+            <div class="code-block">
+                <pre><code>// Issue: Potential deadlock
+public class ResourceManager : IResourceManager
+{
+    // This blocks the calling thread until completion
+    public bool ReleaseGameObject(GameObject obj)
+    {
+        // Blocking call that waits for async operation
+        return ReleaseGameObjectAsync(obj).GetAwaiter().GetResult();
+    }
+    
+    private async Task<bool> ReleaseGameObjectAsync(GameObject obj)
+    {
+        // Uses main thread to destroy objects - deadlock if called from main thread
+        await DestroyObjectAsync(obj);
+        return true;
+    }
+}
+
+// Solution: Non-blocking approach 
+public class ResourceManager : IResourceManager
+{
+    // Option 1: Make fully async
+    public async Task<bool> ReleaseGameObjectAsync(GameObject obj)
+    {
+        await DestroyObjectAsync(obj);
+        return true;
+    }
+    
+    // Option 2: Use coroutine
+    public Coroutine ReleaseGameObjectCoroutine(GameObject obj)
+    {
+        return ServiceCoroutineRunner.Instance.StartCoroutine(
+            ReleaseGameObjectRoutine(obj));
+    }
+    
+    private IEnumerator ReleaseGameObjectRoutine(GameObject obj)
+    {
+        var task = DestroyObjectAsync(obj);
+        while (!task.IsCompleted)
+            yield return null;
+            
+        // Handle completion
+    }
+    
+    // Option 3: Queue on main thread without blocking
+    public void ReleaseGameObject(GameObject obj)
+    {
+        ServiceCoroutineRunner.RunOnMainThread(() => {
+            UnityEngine.Object.Destroy(obj);
+        });
+    }
+}</code></pre>
+            </div>
+
+            <div class="info-box">
+                <h4>Thread Safety Guidelines</h4>
+                <ul>
+                    <li><strong>Unity Main Thread Operations:</strong>
+                        <ul>
+                            <li>Always use ServiceCoroutineRunner.RunOnMainThread for GameObject operations</li>
+                            <li>Never call GameObject.Destroy or similar operations from background threads</li>
+                            <li>Validate thread context before Unity API calls using ServiceCoroutineRunner.IsMainThread()</li>
+                        </ul>
+                    </li>
+                    <li><strong>Async Operations:</strong>
+                        <ul>
+                            <li>Avoid GetAwaiter().GetResult() which can cause deadlocks</li>
+                            <li>Use ConfigureAwait(false) for non-UI continuations</li>
+                            <li>Consider fire-and-forget approaches with proper error handling</li>
+                            <li>Use coroutines for waiting and coordination in Unity scripts</li>
+                        </ul>
+                    </li>
+                    <li><strong>Service Disposal:</strong>
+                        <ul>
+                            <li>Use ReleaseServiceInstance<T>() for non-blocking disposal (returns immediately)</li>
+                            <li>Use ReleaseServiceInstanceAsync<T>() when you need to await disposal completion</li>
+                            <li>Both methods safely handle Unity object destruction on the main thread</li>
+                            <li>ReleaseServiceInstance is non-blocking and won't cause deadlocks</li>
+                        </ul>
+                    </li>
+                    <li><strong>State Management:</strong>
+                        <ul>
+                            <li>Use thread-safe collections like ConcurrentDictionary</li>
+                            <li>Protect shared state with proper locks or concurrent collections</li>
+                            <li>Consider immutable data structures for shared state</li>
+                            <li>Document thread-safety requirements for each service</li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="service-type">
+            <h3>ScriptableObject Service Design</h3>
+            <div class="info-box">
+                <h4>ScriptableObject Service Best Practices</h4>
+                <ul class="feature-list">
+                    <li>Use the Service attribute for registration</li>
+                    <li>Initialize in OnEnable</li>
+                    <li>Implement thread safety when needed</li>
+                    <li>Use IServiceDisposable for cleanup</li>
+                    <li>Validate state before operations</li>
+                    <li>Handle Unity lifecycle correctly</li>
+                </ul>
+            </div>
+
+            <div class="code-block">
+                <pre><code>// Recommended approach
+[CreateAssetMenu(fileName = "GameSettings", menuName = "Services/GameSettings")]
+[Service(typeof(IGameSettings), "GameSettings")]
+public class GameSettings : ScriptableObject, IGameSettings, IServiceDisposable
+{
+    [SerializeField] private string _configPath;
+    private readonly object _lock = new object();
+    private bool _isInitialized;
+    private FileSystemWatcher _watcher;
+
+    private void OnEnable()
+    {
+        lock (_lock)
+        {
+            LoadConfiguration();
+            SetupFileWatcher();
+            _isInitialized = true;
+        }
+    }
+
+    public string GetConfigValue()
+    {
+        lock (_lock)
+        {
+            if (!_isInitialized)
+                throw new InvalidOperationException("Settings not initialized");
+            return _configPath;
+        }
+    }
+
+    private void SetupFileWatcher()
+    {
+        _watcher = new FileSystemWatcher(Path.GetDirectoryName(_configPath));
+        _watcher.EnableRaisingEvents = true;
+    }
+
+    public void Dispose()
+    {
+        lock (_lock)
+        {
+            _watcher?.Dispose();
+            _isInitialized = false;
+        }
+    }
+}</code></pre>
+            </div>
+
+            <div class="info-box">
+                <h4>Key Design Principles</h4>
+                <ul class="feature-list">
+                    <li>Keep services focused and single-responsibility</li>
+                    <li>Use dependency injection through constructors or properties</li>
+                    <li>Implement proper error handling and logging</li>
+                    <li>Consider serialization and asset management</li>
+                    <li>Document thread safety requirements</li>
+                    <li>Handle Unity lifecycle events appropriately</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <div class="page-navigation">
+        <div class="nav-links">
+            <a href="advanced-assembly-packaging.html" class="nav-button">
+                <span class="nav-arrow">←</span>
+                <span class="nav-text">
+                    <span class="nav-label">Previous</span>
+                    <span class="nav-title">Assembly Packaging</span>
+                </span>
+            </a>
+            <a href="advanced-diagnostics.html" class="nav-button">
+                <span class="nav-text">
+                    <span class="nav-label">Next</span>
+                    <span class="nav-title">Diagnostics Tools</span>
+                </span>
+                <span class="nav-arrow">→</span>
+            </a>
+        </div>
+        <div class="nav-bottom">
+            <a href="advanced.html">Back to Advanced Topics</a>
+            <span class="nav-separator">|</span>
+            <a href="index.html">Documentation Home</a>
+        </div>
+    </div>
+</body>
+</html> 

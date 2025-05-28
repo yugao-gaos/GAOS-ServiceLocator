@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnostics Tools - Advanced Topics</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles-advanced.css">
+    <style>
+        .service-type {
+            margin: 3rem 0;
+            padding: 2rem;
+            background: white;
+            border-radius: 12px;
+            border-left: 4px solid var(--advanced-orange-light);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .service-type h3 {
+            color: var(--advanced-orange-dark);
+            margin-top: 0;
+        }
+
+        .info-box {
+            background: rgba(255, 152, 0, 0.05);
+            border-left: 4px solid var(--advanced-orange-light);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .error-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .error-table th,
+        .error-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 152, 0, 0.1);
+        }
+
+        .error-table th {
+            background: rgba(255, 152, 0, 0.05);
+            color: var(--advanced-orange-dark);
+            font-weight: 500;
+        }
+
+        .error-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .screenshot {
+            margin: 1.5rem 0;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            max-width: 100%;
+        }
+
+        .screenshot-container {
+            margin-bottom: 1.5rem;
+        }
+
+        .screenshot-caption {
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--advanced-orange-dark);
+        }
+
+        .page-navigation {
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 152, 0, 0.2);
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .nav-button {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            background: white;
+            border: 1px solid rgba(255, 152, 0, 0.2);
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--advanced-orange-dark);
+            transition: all 0.2s ease;
+            min-width: 200px;
+        }
+
+        .nav-button:hover {
+            background: rgba(255, 152, 0, 0.05);
+            border-color: var(--advanced-orange-light);
+            transform: translateY(-2px);
+            text-decoration: none;
+        }
+
+        .nav-button.prev {
+            padding-right: 2rem;
+        }
+
+        .nav-button.next {
+            margin-left: auto;
+            padding-left: 2rem;
+        }
+
+        .nav-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .nav-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #666;
+        }
+
+        .nav-title {
+            font-weight: 500;
+            color: var(--advanced-orange-dark);
+        }
+
+        .nav-arrow {
+            font-size: 1.2rem;
+            margin: 0 1rem;
+            color: var(--advanced-orange-dark);
+        }
+
+        .nav-bottom {
+            text-align: center;
+            margin-top: 2rem;
+            color: #666;
+        }
+
+        .nav-bottom a {
+            color: var(--advanced-orange-dark);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .nav-bottom a:hover {
+            color: var(--advanced-orange-deep);
+            text-decoration: underline;
+        }
+
+        .nav-separator {
+            margin: 0 1rem;
+            color: #ccc;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                flex-direction: column;
+            }
+
+            .nav-button {
+                width: 100%;
+            }
+
+            .nav-button.next {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body class="advanced-content">
+    <a href="advanced.html" class="advanced-back-link">← Back to Advanced Topics</a>
+
+    <header>
+        <h1>Diagnostics Tools</h1>
+        <p>Tools and guidelines for troubleshooting service issues</p>
+    </header>
+
+    <section>
+        <h2>Common Errors & Solutions</h2>
+        <div class="service-type">
+            <table class="error-table">
+                <tr>
+                    <th>Exception</th>
+                    <th>Common Causes</th>
+                    <th>Solution</th>
+                </tr>
+                <tr>
+                    <td>ServiceNotFoundException</td>
+                    <td>
+                        <ul>
+                            <li>Service not registered</li>
+                            <li>Service name mismatch</li>
+                        </ul>
+                    </td>
+                    <td>
+                        <ul>
+                            <li>Check registration attribute</li>
+                            <li>Verify service name</li>
+                        </ul>
+                    </td>
+                </tr>
+                <tr>
+                    <td>ServiceAlreadyRegisteredException</td>
+                    <td>
+                        <ul>
+                            <li>Duplicate service name</li>
+                            <li>Multiple registrations</li>
+                        </ul>
+                    </td>
+                    <td>
+                        <ul>
+                            <li>Use unique names</li>
+                            <li>Use name constants</li>
+                        </ul>
+                    </td>
+                </tr>
+                <tr>
+                    <td>ServiceValidationException</td>
+                    <td>
+                        <ul>
+                            <li>Invalid context</li>
+                            <li>Missing dependencies</li>
+                        </ul>
+                    </td>
+                    <td>
+                        <ul>
+                            <li>Check contexts</li>
+                            <li>Review dependencies</li>
+                        </ul>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </section>
+
+    <section>
+        <h2>Service Registry Viewer</h2>
+        <div class="service-type">
+            <h3>Overview</h3>
+            <p>The Service Registry Viewer helps monitor and debug service states during runtime.</p>
+
+            <div class="screenshot-container">
+                <img src="images/service-registry-viewer.png" alt="Service Registry Viewer Window" class="screenshot" style="width: 100%; margin: 1.5rem 0;">
+                <p class="screenshot-caption">Service Registry Viewer showing active services and their states</p>
+            </div>
+
+            <div class="info-box">
+                <h4>Key Features</h4>
+                <ul>
+                    <li>View all registered services</li>
+                    <li>Monitor service states</li>
+                    <li>Inspect dependencies</li>
+                    <li>Debug initialization issues</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>Type Cache Inspector</h2>
+        <div class="service-type">
+            <h3>Overview</h3>
+            <p>The Type Cache Inspector helps validate service configurations before runtime.</p>
+
+            <div class="screenshot-container">
+                <img src="images/type-cache-inspector.png" alt="Type Cache Inspector Window" class="screenshot" style="width: 100%; margin: 1.5rem 0;">
+                <p class="screenshot-caption">Type Cache Inspector showing service details and configuration</p>
+            </div>
+
+            <div class="info-box">
+                <h4>Key Features</h4>
+                <ul>
+                    <li>Validate service registrations</li>
+                    <li>Check dependency chains</li>
+                    <li>Verify service contexts</li>
+                    <li>Detect configuration issues</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>Logging & Debug Options</h2>
+        <div class="service-type">
+            <h3>Debug Settings</h3>
+            <div class="info-box">
+                <h4>Available Options</h4>
+                <ul>
+                    <li>Track service lifecycles in Registry Viewer</li>
+                    <li>Validate service dependencies in Type Cache Inspector</li>
+                    <li>View service registration and initialization states</li>
+                    <li>Debug service context and lifetime settings</li>
+                </ul>
+            </div>
+
+            <div class="screenshot-container">
+                <img src="images/type-cache-inspector2.png" alt="Type Cache Inspector Dependencies" class="screenshot" style="width: 100%; margin: 1.5rem 0;">
+                <p class="screenshot-caption">Type Cache Inspector showing service dependencies and validation</p>
+            </div>
+        </div>
+    </section>
+
+    <div class="page-navigation">
+        <div class="nav-links">
+            <a href="advanced-best-practices.html" class="nav-button">
+                <span class="nav-arrow">←</span>
+                <span class="nav-text">
+                    <span class="nav-label">Previous</span>
+                    <span class="nav-title">Best Practices</span>
+                </span>
+            </a>
+            <a href="advanced-mock-testing.html" class="nav-button">
+                <span class="nav-text">
+                    <span class="nav-label">Next</span>
+                    <span class="nav-title">Mock Testing</span>
+                </span>
+                <span class="nav-arrow">→</span>
+            </a>
+        </div>
+        <div class="nav-bottom">
+            <a href="advanced.html">Back to Advanced Topics</a>
+            <span class="nav-separator">|</span>
+            <a href="index.html">Documentation Home</a>
+        </div>
+    </div>
+</body>
+</html> 

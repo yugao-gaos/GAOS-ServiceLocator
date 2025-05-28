@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Why Service Locator - Advanced Topics</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles-advanced.css">
+    <script src="data/service-examples-data.js"></script>
+    <style>
+        .pattern-comparison {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .pattern-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            border-top: 3px solid var(--advanced-orange-light);
+        }
+
+        .pattern-card h3 {
+            color: var(--advanced-orange-dark);
+            margin-bottom: 1rem;
+        }
+
+        .pros-cons {
+            margin-top: 1.5rem;
+        }
+
+        .pros-cons h4 {
+            color: #2E7D32;
+            margin: 1rem 0 0.5rem;
+        }
+
+        .pros-cons h4.cons {
+            color: #C62828;
+        }
+
+        .pros-cons ul {
+            margin: 0;
+            padding-left: 1.5rem;
+        }
+
+        .info-box {
+            background: rgba(255, 152, 0, 0.05);
+            border-left: 4px solid var(--advanced-orange-light);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .example-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .example-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid var(--advanced-orange-light);
+        }
+
+        .example-card h4 {
+            color: var(--advanced-orange-dark);
+            margin: 0 0 0.5rem 0;
+        }
+
+        .example-card p {
+            color: #495057;
+            margin: 0;
+            font-size: 0.95rem;
+        }
+
+        .tag-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .tag {
+            background: rgba(255, 152, 0, 0.1);
+            color: var(--advanced-orange-dark);
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+        }
+
+        .page-navigation {
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 152, 0, 0.2);
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .nav-button {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            background: white;
+            border: 1px solid rgba(255, 152, 0, 0.2);
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--advanced-orange-dark);
+            transition: all 0.2s ease;
+            min-width: 200px;
+        }
+
+        .nav-button:hover {
+            background: rgba(255, 152, 0, 0.05);
+            border-color: var(--advanced-orange-light);
+            transform: translateY(-2px);
+            text-decoration: none;
+        }
+
+        .nav-button.prev {
+            padding-right: 2rem;
+        }
+
+        .nav-button.next {
+            margin-left: auto;
+            padding-left: 2rem;
+        }
+
+        .nav-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .nav-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #666;
+        }
+
+        .nav-title {
+            font-weight: 500;
+            color: var(--advanced-orange-dark);
+        }
+
+        .nav-arrow {
+            font-size: 1.2rem;
+            margin: 0 1rem;
+            color: var(--advanced-orange-dark);
+        }
+
+        .nav-bottom {
+            text-align: center;
+            margin-top: 2rem;
+            color: #666;
+        }
+
+        .nav-bottom a {
+            color: var(--advanced-orange-dark);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .nav-bottom a:hover {
+            color: var(--advanced-orange-deep);
+            text-decoration: underline;
+        }
+
+        .nav-separator {
+            margin: 0 1rem;
+            color: #ccc;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                flex-direction: column;
+            }
+
+            .nav-button {
+                width: 100%;
+            }
+
+            .nav-button.next {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body class="advanced-content">
+    <a href="advanced.html" class="advanced-back-link">← Back to Advanced Topics</a>
+
+    <header>
+        <h1>Why Service Locator?</h1>
+        <p>Understanding why GAOS Service Locator is the best choice for Unity projects</p>
+    </header>
+
+    <section>
+        <h2>Pattern Comparison</h2>
+        <div class="pattern-comparison">
+            <div class="pattern-card">
+                <h3>Singleton Pattern</h3>
+                <p>The traditional approach to global state management in Unity.</p>
+                <div class="pros-cons">
+                    <h4>Advantages</h4>
+                    <ul>
+                        <li>Simple to implement</li>
+                        <li>Direct access to services</li>
+                        <li>No configuration needed</li>
+                    </ul>
+                    <h4 class="cons">Disadvantages</h4>
+                    <ul>
+                        <li>Hard to test (global state)</li>
+                        <li>Tight coupling</li>
+                        <li>No lifecycle management</li>
+                        <li>No dependency validation</li>
+                        <li>Hard to maintain</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="pattern-card">
+                <h3>Dependency Injection</h3>
+                <p>The enterprise-grade solution for dependency management.</p>
+                <div class="pros-cons">
+                    <h4>Advantages</h4>
+                    <ul>
+                        <li>Loose coupling</li>
+                        <li>Easy to test</li>
+                        <li>Clear dependencies</li>
+                        <li>Compile-time validation</li>
+                    </ul>
+                    <h4 class="cons">Disadvantages</h4>
+                    <ul>
+                        <li>Complex setup</li>
+                        <li>Steep learning curve</li>
+                        <li>Boilerplate code</li>
+                        <li>Runtime overhead</li>
+                        <li>Not Unity-friendly</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="pattern-card">
+                <h3>Traditional Service Locator</h3>
+                <p>The middle ground between Singleton and DI.</p>
+                <div class="pros-cons">
+                    <h4>Advantages</h4>
+                    <ul>
+                        <li>Flexible service resolution</li>
+                        <li>Runtime configuration</li>
+                        <li>Easier testing than Singletons</li>
+                        <li>Simple to understand</li>
+                    </ul>
+                    <h4 class="cons">Disadvantages</h4>
+                    <ul>
+                        <li>Hidden dependencies</li>
+                        <li>Runtime resolution errors</li>
+                        <li>No validation</li>
+                        <li>Potential misuse</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="pattern-card" style="grid-column: 1 / -1;">
+                <div style="display: flex; gap: 2rem;">
+                    <div style="flex: 2;">
+                        <h3>GAOS Service Locator</h3>
+                        <p>A modern, Unity-optimized service management solution.</p>
+                        <div class="pros-cons">
+                            <h4>Advantages</h4>
+                            <ul>
+                                <li>Unity-first design with full lifecycle support</li>
+                                <li>Automatic service discovery and registration</li>
+                                <li>Async service initialization and resolution</li>
+                                <li>Editor-time validation and debugging tools</li>
+                                <li>Zero runtime reflection overhead</li>
+                            </ul>
+                            <h4 class="cons">Considerations</h4>
+                            <ul>
+                                <li>Services need attribute decoration</li>
+                                <li>Initial setup required for custom services</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div style="flex: 1; border-left: 1px solid rgba(255, 152, 0, 0.2); padding-left: 2rem;">
+                        <h4 style="color: var(--advanced-orange-dark);">Our Approach</h4>
+                        <p>Combines the best of both worlds while solving common issues:</p>
+                        
+                        <div class="pros-cons">
+                            <h4>From DI Pattern</h4>
+                            <ul>
+                                <li>Compile-time validation</li>
+                                <li>Clear dependency graphs</li>
+                                <li>Proper lifetime management</li>
+                            </ul>
+                            
+                            <h4>From Service Locator</h4>
+                            <ul>
+                                <li>Simple, intuitive API</li>
+                                <li>Runtime flexibility</li>
+                                <li>Lightweight implementation</li>
+                            </ul>
+
+                            <h4 style="color: var(--advanced-orange-dark);">Added Benefits</h4>
+                            <ul>
+                                <li>Unity-optimized architecture</li>
+                                <li>Async service support</li>
+                                <li>Rich debugging tools</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>Real-World Examples</h2>
+        <p>Here are some examples of services that benefit from GAOS Service Locator's unique features:</p>
+        <div class="example-list" id="example-list">
+            <!-- Examples will be populated by JavaScript -->
+        </div>
+
+        <div class="separator" style="margin: 3rem 0;"></div>
+
+        <div class="view-more-box" style="text-align: center; padding: 2rem;">
+            <p style="margin-bottom: 1.5rem; color: #495057;">Want to explore more real-world examples?</p>
+            <a href="advanced-sample-usecases.html" class="advanced-button" style="text-decoration: none;">
+                View All Examples →
+            </a>
+        </div>
+    </section>
+
+    <div class="page-navigation">
+        <div class="nav-links">
+            <a href="advanced.html" class="nav-button">
+                <span class="nav-arrow">←</span>
+                <span class="nav-text">
+                    <span class="nav-label">Previous</span>
+                    <span class="nav-title">Advanced Topics</span>
+                </span>
+            </a>
+            <a href="advanced-create-service.html" class="nav-button">
+                <span class="nav-text">
+                    <span class="nav-label">Next</span>
+                    <span class="nav-title">Create Service Tool</span>
+                </span>
+                <span class="nav-arrow">→</span>
+            </a>
+        </div>
+        <div class="nav-bottom">
+            <a href="advanced.html">Back to Advanced Topics</a>
+            <span class="nav-separator">|</span>
+            <a href="index.html">Documentation Home</a>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const exampleList = document.getElementById('example-list');
+            const examples = SERVICE_EXAMPLES.examples
+                .filter(ex => ex.complexity !== 'Low')  // Filter out simple examples
+                .slice(0, 3);  // Show only first 3 examples
+
+            examples.forEach(example => {
+                const card = document.createElement('div');
+                card.className = 'example-card';
+                card.innerHTML = `
+                    <h4>${example.name}</h4>
+                    <p>${example.description}</p>
+                    <div class="tag-list">
+                        ${example.tags.slice(0, 3).map(tag => `<span class="tag">${tag}</span>`).join('')}
+                    </div>
+                `;
+                exampleList.appendChild(card);
+            });
+        });
+    </script>
+</body>
+</html> 

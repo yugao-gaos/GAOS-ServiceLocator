@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Topics - GAOS Service Locator</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles-advanced.css">
+    <style>
+        .topic-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .topic-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            padding: 2rem;
+            border-top: 3px solid var(--advanced-orange-light);
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .topic-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .topic-card h3 {
+            color: var(--advanced-orange-dark);
+            margin-bottom: 1rem;
+            font-size: 1.4rem;
+        }
+
+        .topic-card p {
+            color: #495057;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+            flex-grow: 1;
+        }
+
+        .advanced-button {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background: var(--advanced-orange-dark);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 500;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .advanced-button:hover {
+            background: var(--advanced-orange-deep);
+            transform: translateY(-2px);
+            text-decoration: none;
+        }
+
+        .advanced-button::after {
+            content: " →";
+            margin-left: 0.25rem;
+        }
+
+        .warning-box {
+            background: rgba(255, 152, 0, 0.05);
+            border: 1px solid rgba(255, 152, 0, 0.2);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 2rem 0;
+            color: #495057;
+        }
+
+        .warning-box::before {
+            content: "⚠️";
+            margin-right: 0.75rem;
+        }
+
+        h1 {
+            color: #FF9800;
+        }
+
+        .back-link {
+            background: #EF6C00;
+        }
+
+        .back-link:hover {
+            background: #B53D00;
+        }
+    </style>
+</head>
+<body class="advanced-content">
+    <a href="index.html" class="advanced-back-link">← Back to Documentation</a>
+
+    <header>
+        <h1>Advanced Topics</h1>
+        <p>Deep dive into advanced features and best practices of the Service Locator system</p>
+    </header>
+
+    <div class="advanced-warning">
+        These topics cover advanced usage patterns and techniques. Make sure you're familiar with the core concepts before proceeding.
+    </div>
+
+    <div class="topic-grid">
+        <a href="advanced-why-service-locator.html" class="topic-card">
+            <h3>Why Service Locator</h3>
+            <p>Understanding why GAOS Service Locator is the best choice for Unity projects</p>
+        </a>
+
+        <a href="advanced-create-service.html" class="topic-card">
+            <h3>Create Service Tool</h3>
+            <p>Learn how to use the service creation wizard to generate service code</p>
+        </a>
+
+        <a href="advanced-registration.html" class="topic-card">
+            <h3>Service Registration</h3>
+            <p>Understanding service registration, type caching, and auto-registration in depth</p>
+        </a>
+
+        <a href="advanced-lifecycle.html" class="topic-card">
+            <h3>Service Lifecycle</h3>
+            <p>Deep dive into service initialization, lifetime management, and cleanup</p>
+        </a>
+
+        <a href="advanced-async-service.html" class="topic-card">
+            <h3>Async Service</h3>
+            <p>Understanding async service initialization and resolution</p>
+        </a>
+
+        <a href="advanced-disposable-service.html" class="topic-card">
+            <h3>Disposable Service</h3>
+            <p>Managing service cleanup and resource disposal</p>
+        </a>
+
+        <a href="advanced-poolable-service.html" class="topic-card">
+            <h3>Poolable Service</h3>
+            <p>Optimizing performance with service instance pooling</p>
+        </a>
+
+        <a href="advanced-dependency.html" class="topic-card">
+            <h3>Service Dependency</h3>
+            <p>Managing dependencies between services and dependency validation</p>
+        </a>
+
+        <a href="advanced-assembly-packaging.html" class="topic-card">
+            <h3>Assembly Packaging</h3>
+            <p>Best practices for organizing services in assemblies</p>
+        </a>
+
+        <a href="advanced-best-practices.html" class="topic-card">
+            <h3>Best Practices</h3>
+            <p>Guidelines and recommendations for using the Service Locator effectively</p>
+        </a>
+
+        <a href="advanced-diagnostics.html" class="topic-card">
+            <h3>Diagnostics Tools</h3>
+            <p>Tools and utilities for debugging service issues</p>
+        </a>
+
+        <a href="advanced-mock-testing.html" class="topic-card">
+            <h3>Mock Testing</h3>
+            <p>Learn how to effectively test services using mocks</p>
+        </a>
+
+        <a href="advanced-sample-usecases.html" class="topic-card">
+            <h3>Sample Usecases</h3>
+            <p>Real-world examples and common service patterns</p>
+        </a>
+    </div>
+
+    <footer>
+        <p><a href="index.html">Back to Documentation</a> | <a href="api.html">API Documentation</a></p>
+    </footer>
+</body>
+</html> 

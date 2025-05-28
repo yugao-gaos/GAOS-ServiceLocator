@@ -1,0 +1,365 @@
+:root {
+    --primary-color: #2196F3;
+    --text-color: #333;
+    --bg-color: #fff;
+    --link-color: #1976D2;
+    --code-bg: #f5f5f5;
+    --border-color: #e0e0e0;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    line-height: 1.6;
+    color: var(--text-color);
+    background: var(--bg-color);
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 4rem;
+    padding: 2rem 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+h1 {
+    font-size: 2.5rem;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+h2 {
+    font-size: 2rem;
+    margin: 2rem 0 1rem;
+    color: var(--primary-color);
+}
+
+h3 {
+    font-size: 1.5rem;
+    margin: 1.5rem 0 1rem;
+}
+
+p {
+    margin-bottom: 1rem;
+}
+
+a {
+    color: var(--link-color);
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+code {
+    background: var(--code-bg);
+    padding: 0.2rem 0.4rem;
+    border-radius: 3px;
+    font-family: 'Consolas', 'Monaco', monospace;
+}
+
+pre {
+    background: var(--code-bg);
+    padding: 1rem;
+    border-radius: 5px;
+    overflow-x: auto;
+    margin: 1rem 0;
+}
+
+ul {
+    list-style-position: inside;
+    margin-left: 1rem;
+}
+
+li {
+    margin-bottom: 0.5rem;
+    padding-left: 1.5rem;
+    text-indent: -1.5rem;
+}
+
+/* Navigation */
+.nav-links {
+    margin: 2rem 0;
+    padding: 1rem;
+    background: var(--code-bg);
+    border-radius: 5px;
+}
+
+.nav-links ul {
+    list-style: none;
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+/* Back Link */
+.back-link {
+    display: inline-block;
+    margin: 1rem 0;
+    padding: 0.5rem 1rem;
+    background: var(--primary-color);
+    color: white;
+    border-radius: 3px;
+}
+
+.back-link:hover {
+    background: var(--link-color);
+    text-decoration: none;
+}
+
+/* API Documentation Specific */
+.api-section {
+    margin-bottom: 3rem;
+    padding: 2rem;
+    background: var(--code-bg);
+    border-radius: 5px;
+}
+
+.method {
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: white;
+    border-radius: 3px;
+    border: 1px solid var(--border-color);
+}
+
+.method-signature {
+    font-family: 'Consolas', 'Monaco', monospace;
+    background: var(--code-bg);
+    padding: 1rem;
+    border-radius: 3px;
+    margin: 1rem 0;
+    overflow-x: auto;
+}
+
+.parameter-list {
+    margin: 1rem 0;
+}
+
+.parameter {
+    margin-bottom: 1rem;
+}
+
+.parameter-name {
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.parameter-type {
+    font-family: 'Consolas', 'Monaco', monospace;
+    color: #666;
+}
+
+.returns {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.example {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: var(--code-bg);
+    border-radius: 3px;
+}
+
+/* Changelog Specific */
+.version {
+    margin-bottom: 4rem;
+    padding: 2.5rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.version-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.version-date {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+/* Footer */
+footer {
+    margin-top: 4rem;
+    text-align: center;
+    padding: 2rem;
+    border-top: 1px solid var(--border-color);
+}
+
+/* Documentation Grid */
+.doc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin: 2rem 0;
+}
+
+.doc-card {
+    background: var(--bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    padding: 1.5rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.doc-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.doc-card h3 {
+    margin-top: 0;
+}
+
+.doc-card ul {
+    margin: 1rem 0;
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.doc-card li {
+    margin: 0.5rem 0;
+    padding-left: 1.25rem;
+    text-indent: 0;
+    position: relative;
+    line-height: 1.4;
+}
+
+.doc-card li:before {
+    content: "•";
+    color: var(--primary-color);
+    position: absolute;
+    left: 0;
+    text-indent: 0;
+}
+
+/* Features Grid */
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin: 2rem 0;
+}
+
+.feature-card {
+    background: var(--code-bg);
+    border-radius: 5px;
+    padding: 1.5rem;
+}
+
+.feature-card h3 {
+    color: var(--primary-color);
+    margin-top: 0;
+}
+
+.feature-card ul {
+    list-style-position: outside;
+    margin-left: 0;
+    padding-left: 1.5rem;
+}
+
+.feature-card li {
+    padding-left: 0;
+    text-indent: 0;
+}
+
+/* Concept Boxes */
+.concept-box {
+    background: var(--bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    padding: 2rem;
+    margin: 2rem 0;
+}
+
+.concept-box h3 {
+    color: var(--primary-color);
+    margin-top: 0;
+}
+
+.concept-box .example {
+    margin-top: 1.5rem;
+}
+
+.concept-box ul {
+    list-style-position: outside;
+    margin-left: 0;
+    padding-left: 1.5rem;
+}
+
+.concept-box li {
+    padding-left: 0;
+    text-indent: 0;
+}
+
+/* Info Box */
+.info-box {
+    background: var(--code-bg);
+    border-left: 4px solid var(--primary-color);
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    border-radius: 0 5px 5px 0;
+}
+
+.info-box h4 {
+    margin-top: 0;
+    color: var(--primary-color);
+}
+
+.info-box ul {
+    list-style-position: outside;
+    margin-left: 0;
+    padding-left: 1.5rem;
+}
+
+.info-box li {
+    padding-left: 0;
+    text-indent: 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    body {
+        padding: 1rem;
+    }
+
+    h1 {
+        font-size: 2rem;
+    }
+
+    h2 {
+        font-size: 1.5rem;
+    }
+
+    h3 {
+        font-size: 1.25rem;
+    }
+
+    .version, .api-section {
+        padding: 1rem;
+    }
+
+    .doc-grid, .features-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .concept-box {
+        padding: 1rem;
+    }
+} 

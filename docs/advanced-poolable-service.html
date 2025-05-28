@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Poolable Service - Advanced Topics</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles-advanced.css">
+    <style>
+        .service-type {
+            margin: 3rem 0;
+            padding: 2rem;
+            background: white;
+            border-radius: 12px;
+            border-left: 4px solid var(--advanced-orange-light);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .service-type h3 {
+            color: var(--advanced-orange-dark);
+            margin-top: 0;
+        }
+
+        .info-box {
+            background: rgba(255, 152, 0, 0.05);
+            border-left: 4px solid var(--advanced-orange-light);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .code-block {
+            margin: 1.5rem 0;
+            background: #f8f9fa;
+            padding: 1.5rem;
+            font-family: monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            overflow-x: auto;
+        }
+
+        .lifecycle-diagram {
+            background: #f8f9fa;
+            padding: 2rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        .lifecycle-diagram pre {
+            font-family: monospace;
+            font-size: 1.1rem;
+            color: var(--advanced-orange-dark);
+            background: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .page-navigation {
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 152, 0, 0.2);
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .nav-button {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            background: white;
+            border: 1px solid rgba(255, 152, 0, 0.2);
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--advanced-orange-dark);
+            transition: all 0.2s ease;
+            min-width: 200px;
+        }
+
+        .nav-button:hover {
+            background: rgba(255, 152, 0, 0.05);
+            border-color: var(--advanced-orange-light);
+            transform: translateY(-2px);
+            text-decoration: none;
+        }
+
+        .nav-button.prev {
+            padding-right: 2rem;
+        }
+
+        .nav-button.next {
+            margin-left: auto;
+            padding-left: 2rem;
+        }
+
+        .nav-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .nav-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #666;
+        }
+
+        .nav-title {
+            font-weight: 500;
+            color: var(--advanced-orange-dark);
+        }
+
+        .nav-arrow {
+            font-size: 1.2rem;
+            margin: 0 1rem;
+            color: var(--advanced-orange-dark);
+        }
+
+        .nav-bottom {
+            text-align: center;
+            margin-top: 2rem;
+            color: #666;
+        }
+
+        .nav-bottom a {
+            color: var(--advanced-orange-dark);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .nav-bottom a:hover {
+            color: var(--advanced-orange-deep);
+            text-decoration: underline;
+        }
+
+        .nav-separator {
+            margin: 0 1rem;
+            color: #ccc;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                flex-direction: column;
+            }
+
+            .nav-button {
+                width: 100%;
+            }
+
+            .nav-button.next {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body class="advanced-content">
+    <a href="advanced.html" class="advanced-back-link">← Back to Advanced Topics</a>
+
+    <header>
+        <h1>Poolable Service</h1>
+        <p>Optimizing performance with service instance pooling</p>
+    </header>
+
+    <section>
+        <h2>Overview</h2>
+        <div class="service-type">
+            <h3>What are Poolable Services?</h3>
+            <p>Poolable services allow you to reuse service instances instead of creating and destroying them repeatedly. This is particularly useful for:</p>
+            <ul>
+                <li>Services that are expensive to initialize</li>
+                <li>MonoBehaviour services with complex GameObject hierarchies</li>
+                <li>Services that are frequently created and released</li>
+                <li>High-performance scenarios where object instantiation should be minimized</li>
+                <li>Reducing garbage collection pressure</li>
+            </ul>
+
+            <div class="lifecycle-diagram">
+                <pre>
+Registration → [Initial Pool Created]
+                          ↓
+GetService → [Instance from Pool] → [Service Active] → [ReleaseService]
+                                                          ↓
+                     [Pool Empty?] ← [Return to Pool] → [Reset State]
+                         ↓ Yes
+                 [Expand Pool]</pre>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>Implementation</h2>
+        <div class="service-type">
+            <h3>Creating Poolable Services</h3>
+            <p>To create a poolable service, implement both your service interface and <code>IServicePoolable</code>. The interface requires properties to configure the pool size and methods to handle the instance lifecycle:</p>
+
+            <div class="code-block">
+                <pre><code>public interface IEnemyService : IServicePoolable
+{
+    void Initialize(EnemyType type, Vector3 position);
+    void UpdateEnemy();
+}
+
+[Service(typeof(IEnemyService), "EnemyService", ServiceLifetime.Transient)]
+public class EnemyService : MonoBehaviour, IEnemyService
+{
+    private EnemyType _type;
+    private bool _isActive;
+
+    // Configure the initial pool size
+    public int InitialPoolSize => 5;
+    
+    // Define how many instances to add when the pool is empty
+    public int PoolExpansionSize => 3;
+    
+    // Called when the instance is taken from the pool
+    public void OnTakeFromPool()
+    {
+        // Prepare the instance for use
+        _isActive = true;
+    }
+    
+    // Called when the instance is returned to the pool
+    public void OnReturnToPool()
+    {
+        // Reset state to avoid state leaks
+        _type = default;
+        _isActive = false;
+    }
+    
+    public void Initialize(EnemyType type, Vector3 position)
+    {
+        _type = type;
+        transform.position = position;
+    }
+    
+    public void UpdateEnemy()
+    {
+        if (!_isActive) return;
+        // Update logic
+    }
+}</code></pre>
+            </div>
+
+            <div class="info-box">
+                <h4>Key Features</h4>
+                <ul>
+                    <li>Automatic pool initialization when a service is registered</li>
+                    <li>MonoBehaviour services are automatically deactivated when returned to pool</li>
+                    <li>Dynamic pool expansion when all instances are in use</li>
+                    <li>Lifecycle hooks for proper instance state management</li>
+                    <li>Integration with the service disposal system</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>Using Poolable Services</h2>
+        <div class="service-type">
+            <h3>Getting and Releasing Service Instances</h3>
+            <p>To use poolable services, get an instance from the Service Locator and release it when you're done:</p>
+
+            <div class="code-block">
+                <pre><code>// Get an instance from the pool
+var enemyService = ServiceLocator.GetService&lt;IEnemyService&gt;("EnemyService");
+
+// Use the service
+enemyService.Initialize(EnemyType.Goblin, new Vector3(0, 0, 0));
+enemyService.UpdateEnemy();
+
+// When done, release the service back to the pool
+ServiceLocator.ReleaseServiceInstance(enemyService);
+// The instance is now back in the pool, ready for reuse</code></pre>
+            </div>
+
+            <div class="info-box">
+                <h4>Best Practices</h4>
+                <ul>
+                    <li>Always release pooled services when you're done with them</li>
+                    <li>Avoid storing references to pooled instances after releasing them</li>
+                    <li>Reset all state in <code>OnReturnToPool()</code> to prevent state leakage</li>
+                    <li>Use <code>ServiceLifetime.Transient</code> for poolable services</li>
+                    <li>Set reasonable initial pool and expansion sizes based on expected usage</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>MonoBehaviour Pooling</h2>
+        <div class="service-type">
+            <h3>Pooling Unity Components</h3>
+            <p>MonoBehaviour services get special handling for optimal pooling:</p>
+            <ul>
+                <li>GameObjects are automatically deactivated (SetActive(false)) when returned to pool</li>
+                <li>Pooled instances are parented to a special ServicePool transform</li>
+                <li>When taken from the pool, GameObjects are activated and unparented</li>
+                <li>Service names are automatically set for easy debugging</li>
+            </ul>
+
+            <div class="code-block">
+                <pre><code>[Service(typeof(IUIService), "PooledUIService", ServiceLifetime.Transient)]
+public class PooledUIService : MonoBehaviour, IUIService, IServicePoolable
+{
+    [SerializeField] private CanvasGroup _canvasGroup;
+    
+    public int InitialPoolSize => 3;
+    public int PoolExpansionSize => 2;
+    
+    public void OnTakeFromPool()
+    {
+        // Activate UI components
+        _canvasGroup.alpha = 1;
+        _canvasGroup.interactable = true;
+        _canvasGroup.blocksRaycasts = true;
+    }
+    
+    public void OnReturnToPool()
+    {
+        // Deactivate UI components and reset state
+        _canvasGroup.alpha = 0;
+        _canvasGroup.interactable = false;
+        _canvasGroup.blocksRaycasts = false;
+    }
+    
+    // Service implementation
+}</code></pre>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>Integration with Other Features</h2>
+        <div class="service-type">
+            <h3>Pooling with Disposable Services</h3>
+            <p>Poolable services can also implement <code>IServiceDisposable</code> for improved lifecycle management:</p>
+
+            <div class="code-block">
+                <pre><code>public class PooledNetworkService : INetworkService, IServicePoolable, IServiceDisposable
+{
+    private NetworkClient _client;
+    private DisposalHandle _disposalHandle;
+    
+    public PooledNetworkService()
+    {
+        _disposalHandle = new DisposalHandle(async () =>
+        {
+            // Clean up resources
+            if (_client != null)
+            {
+                await _client.DisconnectAsync();
+                _client = null;
+            }
+            return new ValueTask();
+        });
+    }
+    
+    public int InitialPoolSize => 3;
+    public int PoolExpansionSize => 2;
+    
+    public void OnTakeFromPool()
+    {
+        // Prepare for reuse
+    }
+    
+    public void OnReturnToPool()
+    {
+        // Clean up before returning to pool
+        _client?.Disconnect();
+    }
+    
+    public DisposalHandle DisposalHandle => _disposalHandle;
+}</code></pre>
+            </div>
+
+            <div class="info-box">
+                <h4>Note</h4>
+                <p>When a poolable service implements <code>IServiceDisposable</code>, calling <code>ReleaseServiceInstance</code> will return the instance to the pool rather than disposing it. The disposal only happens when the service is unregistered or when the Service Locator is cleared.</p>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>Performance Considerations</h2>
+        <div class="service-type">
+            <h3>Optimizing Pool Usage</h3>
+            <p>Consider these factors when using service pooling:</p>
+            <ul>
+                <li><strong>Initial Pool Size:</strong> Set based on the expected number of concurrent instances</li>
+                <li><strong>Expansion Size:</strong> Smaller values reduce memory usage but may cause more frequent expansions</li>
+                <li><strong>Reset Cost:</strong> Ensure <code>OnReturnToPool()</code> is efficient</li>
+                <li><strong>Memory Usage:</strong> Monitor pool size for services with large memory footprints</li>
+                <li><strong>Execution Context:</strong> Consider thread safety for pooled instances that might be used across threads</li>
+            </ul>
+        </div>
+    </section>
+
+    <div class="page-navigation">
+        <div class="nav-links">
+            <a href="advanced-disposable-service.html" class="nav-button prev">
+                <div class="nav-arrow">←</div>
+                <div class="nav-text">
+                    <span class="nav-label">Previous</span>
+                    <span class="nav-title">Disposable Service</span>
+                </div>
+            </a>
+            <a href="advanced-dependency.html" class="nav-button next">
+                <div class="nav-text">
+                    <span class="nav-label">Next</span>
+                    <span class="nav-title">Service Dependency</span>
+                </div>
+                <div class="nav-arrow">→</div>
+            </a>
+        </div>
+        <div class="nav-bottom">
+            <a href="advanced.html">Back to Advanced Topics</a>
+            <span class="nav-separator">|</span>
+            <a href="api.html">API Documentation</a>
+            <span class="nav-separator">|</span>
+            <a href="index.html">Home</a>
+        </div>
+    </div>
+
+    <footer>
+        <p>GAOS Service Locator Documentation</p>
+    </footer>
+</body>
+</html> 

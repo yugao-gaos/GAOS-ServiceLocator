@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Start Guide - GAOS Service Locator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <a href="index.html" class="back-link">← Back to Documentation</a>
+
+    <header>
+        <h1>Quick Start Guide</h1>
+        <p>Get started with GAOS Service Locator in minutes</p>
+    </header>
+
+    <section id="installation">
+        <h2>Installation</h2>
+        <p>Add the package to your Unity project via the Package Manager:</p>
+        <pre><code>{
+    "dependencies": {
+        "com.gaos.servicelocator": "1.2.2"
+    }
+}</code></pre>
+    </section>
+
+    <section id="basic-usage">
+        <h2>Basic Usage</h2>
+        
+        <h3>1. Define Your Service Interface</h3>
+        <p>Start by defining an interface for your service. This interface will define the contract that your service implementation must follow:</p>
+        <pre><code>public interface IGameSettingsService
+{
+    float MasterVolume { get; set; }
+    bool IsFullscreen { get; set; }
+}</code></pre>
+
+        <h3>2. Implement the Service</h3>
+        <p>Create a class that implements your service interface. Use the <code>Service</code> attribute to mark it as a service:</p>
+        <pre><code>[Service(typeof(IGameSettingsService), "GameSettings", ServiceLifetime.Singleton, ServiceContext.Runtime)]
+public class GameSettingsService : IGameSettingsService
+{
+    public float MasterVolume { get; set; }
+    public bool IsFullscreen { get; set; }
+}</code></pre>
+
+        <div class="info-box">
+            <h4>About the Service Attribute</h4>
+            <ul>
+                <li><code>typeof(IGameSettingsService)</code>: The interface this service implements</li>
+                <li><code>"GameSettings"</code>: A unique name to identify this implementation</li>
+                <li><code>ServiceLifetime.Singleton</code>: (Optional) Determines the service lifetime:</li>
+                <ul>
+                    <li>Singleton: One instance shared across the application</li>
+                    <li>SceneSingleton: One instance per scene, disposed when scene unloads</li>
+                    <li>Transient: New instance created each time</li>
+                    <li>SceneTransient: New instance created each time, all disposed when scene unloads</li>
+                </ul>
+                <li><code>ServiceContext.Runtime</code>: (Optional) Specifies when the service is available</li>
+            </ul>
+        </div>
+
+        <h3>3. Use the Service</h3>
+        <p>Retrieve and use the service anywhere in your code:</p>
+        <pre><code>var settings = ServiceLocator.GetService&lt;IGameSettingsService&gt;("GameSettings");
+settings.MasterVolume = 0.8f;
+settings.IsFullscreen = true;</code></pre>
+    </section>
+
+    <section id="next-steps">
+        <h2>Next Steps</h2>
+        <ul>
+            <li>Read about <a href="concepts.html">Core Concepts</a> to understand different service types (C#, MonoBehaviour, ScriptableObject), lifetimes, and contexts</li>
+            <li>Check the <a href="api.html">API Documentation</a> for detailed reference</li>
+        </ul>
+    </section>
+
+    <footer>
+        <p><a href="index.html">Back to Documentation</a> | <a href="concepts.html">Core Concepts</a> | <a href="api.html">API Documentation</a></p>
+    </footer>
+</body>
+</html> 

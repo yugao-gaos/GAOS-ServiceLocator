@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Lifecycle - Advanced Topics</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles-advanced.css">
+    <style>
+        .service-type {
+            margin: 3rem 0;
+            padding: 2rem;
+            background: white;
+            border-radius: 12px;
+            border-left: 4px solid var(--advanced-orange-light);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .service-type h3 {
+            color: var(--advanced-orange-dark);
+            margin-top: 0;
+        }
+
+        .info-box {
+            background: rgba(255, 152, 0, 0.05);
+            border-left: 4px solid var(--advanced-orange-light);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .code-block {
+            margin: 1.5rem 0;
+            background: #f8f9fa;
+            padding: 1.5rem;
+            font-family: monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            overflow-x: auto;
+        }
+
+        .lifecycle-diagram {
+            background: #f8f9fa;
+            padding: 2rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        .lifecycle-diagram pre {
+            font-family: monospace;
+            font-size: 1.1rem;
+            color: var(--advanced-orange-dark);
+            background: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .page-navigation {
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 152, 0, 0.2);
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .nav-button {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            background: white;
+            border: 1px solid rgba(255, 152, 0, 0.2);
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--advanced-orange-dark);
+            transition: all 0.2s ease;
+            min-width: 200px;
+        }
+
+        .nav-button:hover {
+            background: rgba(255, 152, 0, 0.05);
+            border-color: var(--advanced-orange-light);
+            transform: translateY(-2px);
+            text-decoration: none;
+        }
+
+        .nav-button.prev {
+            padding-right: 2rem;
+        }
+
+        .nav-button.next {
+            margin-left: auto;
+            padding-left: 2rem;
+        }
+
+        .nav-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .nav-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #666;
+        }
+
+        .nav-title {
+            font-weight: 500;
+            color: var(--advanced-orange-dark);
+        }
+
+        .nav-arrow {
+            font-size: 1.2rem;
+            margin: 0 1rem;
+            color: var(--advanced-orange-dark);
+        }
+
+        .nav-bottom {
+            text-align: center;
+            margin-top: 2rem;
+            color: #666;
+        }
+
+        .nav-bottom a {
+            color: var(--advanced-orange-dark);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .nav-bottom a:hover {
+            color: var(--advanced-orange-deep);
+            text-decoration: underline;
+        }
+
+        .nav-separator {
+            margin: 0 1rem;
+            color: #ccc;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                flex-direction: column;
+            }
+
+            .nav-button {
+                width: 100%;
+            }
+
+            .nav-button.next {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body class="advanced-content">
+    <a href="advanced.html" class="advanced-back-link">← Back to Advanced Topics</a>
+
+    <header>
+        <h1>Service Lifecycle</h1>
+        <p>Understanding how services are created, initialized, and managed</p>
+    </header>
+
+    <section>
+        <h2>Overview</h2>
+        <div class="service-type">
+            <h3>Service Lifecycle Basics</h3>
+            <p>Understanding the service lifecycle is crucial for proper service management. The ServiceLocator manages services through distinct phases from registration to disposal, ensuring proper initialization, dependency resolution, and cleanup.</p>
+
+            <div class="lifecycle-diagram">
+                <pre>
+[Registration] → [Creation] → [Initialization] → [Active] → [Disposal]
+                    ↓             ↓
+            [Resolve Dependencies] [Setup State]</pre>
+            </div>
+
+            <div class="info-box">
+                <h4>Key Phases</h4>
+                <ul>
+                    <li><strong>Registration:</strong> Service is registered with ServiceLocator</li>
+                    <li><strong>Creation:</strong> Instance is created and dependencies resolved</li>
+                    <li><strong>Initialization:</strong> Service is initialized and prepared for use</li>
+                    <li><strong>Active:</strong> Service is running and available for use</li>
+                    <li><strong>Disposal:</strong> Service is cleaned up and removed</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>Service Types and Their Lifecycles</h2>
+        <p style="color: #495057; margin-bottom: 2rem;">This document focuses on service lifecycle management and validation after registration. For details about service registration, type caching, and the registration process, please refer to the <a href="registration.html" style="color: var(--advanced-orange-dark);">Service Registration</a> documentation.</p>
+
+        <div class="service-type">
+            <div class="service-type-header" onclick="toggleSection(this)">
+                <h3>Regular C# Services</h3>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="service-type-content">
+                <p>Simple services without Unity dependencies. Best for pure logic and system-level functionality.</p>
+                <div class="lifecycle-diagram">
+                    <pre>
+[Registration] → [Initialization] → [Active Usage] → [Dispose*]
+                   ↑                    |
+                   └─── (On Request) ───┘
+* Only if IServiceDisposable is implemented</pre>
+                </div>
+                <ul class="validation-list">
+                    <li>Registration: Service type is registered with the Service Locator</li>
+                    <li>Initialization: Instance is created on first request (lazy initialization)</li>
+                    <li>Active Usage: Service is ready for use</li>
+                    <li>Cleanup: Managed by garbage collection, or explicit cleanup via IServiceDisposable</li>
+                </ul>
+                <div class="code-examples">
+                    <div class="code-example">
+                        <h4>Basic Service</h4>
+                        <pre><code>public class DataService : IDataService 
+{
+    // Initialization happens in constructor
+    public DataService() 
+    {
+        // Your initialization code
+    }
+
+    public void DoSomething()
+    {
+        // Service logic
+    }
+}</code></pre>
+                    </div>
+                    <div class="code-example">
+                        <h4>Service with Cleanup</h4>
+                        <pre><code>public class DataService : IDataService, IServiceDisposable 
+{
+    private bool _disposed;
+    private readonly IDisposable _resource;
+
+    public DataService() 
+    {
+        _resource = new SomeResource();
+    }
+
+    public void Dispose()
+    {
+        if (_disposed) return;
+        
+        // Clean up unmanaged resources
+        _resource?.Dispose();
+        
+        _disposed = true;
+    }
+
+    public void DoSomething()
+    {
+        if (_disposed)
+            throw new ObjectDisposedException(
+                nameof(DataService)
+            );
+            
+        // Service logic
+    }
+}</code></pre>
+                    </div>
+                </div>
+                <div class="info-box" style="background: rgba(255, 152, 0, 0.05); padding: 1rem; margin-top: 1rem; border-left: 4px solid var(--advanced-orange-light);">
+                    <h4 style="margin-top: 0;">When to Implement IServiceDisposable</h4>
+                    <p>Implement IServiceDisposable for C# services that manage disposable resources:</p>
+                    <ul>
+                        <li>Services managing IDisposable resources (database connections, file streams, etc.)</li>
+                        <li>Services with background tasks or timers that need cleanup</li>
+                        <li>Services managing unmanaged resources</li>
+                    </ul>
+                    <p>⚡ The Service Locator will automatically call Dispose when replacing or unregistering singleton services.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="service-type">
+            <div class="service-type-header" onclick="toggleSection(this)">
+                <h3>MonoBehaviour Services</h3>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="service-type-content">
+                <p>Scene-aware services that integrate with Unity's component system.</p>
+                <div class="lifecycle-diagram">
+                    <pre>
+[Registration] → [Scene Load] → [Awake/Start] → [Active Usage] → [OnDestroy/Dispose*]
+                                                     ↑             |
+                                                     └─ (Scene) ───┘
+* OnDestroy handles Unity resources, Dispose handles managed resources</pre>
+                </div>
+                <ul class="validation-list">
+                    <li>Registration: Service type is registered with the Service Locator</li>
+                    <li>Scene Load: MonoBehaviour instance is created in scene</li>
+                    <li>Awake/Start: Unity lifecycle initialization</li>
+                    <li>Active Usage: Service is ready for use</li>
+                    <li>Cleanup: 
+                        <ul>
+                            <li>OnDestroy: Handles Unity-specific cleanup (GameObject references, components)</li>
+                            <li>IServiceDisposable: Optional, for managing non-Unity resources (network connections, file handles)</li>
+                        </ul>
+                    </li>
+                </ul>
+                <div class="code-examples">
+                    <div class="code-example">
+                        <h4>Basic MonoBehaviour Service</h4>
+                        <pre><code>public class InputService : MonoBehaviour, IInputService 
+{
+    private UnityEvent<Vector2> _onMove;
+    
+    private void Awake() 
+    {
+        _onMove = new UnityEvent<Vector2>();
+    }
+
+    private void OnDestroy() 
+    {
+        // Unity resources are automatically cleaned up
+        _onMove = null;
+    }
+}</code></pre>
+                    </div>
+                    <div class="code-example">
+                        <h4>MonoBehaviour with IServiceDisposable</h4>
+                        <pre><code>public class NetworkService : MonoBehaviour, 
+    INetworkService, IServiceDisposable 
+{
+    private bool _disposed;
+    private NetworkClient _client;
+    private FileStream _logStream;
+
+    private void Awake()
+    {
+        _client = new NetworkClient();
+        _logStream = File.OpenWrite("network.log");
+    }
+
+    private void OnDestroy()
+    {
+        // Unity resources cleanup
+        // Called when GameObject is destroyed
+        _client = null;
+    }
+
+    public void Dispose()
+    {
+        if (_disposed) return;
+        
+        // Clean up managed resources
+        _client?.Dispose();
+        _logStream?.Dispose();
+        
+        _disposed = true;
+    }
+
+    public void SendData(byte[] data)
+    {
+        if (_disposed)
+            throw new ObjectDisposedException(
+                nameof(NetworkService)
+            );
+            
+        _client.Send(data);
+        _logStream.Write(data);
+    }
+}</code></pre>
+                    </div>
+                </div>
+                <div class="info-box" style="background: rgba(255, 152, 0, 0.05); padding: 1rem; margin-top: 1rem; border-left: 4px solid var(--advanced-orange-light);">
+                    <h4 style="margin-top: 0;">When to Implement IServiceDisposable</h4>
+                    <p>Implement IServiceDisposable for MonoBehaviour services that need cleanup beyond Unity's OnDestroy:</p>
+                    <ul>
+                        <li>Services that need to clean up resources before scene unload (can't wait for OnDestroy)</li>
+                        <li>Services managing non-Unity resources that Unity's cleanup won't handle</li>
+                        <li>Services that need to coordinate cleanup with other services</li>
+                    </ul>
+                    <p>⚡ The Service Locator will automatically call Dispose when replacing services or during scene transitions.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="service-type">
+            <div class="service-type-header" onclick="toggleSection(this)">
+                <h3>ScriptableObject Services</h3>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="service-type-content">
+                <p>Persistent services ideal for configuration and shared data.</p>
+
+                <div class="info-box" style="background: rgba(255, 152, 0, 0.1); padding: 1rem; margin: 1rem 0; border-radius: 4px; border-left: 4px solid #FF9800;">
+                    <h4 style="margin-top: 0; color: #FF9800;">Important</h4>
+                    <p>ScriptableObject services are initialized through Unity's OnEnable lifecycle. The Service attribute handles registration and dependency validation. See <a href="advanced-best-practices.html#scriptableobject-service-design" style="color: #FF9800;">ScriptableObject Service Design</a> for best practices.</p>
+                </div>
+
+                <div class="lifecycle-diagram">
+                    <pre>
+[Registration] → [Asset Load] → [OnEnable] → [Active Usage] → [Dispose*]
+                   ↑                              |
+                   └───── (On Request) ──────────┘
+* Only if IServiceDisposable is implemented</pre>
+                </div>
+                <ul class="validation-list">
+                    <li>Registration: Service type is registered with the Service Locator</li>
+                    <li>Asset Load: ScriptableObject asset is loaded</li>
+                    <li>OnEnable: Unity's lifecycle hook for initialization</li>
+                    <li>Active Usage: Service is ready for use</li>
+                    <li>Cleanup: 
+                        <ul>
+                            <li>Asset references are handled by Unity's asset system</li>
+                            <li>IServiceDisposable: Optional, for managing runtime resources and connections</li>
+                        </ul>
+                    </li>
+                </ul>
+                <div class="code-examples">
+                    <div class="code-example">
+                        <h4>Basic ScriptableObject Service</h4>
+                        <pre><code>[CreateAssetMenu(fileName = "GameSettings", menuName = "Services/GameSettings")]
+[Service(typeof(IGameSettings), "GameSettings")]
+public class GameSettings : ScriptableObject, IGameSettings 
+{
+    [SerializeField] private float _masterVolume = 1.0f;
+    [SerializeField] private string _savePath;
+    [SerializeField] private TextAsset[] _configFiles;
+
+    private void OnEnable() 
+    {
+        // Load runtime configuration
+        LoadSettings();
+    }
+
+    private void LoadSettings()
+    {
+        // Load from PlayerPrefs or file
+    }
+
+    public float GetMasterVolume() => _masterVolume;
+    public string GetSavePath() => _savePath;
+}</code></pre>
+                    </div>
+                    <div class="code-example">
+                        <h4>ScriptableObject with IServiceDisposable</h4>
+                        <pre><code>[CreateAssetMenu(fileName = "FileLogger", menuName = "Services/FileLogger")]
+[Service(typeof(IFileLogger), "FileLogger")]
+public class FileLogger : ScriptableObject, IFileLogger, IServiceDisposable 
+{
+    [SerializeField] private string _logFilePath;
+    private StreamWriter _logWriter;
+    private bool _disposed;
+
+    private void OnEnable()
+    {
+        try 
+        {
+            _logWriter = new StreamWriter(_logFilePath, true);
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"Failed to initialize logger: {ex.Message}");
+        }
+    }
+
+    public void LogMessage(string message)
+    {
+        if (_disposed)
+            throw new ObjectDisposedException(nameof(FileLogger));
+            
+        _logWriter?.WriteLine($"[{DateTime.Now}] {message}");
+    }
+
+    public void Dispose()
+    {
+        if (_disposed) return;
+        
+        // Clean up the file stream
+        _logWriter?.Dispose();
+        _logWriter = null;
+        
+        _disposed = true;
+    }
+}</code></pre>
+                    </div>
+                </div>
+                <div class="info-box" style="background: rgba(255, 152, 0, 0.05); padding: 1rem; margin-top: 1rem; border-left: 4px solid var(--advanced-orange-light);">
+                    <h4 style="margin-top: 0;">When to Implement IServiceDisposable</h4>
+                    <p>Implement IServiceDisposable for ScriptableObject services that create runtime resources:</p>
+                    <ul>
+                        <li>Services that create resources during initialization (not serialized in the asset)</li>
+                        <li>Services managing connections or streams opened at runtime</li>
+                        <li>Services with runtime caches that need clearing before domain reload</li>
+                    </ul>
+                    <p>⚡ The Service Locator will automatically call Dispose when replacing services or during domain reload.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>Service Initialization & Lazy Loading</h2>
+        <p>The Service Locator uses lazy loading to initialize services only when they are first requested, optimizing resource usage and startup time.</p>
+
+        <div class="service-type">
+            <div class="service-type-header" onclick="toggleSection(this)">
+                <h3>Lazy Loading Behavior</h3>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="service-type-content">
+                <p>Services are created and initialized only when first accessed through ServiceLocator.Get, not when they are registered.</p>
+                
+                <div class="code-examples">
+                    <div class="code-example">
+                        <h4>Lazy Loading Example</h4>
+                        <pre><code>// Service is registered but not created yet
+[Service(typeof(IDataService), "Data")]
+public class DataService : IDataService 
+{
+    public DataService() 
+    {
+        Debug.Log("DataService created!");
+        // Heavy initialization work...
+    }
+}
+
+public class GameManager
+{
+    void Start()
+    {
+        // DataService is created only when Get is called
+        var data = ServiceLocator.GetService<IDataService>("Data");
+        // Now DataService constructor runs
+    }
+}
+
+/* Lazy Loading Flow:
+1. Service type registered → No instance created
+2. ServiceLocator.Get called → Instance created
+3. Future Get calls → Same instance returned (for singletons)
+4. For transient services → New instance each time */</code></pre>
+                    </div>
+                    <div class="code-example">
+                        <h4>Lifecycle States</h4>
+                        <pre><code>public class GameService : IGameService 
+{
+    private bool _initialized;
+    private readonly ILogger _logger;
+
+    // Constructor runs only when first requested
+    public GameService(ILogger logger) 
+    {
+        _logger = logger;
+        _logger.Log("GameService created");
+    }
+
+    public void DoWork()
+    {
+        if (!_initialized)
+        {
+            // Lazy initialize on first use
+            Initialize();
+            _initialized = true;
+        }
+        // Do work...
+    }
+
+    private void Initialize()
+    {
+        _logger.Log("GameService initialized");
+        // Load resources, setup state...
+    }
+}</code></pre>
+                    </div>
+                </div>
+
+                <div class="info-box" style="background: rgba(255, 152, 0, 0.05); padding: 1rem; margin-top: 1rem; border-left: 4px solid var(--advanced-orange-light);">
+                    <h4 style="margin-top: 0;">Benefits of Lazy Loading</h4>
+                    <ul>
+                        <li>Improved startup performance - services initialize only when needed</li>
+                        <li>Reduced memory usage - unused services don't consume resources</li>
+                        <li>Natural dependency resolution - dependencies initialize in order of first use</li>
+                        <li>Better testing - easier to initialize services in isolation</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="service-type">
+            <div class="service-type-header" onclick="toggleSection(this)">
+                <h3>Service Dependencies</h3>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="service-type-content">
+                <p>Dependencies are also lazily loaded when the parent service is first created. For detailed dependency management, see the <a href="advanced-dependency.html">Service Dependencies</a> documentation.</p>
+
+                <div class="info-box" style="background: rgba(255, 152, 0, 0.05); padding: 1rem; margin-top: 1rem; border-left: 4px solid var(--advanced-orange-light);">
+                    <h4 style="margin-top: 0;">Dependency Loading</h4>
+                    <ul>
+                        <li>Dependencies are resolved when parent service is first created</li>
+                        <li>Circular dependencies are detected during registration</li>
+                        <li>Singleton dependencies are cached after first creation</li>
+                        <li>Transient dependencies create new instances each time</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="page-navigation">
+        <div class="nav-links">
+            <a href="advanced-registration.html" class="nav-button">
+                <span class="nav-arrow">←</span>
+                <span class="nav-text">
+                    <span class="nav-label">Previous</span>
+                    <span class="nav-title">Service Registration</span>
+                </span>
+            </a>
+            <a href="advanced-async-service.html" class="nav-button">
+                <span class="nav-text">
+                    <span class="nav-label">Next</span>
+                    <span class="nav-title">Async Service</span>
+                </span>
+                <span class="nav-arrow">→</span>
+            </a>
+        </div>
+        <div class="nav-bottom">
+            <a href="advanced.html">Back to Advanced Topics</a>
+            <span class="nav-separator">|</span>
+            <a href="index.html">Documentation Home</a>
+        </div>
+    </div>
+
+    <script>
+        function toggleSection(header) {
+            const content = header.nextElementSibling;
+            const icon = header.querySelector('.toggle-icon');
+            
+            if (content.classList.contains('expanded')) {
+                content.classList.remove('expanded');
+                icon.classList.add('collapsed');
+            } else {
+                content.classList.add('expanded');
+                icon.classList.remove('collapsed');
+            }
+        }
+
+        // Initialize all sections as expanded
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.service-type-content').forEach(content => {
+                content.classList.add('expanded');
+            });
+        });
+    </script>
+</body>
+</html> 
